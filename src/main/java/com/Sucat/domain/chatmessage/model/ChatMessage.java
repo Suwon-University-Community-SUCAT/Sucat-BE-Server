@@ -25,6 +25,6 @@ public class ChatMessage {
     private Long senderId;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "chatRoom_id")
+    @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 }
