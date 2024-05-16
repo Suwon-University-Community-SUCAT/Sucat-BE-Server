@@ -1,5 +1,6 @@
 package com.Sucat.domain.board.model;
 
+import com.Sucat.domain.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -11,7 +12,7 @@ import static jakarta.persistence.GenerationType.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Images {
+public class Images extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "image_id")

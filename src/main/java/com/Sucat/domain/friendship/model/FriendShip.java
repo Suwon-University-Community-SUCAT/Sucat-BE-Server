@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.model;
 
+import com.Sucat.domain.model.BaseEntity;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import static jakarta.persistence.GenerationType.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FriendShip {
+public class FriendShip extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

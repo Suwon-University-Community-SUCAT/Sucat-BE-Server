@@ -1,5 +1,6 @@
 package com.Sucat.domain.like.model;
 
+import com.Sucat.domain.model.BaseEntity;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+public class Like extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "like_id")

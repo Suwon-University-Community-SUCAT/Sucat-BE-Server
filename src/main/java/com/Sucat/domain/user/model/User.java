@@ -1,7 +1,7 @@
 package com.Sucat.domain.user.model;
 
+import com.Sucat.domain.model.BaseEntity;
 import com.Sucat.domain.friendship.model.FriendShip;
-import com.lawProject.SSL.common.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

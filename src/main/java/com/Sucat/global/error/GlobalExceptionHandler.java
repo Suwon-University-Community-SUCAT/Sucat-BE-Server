@@ -1,8 +1,7 @@
-package com.Sucat.common.Error;
+package com.Sucat.global.error;
 
 
-import com.Sucat.common.Error.exception.BusinessException;
-import com.Sucat.common.Error.exception.ErrorCode;
+import com.Sucat.global.error.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

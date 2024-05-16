@@ -1,4 +1,4 @@
-package com.Sucat.common.Error.exception;
+package com.Sucat.global.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

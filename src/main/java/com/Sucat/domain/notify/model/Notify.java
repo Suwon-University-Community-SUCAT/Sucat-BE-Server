@@ -1,5 +1,6 @@
 package com.Sucat.domain.notify.model;
 
+import com.Sucat.domain.model.BaseEntity;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notify {
+public class Notify extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "notify_id")

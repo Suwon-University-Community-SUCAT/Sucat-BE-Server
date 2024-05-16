@@ -1,4 +1,4 @@
-package com.Sucat.common.dto;
+package com.Sucat.global.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;

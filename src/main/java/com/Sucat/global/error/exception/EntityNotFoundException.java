@@ -1,4 +1,4 @@
-package com.Sucat.common.Error.exception;
+package com.Sucat.global.error.exception;
 
 public class EntityNotFoundException extends BusinessException{
 

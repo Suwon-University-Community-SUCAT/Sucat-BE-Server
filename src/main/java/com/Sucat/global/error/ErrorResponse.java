@@ -1,6 +1,5 @@
-package com.Sucat.common.Error;
+package com.Sucat.global.error;
 
-import com.Sucat.common.Error.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
