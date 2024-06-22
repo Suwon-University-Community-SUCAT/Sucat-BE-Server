@@ -1,4 +1,4 @@
-package com.Sucat.domain.like.model;
+package com.Sucat.domain.favorite.model;
 
 import com.Sucat.domain.model.BaseEntity;
 import com.Sucat.domain.board.model.Board;
@@ -15,10 +15,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like extends BaseEntity {
+public class Favorite extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "like_id")
+    @Column(name = "favorite_id")
     private Long id;
 
     @ManyToOne(fetch = LAZY)
@@ -31,7 +31,7 @@ public class Like extends BaseEntity {
 
     /*연관관계 메서드*/
     @Builder
-    public Like(User user, Board board) {
+    public Favorite(User user, Board board) {
         this.user = user;
         this.board = board;
     }

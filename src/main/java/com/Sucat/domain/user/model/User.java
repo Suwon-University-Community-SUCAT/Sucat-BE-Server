@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Entity(name = "Users") // User는 예약어이기에 사용 불가
+@Entity
+@Table(name = "users")// User는 예약어이기에 사용 불가
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id

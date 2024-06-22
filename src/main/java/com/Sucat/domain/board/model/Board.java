@@ -22,13 +22,13 @@ public class Board {
     private Long id;
 
     @NotNull
-    private String writer;
+    private String name;
 
     private String title;
 
     private String content;
 
-    private int likeCount;
+    private int favoriteCount;
 
     @NotNull
     private BoardCategory category;
