@@ -18,10 +18,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll()
+                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
                         .requestMatchers("/","/home", "/verify-email", "/verification-code").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-//                        .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
         ;
