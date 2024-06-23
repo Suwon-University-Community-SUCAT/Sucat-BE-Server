@@ -1,6 +1,7 @@
 package com.Sucat.global.infra.email;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -8,19 +9,21 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.UUID;
 
-import static com.Sucat.global.util.EmailConstants.*;
+import static com.Sucat.global.util.EmailConstants.EXPIRATION_TIME_IN_MINUTES;
 
 @Service
 @RequiredArgsConstructor
 public class EmailSendService {
+
+    @Value("${spring.mail.host}")
+    private String host;
     private final JavaMailSender mailSender;
     private final VerificationCodeRepository verificationCodeRepository;
 
     public void sendSimpleVerificationMail(String to, LocalDateTime sentAt) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom(SERVER_EMAIL);
+        mailMessage.setFrom(host);
         mailMessage.setTo(to);
         mailMessage.setSubject(String.format("Email Verification For %s", to));
 
