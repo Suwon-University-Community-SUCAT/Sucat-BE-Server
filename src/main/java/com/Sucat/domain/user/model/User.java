@@ -38,6 +38,19 @@ public class User extends BaseEntity {
 
     private UserRole role = UserRole.USER_ROLE;
 
+    @Column(length = 1000)
+    private String refreshToken;
+
+    /*Using Method*/
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void destroyRefreshToken() {
+        this.refreshToken = null;
+    }
+
+    /*연관관계 메서드*/
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<FriendShip> mates = new ArrayList<>();
 

@@ -9,4 +9,12 @@ public class ConstraintConstants {
     public static final String USER_NAME = "회원 이름";
     public static final String USER_NICKNAME = "회원 닉네임";
     public static final String USER_DEPARTMENT = "회원 학과";
+
+    /**
+     * JWT
+     */
+    public static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
+    public static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
+    public static final String USERNAME_CLAIM = "email";
+    public static final String BEARER = "Bearer ";
 }
