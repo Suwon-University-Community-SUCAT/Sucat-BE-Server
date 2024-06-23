@@ -16,14 +16,10 @@ import static com.Sucat.domain.user.dto.UserDto.*;
 @RequiredArgsConstructor
 @RequestMapping("/join")
 public class UserController {
+
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
-    @GetMapping("/next2")
-    public ApiResponse<String> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
-        userService.emailDuplicateVerification(userEmailRequest.email());
-        return ApiResponse.successWithNoContent();
-    }
 
     @PostMapping
     public ApiResponse<String> signup(@RequestBody @Valid JoinUserRequest userRequest) {
@@ -33,5 +29,17 @@ public class UserController {
         userService.join(userRequest.toEntity(encodePassword));
 
         return ApiResponse.success("회원가입 성공");
+    }
+
+    @GetMapping("/next2")
+    public ApiResponse<String> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
+        userService.emailDuplicateVerification(userEmailRequest.email());
+        return ApiResponse.successWithNoContent();
+    }
+
+    @GetMapping("/duplication")
+    public ApiResponse nicknameDuplication(@RequestParam("nickname") String nickname) {
+        userService.nicknameDuplicateVerification(nickname);
+        return ApiResponse.successWithNoContent();
     }
 }

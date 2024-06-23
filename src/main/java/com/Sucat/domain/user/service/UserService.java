@@ -18,14 +18,20 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    }
+
     public void emailDuplicateVerification(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserException(ErrorCode.USER_ALREADY_EXISTS);
         }
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public void nicknameDuplicateVerification(String nickname) {
+        if (userRepository.findByNickname(nickname).isPresent()) {
+            throw new UserException(ErrorCode.NICKNAME_DUPLICATION);
+        }
     }
 }

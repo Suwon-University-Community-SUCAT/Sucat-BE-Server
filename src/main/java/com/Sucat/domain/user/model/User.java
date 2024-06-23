@@ -34,7 +34,7 @@ public class User extends BaseEntity {
 
     private String department;
 
-    private String nickName;
+    private String nickname;
 
     private UserRole role = UserRole.USER_ROLE;
 
@@ -42,12 +42,12 @@ public class User extends BaseEntity {
     private List<FriendShip> mates = new ArrayList<>();
 
     @Builder
-    public User(String name, String email, String password, String department, String nickName) {
+    public User(String name, String email, String password, String department, String nickname) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.department = department;
-        this.nickName = nickName;
+        this.nickname = nickname;
     }
 
 }
