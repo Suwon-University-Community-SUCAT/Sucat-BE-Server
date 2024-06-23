@@ -30,4 +30,8 @@ public class SwaggerConstants {
     public static final String HOME_SUMMARY = "메인 페이지";
     public static final String HOME_DESCRIPTION = "메인 페이지 정보를 가져옵니다.";
 
+    /**
+     *
+     */
+
 }

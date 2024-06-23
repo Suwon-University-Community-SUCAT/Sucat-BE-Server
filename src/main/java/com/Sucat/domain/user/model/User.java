@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,22 +27,27 @@ public class User extends BaseEntity {
     @Email
     private String email;
 
+    private String name;
+
     @NotNull
     private String password;
 
-
-    @NotNull
     private String department;
 
     private String nickName;
 
-    @NotNull
-    private UserRole role;
+    private UserRole role = UserRole.USER_ROLE;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<FriendShip> mates = new ArrayList<>();
 
-
-//    private UserStatus userStatus;
+    @Builder
+    public User(String name, String email, String password, String department, String nickName) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.department = department;
+        this.nickName = nickName;
+    }
 
 }
