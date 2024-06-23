@@ -1,4 +1,4 @@
-package com.Sucat.security;
+package com.Sucat.global.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

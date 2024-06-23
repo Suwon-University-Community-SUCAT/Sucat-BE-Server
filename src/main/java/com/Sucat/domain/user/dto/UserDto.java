@@ -21,6 +21,11 @@ public class UserDto {
             String email
             ) {
     }
+    public record UserNicknameRequest(
+            @NotNull
+            String nickname
+    ) {
+    }
 
     @Builder
 
@@ -50,6 +55,18 @@ public class UserDto {
                     .build();
         }
     }
+
+    public record LoginUserRequest(
+            @Email
+            @NotNull
+            @Schema(description = USER_EMAIL)
+            String email,
+            @NotNull
+            @Schema(description = USER_PASSWORD)
+            String password
+    ) {
+    }
+
 
     /**
      * Response

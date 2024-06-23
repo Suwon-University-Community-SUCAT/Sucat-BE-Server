@@ -30,8 +30,9 @@ public class UserService {
     }
 
     public void nicknameDuplicateVerification(String nickname) {
-        if (userRepository.findByNickname(nickname).isPresent()) {
+        if (userRepository.findByNickname(nickname).isPresent())  {
             throw new UserException(ErrorCode.NICKNAME_DUPLICATION);
         }
     }
+
 }

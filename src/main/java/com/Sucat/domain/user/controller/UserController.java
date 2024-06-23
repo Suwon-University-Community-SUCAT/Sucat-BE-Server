@@ -1,13 +1,10 @@
 package com.Sucat.domain.user.controller;
 
-import com.Sucat.domain.user.dto.UserDto;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import static com.Sucat.domain.user.dto.UserDto.*;
@@ -31,6 +28,12 @@ public class UserController {
         return ApiResponse.success("회원가입 성공");
     }
 
+//    @GetMapping("/login")
+//    public ApiResponse login(@RequestBody @Valid LoginUserRequest loginUserRequest) {
+//        User user = userService.findByEmail(loginUserRequest.email());
+//        user
+//    }
+
     @GetMapping("/next2")
     public ApiResponse<String> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
         userService.emailDuplicateVerification(userEmailRequest.email());
@@ -38,8 +41,8 @@ public class UserController {
     }
 
     @GetMapping("/duplication")
-    public ApiResponse nicknameDuplication(@RequestParam("nickname") String nickname) {
-        userService.nicknameDuplicateVerification(nickname);
+    public ApiResponse nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
+        userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
         return ApiResponse.successWithNoContent();
     }
 }
