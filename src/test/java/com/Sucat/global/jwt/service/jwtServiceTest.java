@@ -208,7 +208,7 @@ class JwtServiceTest {
         HttpServletRequest httpServletRequest = setRequest(accessToken, refreshToken);
 
         //when
-        String extractAccessToken = jwtService.extractAccessToken(httpServletRequest).get();
+        String extractAccessToken =  jwtService.extractAccessToken(httpServletRequest).orElseThrow(()-> new Exception("토큰이 없습니다"));
 
         //then
         assertThat(extractAccessToken).isEqualTo(accessToken);
@@ -247,6 +247,21 @@ class JwtServiceTest {
 
         //then
         assertThat(extractEmail).isEqualTo(email);
+    }
+
+    // 토큰 유효성 감사
+    @Test
+    public void 토큰_유효성_검사() throws Exception {
+        //given
+        String accessToken = jwtService.createAccessToken(email);
+        String refreshToken = jwtService.createRefreshToken();
+
+        //when, then
+        assertThat(jwtService.isTokenValid(accessToken)).isTrue();
+        assertThat(jwtService.isTokenValid(refreshToken)).isTrue();
+        assertThat(jwtService.isTokenValid(accessToken+"d")).isFalse();
+        assertThat(jwtService.isTokenValid(accessToken+"d")).isFalse();
+
     }
 
 

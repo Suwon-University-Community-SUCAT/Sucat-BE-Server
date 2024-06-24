@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
                         .requestMatchers("/","/home", "/verify-email", "/verification-code").permitAll()
-                        .requestMatchers("/join/**", "/login").permitAll()
+                        .requestMatchers("/join/**", "/login", "/login123").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
