@@ -11,10 +11,20 @@ public class ConstraintConstants {
     public static final String USER_DEPARTMENT = "회원 학과";
 
     /**
+     * Security
+     */
+    public static final String DEFAULT_LOGIN_REQUEST_URL = "/login";
+    public static final String HTTP_METHOD = "POST";
+    public static final String CONTENT_TYPE = "application/json";
+    public static final String USERNAME_KEY="email";
+    public static final String PASSWORD_KEY="password";
+
+    /**
      * JWT
      */
     public static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     public static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    public static final String USERNAME_CLAIM = "email";
+    public static final String USERNAME_CLAIM = "pp8817@naver.com";
     public static final String BEARER = "Bearer ";
+
 }

@@ -50,10 +50,10 @@ public class JwtServiceImpl implements JwtService{
     @Override
     public String createAccessToken(String email) {
         return JWT.create()
-                .withSubject(ACCESS_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000))
+                .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 정한다. AccessToken의 subject를 한다.
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000)) // 만료 시간 설정
                 .withClaim(USERNAME_CLAIM, email)
-                .sign(Algorithm.HMAC512(secret));
+                .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 저희가 지정한 secret 키로 암호화 한다.
     }
 
     @Override
