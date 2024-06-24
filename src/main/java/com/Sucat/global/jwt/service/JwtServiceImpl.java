@@ -49,11 +49,11 @@ public class JwtServiceImpl implements JwtService{
 
     @Override
     public String createAccessToken(String email) {
-        return JWT.create()
-                .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 정한다. AccessToken의 subject를 한다.
+        return JWT.create() // JWT 생성 빌더를 초기화
+                .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 설정한다. subject는 토큰의 목적, 주제를 나타냄.
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000)) // 만료 시간 설정
-                .withClaim(USERNAME_CLAIM, email)
-                .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 저희가 지정한 secret 키로 암호화 한다.
+                .withClaim(USERNAME_CLAIM, email) // 토큰에 사용자 이메일 정보를 클레임으로 추가
+                .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 토큰에 서명. 서명 키: secret 변수로 설정된 값
     }
 
     @Override
@@ -62,14 +62,15 @@ public class JwtServiceImpl implements JwtService{
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds * 1000))
                 .sign(Algorithm.HMAC512(secret));
+        // RefreshToken의 목적은 액세스 토큰의 갱신이기 때문에 클레임 포함X
     }
 
     @Override
     public void updateRefreshToken(String email, String refreshToken) {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
-                        user -> user.updateRefreshToken(refreshToken),
-                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED)
+                        user -> user.updateRefreshToken(refreshToken), // 값이 존재한다면 refreshToken 업데이트
+                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 팔생
                 );
     }
 
@@ -77,19 +78,20 @@ public class JwtServiceImpl implements JwtService{
     public void destroyRefreshToken(String email) {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
-                        User::destroyRefreshToken,
-                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED)
+                        User::destroyRefreshToken, // 값이 존재한다면 refreshToken 삭제
+                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 발생
                 );
     }
 
+    // HTTPServletResponse를 사용하여 클라이언트에게 AccessToken, RefreshToken을 전송하는 메서드
     @Override
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
         response.setStatus(HttpServletResponse.SC_OK);
 
-        setAccessTokenHeader(response, accessToken);
-        setRefreshTokenHeader(response, refreshToken);
+        setAccessTokenHeader(response, accessToken); //AccessToken을 Response 헤더에 설정
+        setRefreshTokenHeader(response, refreshToken); //RefreshToken을 Response 헤더에 설정
 
-        Map<String, String> tokenMap = new HashMap<>();
+        Map<String, String> tokenMap = new HashMap<>(); //토큰을 저장할 HashMap 저장
         tokenMap.put(ACCESS_TOKEN_SUBJECT, accessToken);
         tokenMap.put(REFRESH_TOKEN_SUBJECT, refreshToken);
     }
@@ -104,11 +106,12 @@ public class JwtServiceImpl implements JwtService{
         tokenMap.put(ACCESS_TOKEN_SUBJECT, accessToken);
     }
 
+    /*토큰 추출*/
     @Override
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader)).filter(
-                accessToken -> accessToken.startsWith(BEARER)
-        ).map(accessToken -> accessToken.replace(BEARER, ""));
+                accessToken -> accessToken.startsWith(BEARER) //토큰이 Bearer로 시작하는지 확인
+        ).map(accessToken -> accessToken.replace(BEARER, "")); // Bearer 접두사 제거하여 순수한 토큰 문자열만 남긴다.
     }
 
     @Override

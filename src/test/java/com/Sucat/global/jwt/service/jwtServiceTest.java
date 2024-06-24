@@ -64,14 +64,11 @@ class JwtServiceTest {
     public void createAccessToken_AccessToken_발급() throws Exception {
         //given, when
         String accessToken = jwtService.createAccessToken(email);
-
         DecodedJWT verify = getVerify(accessToken);
-
         String subject = verify.getSubject();
-        String findUsername = verify.getClaim(USERNAME_CLAIM).asString();
-
+        String finaEmail = verify.getClaim(USERNAME_CLAIM).asString();
         //then
-        assertThat(findUsername).isEqualTo(email);
+        assertThat(finaEmail).isEqualTo(email);
         assertThat(subject).isEqualTo(ACCESS_TOKEN_SUBJECT);
     }
 
@@ -82,11 +79,11 @@ class JwtServiceTest {
         String refreshToken = jwtService.createRefreshToken();
         DecodedJWT verify = getVerify(refreshToken);
         String subject = verify.getSubject();
-        String username = verify.getClaim(USERNAME_CLAIM).asString();
+        String finaEmail = verify.getClaim(USERNAME_CLAIM).asString();
 
         //then
         assertThat(subject).isEqualTo(REFRESH_TOKEN_SUBJECT);
-        assertThat(username).isNull();
+        assertThat(finaEmail).isNull();
     }
 
     //RefreshToken 업데이트
@@ -135,11 +132,8 @@ class JwtServiceTest {
         String accessToken = jwtService.createAccessToken(email);
         String refreshToken = jwtService.createRefreshToken();
 
-        jwtService.setAccessTokenHeader(mockHttpServletResponse, accessToken);
-
-
         //when
-        jwtService.sendAccessAndRefreshToken(mockHttpServletResponse,accessToken,refreshToken);
+        jwtService.setAccessTokenHeader(mockHttpServletResponse, accessToken);
 
         //then
         String headerAccessToken = mockHttpServletResponse.getHeader(accessHeader);
@@ -153,16 +147,30 @@ class JwtServiceTest {
 
         String accessToken = jwtService.createAccessToken(email);
         String refreshToken = jwtService.createRefreshToken();
-
+        //when
         jwtService.setRefreshTokenHeader(mockHttpServletResponse, refreshToken);
 
+        //then
+        String headerRefreshToken = mockHttpServletResponse.getHeader(refreshHeader);
+
+        assertThat(headerRefreshToken).isEqualTo(refreshToken);
+    }
+
+    @Test
+    public void setAccessTokenHeader_AccessTokenAndRefreshToken_헤더_설정() throws Exception {
+        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
+
+        String accessToken = jwtService.createAccessToken(email);
+        String refreshToken = jwtService.createRefreshToken();
 
         //when
         jwtService.sendAccessAndRefreshToken(mockHttpServletResponse,accessToken,refreshToken);
 
         //then
+        String headerAccessToken = mockHttpServletResponse.getHeader(accessHeader);
         String headerRefreshToken = mockHttpServletResponse.getHeader(refreshHeader);
 
+        assertThat(headerAccessToken).isEqualTo(accessToken);
         assertThat(headerRefreshToken).isEqualTo(refreshToken);
     }
 
@@ -215,10 +223,8 @@ class JwtServiceTest {
         String refreshToken = jwtService.createRefreshToken();
         HttpServletRequest httpServletRequest = setRequest(accessToken, refreshToken);
 
-
         //when
         String extractRefreshToken = jwtService.extractRefreshToken(httpServletRequest).get();
-
 
         //then
         assertThat(extractRefreshToken).isEqualTo(refreshToken);
@@ -236,14 +242,15 @@ class JwtServiceTest {
         String requestAccessToken = jwtService.extractAccessToken(httpServletRequest).get();
 
         //when
-        String extractUsername = jwtService.extractEmail(requestAccessToken).get();
+        String extractEmail = jwtService.extractEmail(requestAccessToken).get();
 
 
         //then
-        assertThat(extractUsername).isEqualTo(email);
+        assertThat(extractEmail).isEqualTo(email);
     }
 
-    //AccessToken 추출
+
+
     private HttpServletRequest setRequest(String accessToken, String refreshToken) throws IOException {
 
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
