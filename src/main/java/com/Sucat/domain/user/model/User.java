@@ -36,7 +36,7 @@ public class User extends BaseEntity {
 
     private String nickname;
 
-    private UserRole role = UserRole.USER_ROLE;
+    private UserRole role = UserRole.USER;
 
     @Column(length = 1000)
     private String refreshToken;
