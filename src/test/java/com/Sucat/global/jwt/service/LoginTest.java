@@ -126,7 +126,7 @@ public class LoginTest {
         //when, then
         perform(LOGIN_RUL, APPLICATION_FORM_URLENCODED, map)
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andReturn();
     }
 

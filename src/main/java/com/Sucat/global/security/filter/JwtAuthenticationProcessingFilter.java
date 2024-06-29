@@ -3,7 +3,6 @@ package com.Sucat.global.security.filter;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.jwt.service.JwtService;
-import com.Sucat.global.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +14,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -37,6 +37,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("Received request URI: " + request.getRequestURI());
         if (request.getRequestURI().equals(NO_CHECK_URL)) {
             filterChain.doFilter(request, response);
             return;
@@ -47,7 +48,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .filter(jwtService::isTokenValid)
                 .orElse(null);
 
-        if (refreshToken != null) { // Request 요청으로 온 사용자가
+        if (refreshToken != null) { // Request 요청으로 온 사용자가 refreshToken을 가지고 있다면 AccessToken을 재발급
             checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
             return;
         }
@@ -73,9 +74,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 
     private void saveAuthentication(User users) {
-        UserDetailsImpl userDetails = new UserDetailsImpl(users);
+        UserDetails user = org.springframework.security.core.userdetails.User.builder()
+                .username(users.getEmail())
+                .password(users.getPassword())
+                .roles(users.getRole().name())
+                .build();
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authoritiesMapper.mapAuthorities(user.getAuthorities()));
 
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();//5

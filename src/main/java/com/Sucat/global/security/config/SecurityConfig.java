@@ -17,7 +17,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -41,17 +40,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
                         .requestMatchers("/","/home", "/verify-email", "/verification-code").permitAll()
-                        .requestMatchers("/join/**", "/login", "/login123").permitAll()
+                        .requestMatchers("/join/**", "/login").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/"))
-                .logout((logout) -> logout
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)) // 로그아웃 이후 전체 세션 삭제 여부
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT에 맞게 세션 정책 설정
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/"))
+//                .logout((logout) -> logout
+//                        .logoutSuccessUrl("/login")
+//                        .invalidateHttpSession(true)) // 로그아웃 이후 전체 세션 삭제 여부
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT에 맞게 세션 정책 설정
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
                 .addFilterBefore(jwtAuthenticationProcessingFilter(), JsonUsernamePasswordAuthenticationFilter.class)
         ;

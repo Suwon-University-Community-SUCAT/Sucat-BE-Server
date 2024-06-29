@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 class JwtServiceTest {
 
-
     @Autowired
     JwtService jwtService;
     @Autowired

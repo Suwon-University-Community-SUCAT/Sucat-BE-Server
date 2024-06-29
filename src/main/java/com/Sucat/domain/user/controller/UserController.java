@@ -39,7 +39,6 @@ public class UserController {
 //        UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserRequest.email());
 //        userDetails.ge()
 //    }
-
     @GetMapping("/join/next2")
     public ApiResponse<String> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
         userService.emailDuplicateVerification(userEmailRequest.email());

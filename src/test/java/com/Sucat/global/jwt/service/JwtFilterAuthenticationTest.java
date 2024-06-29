@@ -62,7 +62,7 @@ public class JwtFilterAuthenticationTest {
 
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
-    private static final String BEARER = "Bearer ";
+    private static final String BEARER = "Bearer";
 
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -141,7 +141,7 @@ public class JwtFilterAuthenticationTest {
 
         //when, then
         mockMvc.perform(get(LOGIN_URL+"123").header(accessHeader,BEARER+ accessToken))//login이 아닌 다른 임의의 주소
-                .andExpectAll(status().isNotFound());//없는 주소로 보냈으므로 NotFound
+                .andExpectAll(status().isNotFound());
 
     }
 
@@ -158,7 +158,7 @@ public class JwtFilterAuthenticationTest {
 
         //when, then
         mockMvc.perform(get(LOGIN_URL+"123").header(accessHeader,accessToken+"1"))//login이 아닌 다른 임의의 주소
-                .andExpectAll(status().isForbidden());//없는 주소로 보냈으므로 NotFound
+                .andExpectAll(status().isForbidden()); // 없는 주소로 보냈으므로 NotFound
     }
 
 
@@ -172,13 +172,22 @@ public class JwtFilterAuthenticationTest {
         Map accessAndRefreshToken = getAccessAndRefreshToken();
         String refreshToken= (String) accessAndRefreshToken.get(refreshHeader);
 
+        // refreshToken이 null인지 확인
+        assertThat(refreshToken).isNotNull();
+
         //when, then
-        MvcResult result = mockMvc.perform(get(LOGIN_URL + "123").header(refreshHeader, BEARER+refreshToken))//login이 아닌 다른 임의의 주소
-                .andExpect(status().isOk()).andReturn();
+        MvcResult result = mockMvc.perform(get("/login123").header(refreshHeader, BEARER + refreshToken))
+                .andExpect(status().isOk())
+                .andReturn();
 
         String accessToken = result.getResponse().getHeader(accessHeader);
 
+        // accessToken이 null인지 확인
+        assertThat(accessToken).isNotNull();
+
         String subject = JWT.require(Algorithm.HMAC512(secret)).build().verify(accessToken).getSubject();
+
+        // subject가 예상한 값과 일치하는지 확인
         assertThat(subject).isEqualTo(ACCESS_TOKEN_SUBJECT);
     }
 
@@ -216,7 +225,7 @@ public class JwtFilterAuthenticationTest {
         String refreshToken= (String) accessAndRefreshToken.get(refreshHeader);
 
         //when, then
-        MvcResult result = mockMvc.perform(get(LOGIN_URL + "123")
+        MvcResult result = mockMvc.perform(get(LOGIN_URL+"123")
                         .header(refreshHeader, BEARER + refreshToken)
                         .header(accessHeader, BEARER + accessToken))
                 .andExpect(status().isOk())
