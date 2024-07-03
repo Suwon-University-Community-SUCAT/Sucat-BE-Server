@@ -4,6 +4,7 @@ import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,31 +24,23 @@ public class UserController {
 
 
     @PostMapping("/join")
-    public ApiResponse<String> signup(@RequestBody @Valid JoinUserRequest userRequest) {
+    public ResponseEntity<ApiResponse<Object>> signup(@RequestBody @Valid JoinUserRequest userRequest) {
         userService.emailDuplicateVerification(userRequest.email());
         String encodePassword = passwordEncoder.encode(userRequest.password());
 
         userService.join(userRequest.toEntity(encodePassword));
-
-        return ApiResponse.success("회원가입 성공");
+        return ApiResponse.onSuccess("회원가입 성공");
     }
 
-//    @GetMapping("/login")
-//    public ApiResponse login(@RequestBody @Valid LoginUserRequest loginUserRequest) {
-////        User user = userService.findByEmail(loginUserRequest.email());
-////        user
-//        UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserRequest.email());
-//        userDetails.ge()
-//    }
     @GetMapping("/join/next2")
-    public ApiResponse<String> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
+    public ResponseEntity<ApiResponse<Object>> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
         userService.emailDuplicateVerification(userEmailRequest.email());
-        return ApiResponse.successWithNoContent();
+        return ApiResponse.onSuccess();
     }
 
     @GetMapping("/join/duplication")
-    public ApiResponse nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
+    public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
         userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
-        return ApiResponse.successWithNoContent();
+        return ApiResponse.onSuccess();
     }
 }
