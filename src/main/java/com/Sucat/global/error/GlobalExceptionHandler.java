@@ -36,7 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ApiResponse<ErrorCode>> handleAccessDeniedException(AccessDeniedException e) {
         log.error("handleAccessDeniedException", e);
-        return ApiResponse.onFailure(ErrorCode.HANDLE_ACCESS_DENIED);
+        return ApiResponse.onFailure(ErrorCode._FORBIDDEN);
     }
 
     /**

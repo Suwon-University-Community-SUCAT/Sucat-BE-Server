@@ -1,7 +1,6 @@
 package com.Sucat.global.common.response;
 
 import com.Sucat.global.common.code.BaseCode;
-import com.Sucat.global.common.code.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -30,8 +29,8 @@ public class ApiResponse<T> {
         return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> onFailure(ErrorCode code) {
-        ApiResponse<T> response = new ApiResponse<>(false, code.getCode(), code.getMessage(), null);
-        return ResponseEntity.status(code.getStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> onFailure(BaseCode code) {
+        ApiResponse<T> response = new ApiResponse<>(false, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), null);
+        return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 }

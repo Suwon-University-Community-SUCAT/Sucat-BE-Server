@@ -1,56 +1,70 @@
 package com.Sucat.global.common.code;
 
+import com.Sucat.global.common.dto.ReasonDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.*;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @Getter
-public enum ErrorCode {
+@AllArgsConstructor
+public enum ErrorCode implements BaseCode{
 
     /**
-     * Common
+     * 전역 에러
      */
-    INVALID_INPUT_VALUE(400, "C001", "잘못된 입력값입니다."),
-    METHOD_NOT_ALLOWED(405, "C002", "잘못된 입력값입니다."),
-    ENTITY_NOT_FOUND(400, "C003", "존재하지 않는 엔티티입니다."),
-    INTERNAL_SERVER_ERROR(500, "C004", "서버 오류"),
-    INVALID_TYPE_VALUE(400, "C005", " 잘못된 타입입니다."),
-    HANDLE_ACCESS_DENIED(403, "C006", "접근이 금지됐습니다."),
+    _INTERNAL_SERVER_ERROR(INTERNAL_SERVER_ERROR,"500", "서버에서 요청을 처리 하는 동안 오류가 발생했습니다."),
+    _BAD_REQUEST(BAD_REQUEST,"400", "입력 값이 잘못된 요청입니다."),
+    _INVALID_TYPE_VALUE(BAD_REQUEST, "400", "입력 타입이 잘못된 요청입니다."),
+    _UNAUTHORIZED(UNAUTHORIZED,"401", "인증이 필요합니다."),
+    _FORBIDDEN(FORBIDDEN, "403", "금지된 요청입니다."),
 
     /**
-     * 회원가입, 로그인
+     * Auth
      */
-    UNAUTHORIZED_USER(401, "A001", "로그인이 필요합니다."),
-    USER_ALREADY_EXISTS(400, "A002", "이미 가입된 유저입니다."),
-    NEED_TO_JOIN(400, "A003", "회원가입이 필요합니다."),
-    USER_MISMATCH(401, "A004", "회원 정보가 불일치합니다."),
+    USER_ALREADY_EXISTS(BAD_REQUEST, "400", "이미 가입된 유저입니다."),
+    NEED_TO_JOIN(BAD_REQUEST, "400", "회원가입이 필요한 요청입니다."),
+    USER_MISMATCH(UNAUTHORIZED, "401", "회원 정보가 불일치합니다."),
 
     /**
      * User
      */
-    NICKNAME_DUPLICATION(409, "U001", "중복되는 닉네임입니다."),
-    USER_INQUIRY_FAILED(401, "U001", "회원 조회 실패"),
-    USER_NOT_FOUND(404, "U002", "존재하지 않는 회원입니다."),
-    INVALID_INPUT_ID_PASSWORD(400, "U003", "Id 또는 Password가 일치하지 않습니다."),
-    SOCIAL_TYPE_ERROR(400,"2040","invalid social type error."),
+    NICKNAME_DUPLICATION(CONFLICT, "409", "중복되는 닉네임입니다."),
+    USER_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 회원입니다."),
+    INVALID_INPUT_ID_PASSWORD(BAD_REQUEST, "400", "Id 또는 Password가 일치하지 않습니다."),
+    SOCIAL_TYPE_ERROR(BAD_REQUEST,"400","소셜 타입 검증에 실패했습니다."),
 
     /**
      * Token
      */
-    INVALID_TOKEN(401, "T001", "유효하지 않은 토큰입니다."),
-    INVALID_ACCESS_TOKEN(401, "T002", "유효하지 않은 액세스 토큰입니다."),
-    INVALID_REFRESH_TOKEN(401, "T003", "유효하지 않은 리프레쉬 토큰입니다."),
-    REFRESH_TOKEN_NOT_FOUND(404, "T004", "해당 유저 ID의 리프레쉬 토큰이 없습니다.");
+    INVALID_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 토큰입니다."),
+    INVALID_ACCESS_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 액세스 토큰입니다."),
+    INVALID_REFRESH_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 리프레쉬 토큰입니다."),
+    REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "404", "해당 유저 ID의 리프레쉬 토큰이 없습니다.");
 
-
-
+    private final HttpStatus httpStatus;
     private final String code;
     private final String message;
-    private int status;
 
-    ErrorCode(final int status, final String code, final String message) {
-        this.status = status;
-        this.message = message;
-        this.code = code;
+    @Override
+    public ReasonDto getReason() {
+        return ReasonDto.builder()
+                .isSuccess(false)
+                .code(code)
+                .message(message)
+                .build();
+    }
+
+    @Override
+    public ReasonDto getReasonHttpStatus() {
+        return ReasonDto.builder()
+                .isSuccess(false)
+                .httpStatus(httpStatus)
+                .code(code)
+                .message(message)
+                .build();
     }
 }

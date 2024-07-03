@@ -81,7 +81,7 @@ public class JwtUtilImpl implements JwtUtil {
                                                 .token(refreshToken)
                                                 .email(user.getEmail())
                                                 .build()), // 값이 존재한다면 refreshToken 업데이트
-                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 팔생
+                        () -> new UserException(ErrorCode.USER_NOT_FOUND) // 존재하지 않으면 예외 팔생
                 );
     }
 
@@ -90,7 +90,7 @@ public class JwtUtilImpl implements JwtUtil {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
                         user -> refreshTokenRepository.deleteByEmail(user.getEmail()), // 값이 존재한다면 refreshToken 삭제
-                        () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 발생
+                        () -> new UserException(ErrorCode.USER_NOT_FOUND) // 존재하지 않으면 예외 발생
                 );
     }
 
