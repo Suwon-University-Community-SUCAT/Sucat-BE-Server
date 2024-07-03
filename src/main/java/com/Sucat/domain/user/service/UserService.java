@@ -1,6 +1,6 @@
 package com.Sucat.domain.user.service;
 
-import com.Sucat.domain.user.UserException;
+import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.error.ErrorCode;

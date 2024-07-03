@@ -1,4 +1,4 @@
-package com.Sucat.domain.user;
+package com.Sucat.domain.user.exception;
 
 import com.Sucat.global.error.ErrorCode;
 import com.Sucat.global.error.exception.BusinessException;
