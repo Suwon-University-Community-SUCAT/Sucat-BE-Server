@@ -1,6 +1,7 @@
 package com.Sucat.domain.user.controller;
 
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,18 +30,18 @@ public class UserController {
         String encodePassword = passwordEncoder.encode(userRequest.password());
 
         userService.join(userRequest.toEntity(encodePassword));
-        return ApiResponse.onSuccess("회원가입 성공");
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @GetMapping("/join/next2")
     public ResponseEntity<ApiResponse<Object>> next2(@RequestBody @Valid UserEmailRequest userEmailRequest) {
         userService.emailDuplicateVerification(userEmailRequest.email());
-        return ApiResponse.onSuccess();
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @GetMapping("/join/duplication")
     public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
         userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
-        return ApiResponse.onSuccess();
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }

@@ -1,6 +1,7 @@
 package com.Sucat.global.common.response;
 
-import com.Sucat.global.error.ErrorCode;
+import com.Sucat.global.common.code.BaseCode;
+import com.Sucat.global.common.code.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -19,24 +20,14 @@ public class ApiResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final T payload;
 
-    public static <T> ResponseEntity<ApiResponse<T>> onSuccess(ErrorCode code, T payload) {
-        ApiResponse<T> response = new ApiResponse<>(true, code.getCode(), code.getMessage(), payload);
-        return ResponseEntity.status(code.getStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> onSuccess(BaseCode code, T payload) {
+        ApiResponse<T> response = new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), payload);
+        return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> onSuccess(ErrorCode code) {
-        ApiResponse<T> response = new ApiResponse<>(true, code.getCode(), code.getMessage(), null);
-        return ResponseEntity.status(code.getStatus()).body(response);
-    }
-
-    public static <T> ResponseEntity<ApiResponse<T>> onSuccess(String message) {
-        ApiResponse<T> response = new ApiResponse<>(true, "200", message, null);
-        return ResponseEntity.status(200).body(response);
-    }
-
-    public static <T> ResponseEntity<ApiResponse<T>> onSuccess() {
-        ApiResponse<T> response = new ApiResponse<>(true, "200", "API 요청 성공", null);
-        return ResponseEntity.status(200).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> onSuccess(BaseCode code) {
+        ApiResponse<T> response = new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), null);
+        return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> onFailure(ErrorCode code) {

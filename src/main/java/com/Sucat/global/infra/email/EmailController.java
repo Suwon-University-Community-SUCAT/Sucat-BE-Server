@@ -1,5 +1,6 @@
 package com.Sucat.global.infra.email;
 
+import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class EmailController {
     public ResponseEntity<ApiResponse<Object>> getEmailForVerification(@RequestBody EmailForVerificationRequest request) {
         LocalDateTime requestedAt = LocalDateTime.now();
         emailService.sendSimpleVerificationMail(request.getEmail(), requestedAt);
-        return ApiResponse.onSuccess();
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /*
@@ -33,6 +34,6 @@ public class EmailController {
     public ResponseEntity<ApiResponse<Object>> verificationByCode(@RequestBody VerificationCodeRequest request) {
         LocalDateTime requestedAt = LocalDateTime.now();
         emailService.verifyCode(request.getCode(), requestedAt);
-        return ApiResponse.onSuccess();
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }

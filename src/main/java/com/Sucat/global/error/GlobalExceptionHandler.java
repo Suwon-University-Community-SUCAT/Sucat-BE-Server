@@ -3,6 +3,7 @@ package com.Sucat.global.error;
 
 import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.user.exception.UserException;
+import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.common.response.ApiResponse;
 import com.Sucat.global.error.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
