@@ -1,7 +1,8 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.api;
 
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import com.Sucat.global.infra.email.service.EmailSendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-import static com.Sucat.global.infra.email.EmailRequest.*;
+import static com.Sucat.global.infra.email.dto.EmailRequest.*;
 
 @RestController
 @RequiredArgsConstructor

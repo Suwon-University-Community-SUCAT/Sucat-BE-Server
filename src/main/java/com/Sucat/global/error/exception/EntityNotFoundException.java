@@ -1,8 +1,6 @@
 package com.Sucat.global.error.exception;
 
-import com.Sucat.global.error.ErrorCode;
-
-import static com.Sucat.global.error.ErrorCode.*;
+import static com.Sucat.global.common.code.ErrorCode.*;
 
 public class EntityNotFoundException extends BusinessException{
 

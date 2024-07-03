@@ -1,4 +1,4 @@
-package com.Sucat.global.security.config;
+package com.Sucat.global.config;
 
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.repository.UserRepository;

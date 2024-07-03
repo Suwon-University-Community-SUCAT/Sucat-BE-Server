@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.Sucat.global.constant.ConstraintConstants.*;
+import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 @Service
 @RequiredArgsConstructor

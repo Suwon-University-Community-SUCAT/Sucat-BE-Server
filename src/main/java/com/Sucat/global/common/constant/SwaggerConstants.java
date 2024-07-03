@@ -1,4 +1,4 @@
-package com.Sucat.global.util;
+package com.Sucat.global.common.constant;
 
 public class SwaggerConstants {
     /**

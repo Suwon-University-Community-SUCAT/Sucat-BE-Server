@@ -1,6 +1,6 @@
 package com.Sucat.global.common.code;
 
-import com.Sucat.global.dto.ReasonDto;
+import com.Sucat.global.common.dto.ReasonDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
