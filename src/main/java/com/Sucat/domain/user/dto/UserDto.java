@@ -1,12 +1,9 @@
 package com.Sucat.domain.user.dto;
 
 import com.Sucat.domain.user.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-
-import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 public class UserDto {
 
@@ -17,7 +14,6 @@ public class UserDto {
     public record UserEmailRequest(
             @Email
             @NotNull
-            @Schema(description = USER_EMAIL)
             String email
             ) {
     }
@@ -32,16 +28,11 @@ public class UserDto {
     public record JoinUserRequest(
             @Email
             @NotNull
-            @Schema(description = USER_EMAIL)
             String email,
             @NotNull
-            @Schema(description = USER_PASSWORD)
             String password,
-            @Schema(description = USER_NAME)
             String name,
-            @Schema(description = USER_NICKNAME)
             String nickname,
-            @Schema(description = USER_DEPARTMENT)
             String department,
             String socialNumber // 있어야 되나?
     ) {
@@ -59,10 +50,8 @@ public class UserDto {
     public record LoginUserRequest(
             @Email
             @NotNull
-            @Schema(description = USER_EMAIL)
             String email,
             @NotNull
-            @Schema(description = USER_PASSWORD)
             String password
     ) {
     }
