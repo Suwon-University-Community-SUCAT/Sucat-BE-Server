@@ -1,6 +1,6 @@
 package com.Sucat.domain.chatmessage.model;
 
-import com.Sucat.domain.model.BaseEntity;
+import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

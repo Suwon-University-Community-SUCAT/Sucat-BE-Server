@@ -1,6 +1,6 @@
 package com.Sucat.domain.gamescore.model;
 
-import com.Sucat.domain.model.BaseEntity;
+import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.game.model.Game;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package com.Sucat.domain.board.model;
 
-import com.Sucat.domain.model.BaseEntity;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

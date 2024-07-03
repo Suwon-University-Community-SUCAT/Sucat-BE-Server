@@ -1,10 +1,10 @@
-package com.Sucat.global.jwt.controller;
+package com.Sucat.domain.token.controller;
 
 
 import com.Sucat.domain.token.model.TokenResponse;
 import com.Sucat.domain.token.service.TokenService;
-import com.Sucat.global.common.response.ApiResponse;
 import com.Sucat.global.common.code.SuccessCode;
+import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

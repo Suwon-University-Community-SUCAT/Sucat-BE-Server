@@ -1,6 +1,6 @@
 package com.Sucat.domain.comment.model;
 
-import com.Sucat.domain.model.BaseEntity;
+import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
