@@ -1,16 +1,17 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.api;
 
+import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.validation.Valid;
+import com.Sucat.global.infra.email.service.EmailSendService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-import static com.Sucat.global.infra.email.EmailRequest.*;
+import static com.Sucat.global.infra.email.dto.EmailRequest.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,19 +22,19 @@ public class EmailController {
     인증 코드 전송
      */
     @PostMapping("/verify-email")
-    public ApiResponse<String> getEmailForVerification(@RequestBody EmailForVerificationRequest request) {
+    public ResponseEntity<ApiResponse<Object>> getEmailForVerification(@RequestBody EmailForVerificationRequest request) {
         LocalDateTime requestedAt = LocalDateTime.now();
         emailService.sendSimpleVerificationMail(request.getEmail(), requestedAt);
-        return ApiResponse.successWithNoContent();
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /*
     이메일 인증 확인
      */
     @PostMapping("/verification-code")
-    public ApiResponse<String> verificationByCode(@RequestBody VerificationCodeRequest request) {
+    public ResponseEntity<ApiResponse<Object>> verificationByCode(@RequestBody VerificationCodeRequest request) {
         LocalDateTime requestedAt = LocalDateTime.now();
         emailService.verifyCode(request.getCode(), requestedAt);
-        return ApiResponse.success("OK");
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }

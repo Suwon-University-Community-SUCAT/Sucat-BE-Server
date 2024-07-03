@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static com.Sucat.global.util.ConstraintConstants.*;
+import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 public class JsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private final ObjectMapper objectMapper;

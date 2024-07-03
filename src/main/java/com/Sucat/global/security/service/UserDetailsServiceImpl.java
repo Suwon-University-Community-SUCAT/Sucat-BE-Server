@@ -1,9 +1,9 @@
 package com.Sucat.global.security.service;
 
-import com.Sucat.domain.user.UserException;
+import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.error.ErrorCode;
+import com.Sucat.global.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

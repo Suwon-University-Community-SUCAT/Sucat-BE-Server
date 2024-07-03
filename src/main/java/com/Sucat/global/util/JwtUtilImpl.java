@@ -1,9 +1,11 @@
-package com.Sucat.global.jwt.service;
+package com.Sucat.global.util;
 
-import com.Sucat.domain.user.UserException;
-import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.token.exception.TokenException;
+import com.Sucat.domain.token.model.RefreshToken;
+import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.error.ErrorCode;
+import com.Sucat.global.common.code.ErrorCode;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,14 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.Sucat.global.util.ConstraintConstants.*;
+import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Setter(value = AccessLevel.PRIVATE)
 @Slf4j
-public class JwtServiceImpl implements JwtService{
+public class JwtUtilImpl implements JwtUtil {
 
     /*jwt.yml에 설정된 값 가져오기*/
     @Value("${jwt.secret}")
@@ -44,11 +46,13 @@ public class JwtServiceImpl implements JwtService{
     private String refreshHeader;
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private ObjectMapper objectMapper;
 
 
     @Override
     public String createAccessToken(String email) {
+        log.info("Access Token이 발행되었습니다.");
         return JWT.create() // JWT 생성 빌더를 초기화
                 .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 설정한다. subject는 토큰의 목적, 주제를 나타냄.
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000)) // 만료 시간 설정
@@ -57,10 +61,12 @@ public class JwtServiceImpl implements JwtService{
     }
 
     @Override
-    public String createRefreshToken() {
+    public String createRefreshToken(String email) {
+        log.info("Refresh Token이 발행되었습니다.");
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds * 1000))
+                .withClaim(USERNAME_CLAIM, email)
                 .sign(Algorithm.HMAC512(secret));
         // RefreshToken의 목적은 액세스 토큰의 갱신이기 때문에 클레임 포함X
     }
@@ -69,7 +75,12 @@ public class JwtServiceImpl implements JwtService{
     public void updateRefreshToken(String email, String refreshToken) {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
-                        user -> user.updateRefreshToken(refreshToken), // 값이 존재한다면 refreshToken 업데이트
+                        user ->
+                                refreshTokenRepository.save(
+                                        RefreshToken.builder()
+                                                .token(refreshToken)
+                                                .email(user.getEmail())
+                                                .build()), // 값이 존재한다면 refreshToken 업데이트
                         () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 팔생
                 );
     }
@@ -78,7 +89,7 @@ public class JwtServiceImpl implements JwtService{
     public void destroyRefreshToken(String email) {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
-                        User::destroyRefreshToken, // 값이 존재한다면 refreshToken 삭제
+                        user -> refreshTokenRepository.deleteByEmail(user.getEmail()), // 값이 존재한다면 refreshToken 삭제
                         () -> new UserException(ErrorCode.USER_INQUIRY_FAILED) // 존재하지 않으면 예외 발생
                 );
     }
@@ -109,27 +120,31 @@ public class JwtServiceImpl implements JwtService{
     /*토큰 추출*/
     @Override
     public Optional<String> extractAccessToken(HttpServletRequest request) {
+        log.info("accessHeader Token: {}", request.getHeader(accessHeader));
         return Optional.ofNullable(request.getHeader(accessHeader)).filter(
                 accessToken -> accessToken.startsWith(BEARER) //토큰이 Bearer로 시작하는지 확인
-        ).map(accessToken -> accessToken.replace(BEARER, "")); // Bearer 접두사 제거하여 순수한 토큰 문자열만 남긴다.
+        ).map(accessToken -> accessToken.substring(BEARER.length()).trim()); // Bearer 접두사 제거하여 순수한 토큰 문자열만 남긴다.
     }
 
     @Override
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(refreshHeader)).filter(
                 refreshToken -> refreshToken.startsWith(BEARER)
-        ).map(refreshToken -> refreshToken.replace(BEARER, ""));
+        ).map(refreshToken -> refreshToken.replace(BEARER, "").trim());
     }
 
     @Override
-    public Optional<String> extractEmail(String accessToken) {
+    public Optional<String> extractEmail(String token) {
         try {
             return Optional.ofNullable(
-                    JWT.require(Algorithm.HMAC512(secret)).build().verify(accessToken).getClaim(USERNAME_CLAIM)
+                    JWT.require(Algorithm.HMAC512(secret))
+                            .build()
+                            .verify(token)
+                            .getClaim(USERNAME_CLAIM)
                             .asString());
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return Optional.empty();
+            log.warn("유효하지 않은 토큰입니다. 이유: {}", e.getMessage());
+            throw new TokenException(ErrorCode.INVALID_TOKEN);
         }
     }
 

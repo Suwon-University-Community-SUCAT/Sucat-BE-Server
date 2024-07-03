@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import static com.Sucat.global.util.ConstraintConstants.*;
+import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 public class UserDto {
 

@@ -1,13 +1,13 @@
-package com.Sucat.global.jwt.service;
+package com.Sucat.global.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Optional;
 
-public interface JwtService {
+public interface JwtUtil {
     String createAccessToken(String email); // AccessToken 생성
-    String createRefreshToken(); // RefreshToken 생성 - 보안, I/O 감소 이유로 사용
+    String createRefreshToken(String email); // RefreshToken 생성 - 보안, I/O 감소 이유로 사용
 
     void updateRefreshToken(String email, String refreshToken); // RefreshToken 갱신
 

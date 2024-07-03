@@ -1,6 +1,6 @@
 package com.Sucat.global.error.exception;
 
-import com.Sucat.global.error.ErrorCode;
+import com.Sucat.global.common.code.ErrorCode;
 import lombok.Getter;
 
 @Getter

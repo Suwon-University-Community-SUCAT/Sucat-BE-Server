@@ -1,4 +1,4 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.dto;
 
 import lombok.Getter;
 

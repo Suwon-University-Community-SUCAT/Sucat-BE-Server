@@ -1,8 +1,8 @@
 package com.Sucat.global.error.exception;
 
-import com.Sucat.global.error.ErrorCode;
+import com.Sucat.global.common.code.ErrorCode;
 
-import static com.Sucat.global.error.ErrorCode.*;
+import static com.Sucat.global.common.code.ErrorCode.*;
 
 public class InvalidValueException extends BusinessException{
 

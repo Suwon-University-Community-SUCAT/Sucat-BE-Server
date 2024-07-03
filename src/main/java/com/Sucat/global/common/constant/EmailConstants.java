@@ -1,4 +1,4 @@
-package com.Sucat.global.util;
+package com.Sucat.global.common.constant;
 
 public class EmailConstants {
     public static final String SERVER_EMAIL = "sangmin881717@gmail.com";

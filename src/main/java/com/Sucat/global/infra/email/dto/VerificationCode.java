@@ -1,8 +1,7 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.dto;
 
 
 import lombok.*;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

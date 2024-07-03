@@ -1,7 +1,12 @@
 package com.Sucat.global.security.handler;
 
+import com.Sucat.domain.token.model.RefreshToken;
+import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.user.exception.UserException;
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.jwt.service.JwtService;
+import com.Sucat.global.common.code.ErrorCode;
+import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,16 +14,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandler {
 
-    private final JwtService jwtService;
+    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 로그인 성공시
@@ -27,14 +33,30 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String email = extractEmail(authentication);
-        String accessToken = jwtService.createAccessToken(email); // AccessToken 발급
-        String refreshToken = jwtService.createRefreshToken(); // RefreshToken 발급
 
-        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
+        User existUser = userRepository.findByEmail(email).get();
 
-        userRepository.findByEmail(email).ifPresent(
-                user -> user.updateRefreshToken(refreshToken) //email에 해당하는 유저가 존재한다면 refreshToken 저장
-        );
+        if (existUser != null) {
+            log.info("기존 유저입니다.");
+            refreshTokenRepository.deleteByEmail(existUser.getEmail());
+        } else {
+            log.info("신규 유저입니다. 회원가입이 필요합니다.");
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        log.info("유저 이메일: {}", email);
+
+        String accessToken = jwtUtil.createAccessToken(email); // AccessToken 발급
+        String refreshToken = jwtUtil.createRefreshToken(email); // RefreshToken 발급
+
+        RefreshToken newRefreshToken = RefreshToken.builder()
+                .email(existUser.getEmail())
+                .token(refreshToken)
+                .build();
+
+        refreshTokenRepository.save(newRefreshToken);
+
+        jwtUtil.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
 
         log.info( "로그인에 성공합니다. email: {}" , email);
         log.info( "AccessToken 을 발급합니다. AccessToken: {}" ,accessToken);

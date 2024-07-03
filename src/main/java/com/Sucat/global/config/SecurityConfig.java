@@ -1,7 +1,8 @@
-package com.Sucat.global.security.config;
+package com.Sucat.global.config;
 
+import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.jwt.service.JwtService;
+import com.Sucat.global.util.JwtUtil;
 import com.Sucat.global.security.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
 import com.Sucat.global.security.handler.LoginFailureHandler;
@@ -29,7 +30,8 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final JwtService jwtService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,18 +41,10 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
-                        .requestMatchers("/","/home", "/verify-email", "/verification-code").permitAll()
-                        .requestMatchers("/join/**", "/login").permitAll()
+                        .requestMatchers("/", "/verify-email", "/verification-code").permitAll()
+                        .requestMatchers("/join/**", "/login", "/reissue/access-token").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/"))
-//                .logout((logout) -> logout
-//                        .logoutSuccessUrl("/login")
-//                        .invalidateHttpSession(true)) // 로그아웃 이후 전체 세션 삭제 여부
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT에 맞게 세션 정책 설정
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
                 .addFilterBefore(jwtAuthenticationProcessingFilter(), JsonUsernamePasswordAuthenticationFilter.class)
         ;
@@ -82,7 +76,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler(){
-        return new LoginSuccessJWTProvideHandler(jwtService, userRepository);
+        return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, refreshTokenRepository);
     }
 
     @Bean
@@ -101,7 +95,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter(){
-        JwtAuthenticationProcessingFilter jsonUsernamePasswordLoginFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository);
+        JwtAuthenticationProcessingFilter jsonUsernamePasswordLoginFilter = new JwtAuthenticationProcessingFilter(jwtUtil, userRepository);
 
         return jsonUsernamePasswordLoginFilter;
     }

@@ -1,5 +1,6 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.repository;
 
+import com.Sucat.global.infra.email.dto.VerificationCode;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;

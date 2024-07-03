@@ -1,5 +1,7 @@
-package com.Sucat.global.infra.email;
+package com.Sucat.global.infra.email.service;
 
+import com.Sucat.global.infra.email.repository.VerificationCodeRepository;
+import com.Sucat.global.infra.email.dto.VerificationCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -10,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
-import static com.Sucat.global.util.EmailConstants.EXPIRATION_TIME_IN_MINUTES;
+import static com.Sucat.global.common.constant.EmailConstants.EXPIRATION_TIME_IN_MINUTES;
 
 @Service
 @RequiredArgsConstructor
