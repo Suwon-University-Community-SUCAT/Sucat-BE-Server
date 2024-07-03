@@ -2,7 +2,7 @@ package com.Sucat.global.security.filter;
 
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.jwt.service.JwtService;
+import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +24,9 @@ import java.io.IOException;
  */
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
+    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+//    private final RefreshTokenRepository refreshTokenRepository;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -43,23 +44,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String refreshToken = jwtService
-                .extractRefreshToken(request)
-                .filter(jwtService::isTokenValid)
-                .orElse(null);
-
-        if (refreshToken != null) { // Request 요청으로 온 사용자가 refreshToken을 가지고 있다면 AccessToken을 재발급
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
-            return;
-        }
-
         checkAccessTokenAndAuthentication(request, response, filterChain);
     }
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        jwtService.extractAccessToken(request).filter(jwtService::isTokenValid).ifPresent(
+        jwtUtil.extractAccessToken(request).filter(jwtUtil::isTokenValid).ifPresent(
 
-                accessToken -> jwtService.extractEmail(accessToken).ifPresent(
+                accessToken -> jwtUtil.extractEmail(accessToken).ifPresent(
 
                         email -> userRepository.findByEmail(email).ifPresent(
 
@@ -86,13 +77,5 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();//5
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
-    }
-
-    private void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-        userRepository.findByRefreshToken(refreshToken).ifPresent(
-                user -> jwtService.sendAccessToken(response, jwtService.createAccessToken(user.getEmail()))
-        );
-
-
     }
 }

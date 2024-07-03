@@ -2,6 +2,7 @@ package com.Sucat.global.jwt.service;
 
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
+import com.Sucat.global.util.JwtUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ public class JwtFilterAuthenticationTest {
     EntityManager em;
 
     @Autowired
-    JwtService jwtService;
+    JwtUtil jwtUtil;
 
     PasswordEncoder delegatingPasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 

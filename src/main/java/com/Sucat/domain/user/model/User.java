@@ -38,17 +38,17 @@ public class User extends BaseEntity {
 
     private UserRole role = UserRole.USER;
 
-    @Column(length = 1000)
-    private String refreshToken;
+//    @Column(length = 1000)
+//    private String refreshToken;
 
     /*Using Method*/
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void destroyRefreshToken() {
-        this.refreshToken = null;
-    }
+//    public void updateRefreshToken(String refreshToken) {
+//        this.refreshToken = refreshToken;
+//    }
+//
+//    public void destroyRefreshToken() {
+//        this.refreshToken = null;
+//    }
 
     /*연관관계 메서드*/
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
