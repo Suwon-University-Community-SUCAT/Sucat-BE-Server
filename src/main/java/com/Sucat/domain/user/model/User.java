@@ -5,8 +5,6 @@ import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,15 +30,13 @@ public class User extends BaseEntity {
     private String name;
 
     @NotNull
-    @Size(min = 8, max = 20, message = "비밀번호는 {min}자에서 {max}자여야 합니다.")
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
-            message = "비밀번호는 숫자, 문자, 특수문자를 모두 포함해야 합니다.")
     private String password;
 
     private String department;
 
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
 
     /*연관관계 메서드*/
