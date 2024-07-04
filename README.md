@@ -45,6 +45,6 @@ Suwon University Community Project
 ## 🔍 Architecture
 
 ### ERD (24.07.04)
-<img width="480" alt="스크린샷 2023-12-31 19 33 45" src="https://github.com/pp8817/JpaBoard/assets/71458064/55598ebf-81a1-49e3-9c63-ec064b7a31f2">
+<img width="769" alt="스크린샷 2024-07-04 17 46 44" src="https://github.com/pp8817/Sucat/assets/71458064/bade46af-fac1-44f0-ab51-72c7374cd658">
 
 ### System Architecture
