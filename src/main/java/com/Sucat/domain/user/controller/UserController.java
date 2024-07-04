@@ -1,6 +1,5 @@
 package com.Sucat.domain.user.controller;
 
-import com.Sucat.domain.user.dto.UserDto;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
@@ -10,10 +9,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import static com.Sucat.domain.user.dto.UserDto.*;
+import static com.Sucat.domain.user.dto.UserDto.PasswordResetRequest;
 import static com.Sucat.domain.user.dto.UserDto.UserNicknameRequest;
 
 @RestController
@@ -21,7 +19,7 @@ import static com.Sucat.domain.user.dto.UserDto.UserNicknameRequest;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final UserDetailsService userDetailsService;
 
@@ -41,6 +39,6 @@ public class UserController {
     public ResponseEntity<ApiResponse<Object>> resetPassword(HttpServletRequest request, @RequestBody PasswordResetRequest passwordResetRequest) {
         User currentUser = userService.getUserInfo(request);
         userService.resetPassword(currentUser, passwordResetRequest);
-
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }

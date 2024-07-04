@@ -5,6 +5,8 @@ import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +20,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Transactional
     public void signup(User user) {
+        userService.emailDuplicateVerification(user.getEmail());
         userService.validatePassword(user.getPassword());
-        userService.nicknameDuplicateVerification(user.getNickname()); //이미 회원가입 과정에서 닉네임 중복 검사를 하지만 동시성 에러를 고려
+        userService.nicknameDuplicateVerification(user.getNickname());//이미 회원가입 과정에서 닉네임 중복 검사를 하지만 동시성 에러를 고려
+        user.resetPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 

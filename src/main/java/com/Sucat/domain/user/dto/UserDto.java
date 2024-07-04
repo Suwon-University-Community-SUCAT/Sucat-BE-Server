@@ -34,10 +34,10 @@ public class UserDto {
             String nickname,
             String department
     ) {
-        public User toEntity(String encodePassword) {
+        public User toEntity() {
             return User.builder()
                     .email(email)
-                    .password(encodePassword)
+                    .password(password)
                     .name(name)
                     .nickname(nickname)
                     .department(department)

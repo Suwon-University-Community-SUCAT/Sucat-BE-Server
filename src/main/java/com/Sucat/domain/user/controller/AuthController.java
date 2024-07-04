@@ -26,10 +26,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Object>> signup(@RequestBody @Valid JoinUserRequest userRequest) {
-        userService.emailDuplicateVerification(userRequest.email());
-        String encodePassword = passwordEncoder.encode(userRequest.password());
-
-        authService.signup(userRequest.toEntity(encodePassword));
+        authService.signup(userRequest.toEntity());
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
