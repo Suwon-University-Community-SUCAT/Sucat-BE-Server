@@ -36,9 +36,6 @@ Suwon University Community Project
 - Lombok
 - Spring Boot DevTools
 
-### Testing
-- Spring REST Docs (MockMvc)
-
 ### API Test/Documentation 
 - Postman
 
