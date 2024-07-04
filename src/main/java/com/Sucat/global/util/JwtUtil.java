@@ -20,7 +20,7 @@ public interface JwtUtil {
 
     Optional<String> extractRefreshToken(HttpServletRequest request);
 
-    Optional<String> extractEmail(String accessToken);
+    String extractEmail(String accessToken);
 
     void setAccessTokenHeader(HttpServletResponse response, String accessToken);
 

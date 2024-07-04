@@ -134,14 +134,13 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
-    public Optional<String> extractEmail(String token) {
+    public String extractEmail(String token) {
         try {
-            return Optional.ofNullable(
-                    JWT.require(Algorithm.HMAC512(secret))
+            return JWT.require(Algorithm.HMAC512(secret))
                             .build()
                             .verify(token)
                             .getClaim(USERNAME_CLAIM)
-                            .asString());
+                            .asString();
         } catch (Exception e) {
             log.warn("유효하지 않은 토큰입니다. 이유: {}", e.getMessage());
             throw new TokenException(ErrorCode.INVALID_TOKEN);

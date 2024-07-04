@@ -48,15 +48,14 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         jwtUtil.extractAccessToken(request).filter(jwtUtil::isTokenValid).ifPresent(
-
-                accessToken -> jwtUtil.extractEmail(accessToken).ifPresent(
-
-                        email -> userRepository.findByEmail(email).ifPresent(
-
-                                user -> saveAuthentication(user)
-                        )
-                )
+                accessToken -> {
+                    String email = jwtUtil.extractEmail(accessToken);
+                    userRepository.findByEmail(email).ifPresent(
+                            user -> saveAuthentication(user)
+                    );
+                }
         );
 
         filterChain.doFilter(request,response);
