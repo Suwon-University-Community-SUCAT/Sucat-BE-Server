@@ -64,13 +64,13 @@ public class UserService {
     public void validatePassword(String password) {
         // 비밀번호 만료 날짜 설정, 이전 비밀번호와의 비교 등 정책 추가 고민
         if (password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("비밀번호는 null이나 빈 문자열일 수 없습니다.");
+            throw new UserException(ErrorCode.PASSWORD_MISSING_OR_EMPTY);
         }
         if (password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH) {
-            throw new IllegalArgumentException("비밀번호는 최소 " + MIN_PASSWORD_LENGTH + "자에서 최대 " + MAX_PASSWORD_LENGTH + "자여야 합니다.");
+            throw new UserException(ErrorCode.PASSWORD_LENGTH_INVALID);
         }
         if (!password.matches(PASSWORD_PATTERN)) {
-            throw new IllegalArgumentException("비밀번호는 숫자, 문자, 특수문자를 모두 포함해야 합니다.");
+            throw new UserException(ErrorCode.PASSWORD_COMPLEXITY_REQUIRED);
         }
     }
 }

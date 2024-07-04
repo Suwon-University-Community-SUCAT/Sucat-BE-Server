@@ -16,7 +16,9 @@ public class ConstraintConstants {
     // 비밀번호 정책 관련 상수
     public static final int MIN_PASSWORD_LENGTH = 8;
     public static final int MAX_PASSWORD_LENGTH = 20;
-    public static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*()-_=+\\\\|[{]};:'\",<.>/?]).{8,20}$"; // 예시: 숫자, 문자, 특수문자를 모두 포함해야 함
+    public static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\\-_=+\\\\|\\[{\\]};:'\",<.>/?]).{8,20}$";
+
+
 
     /**
      * Security

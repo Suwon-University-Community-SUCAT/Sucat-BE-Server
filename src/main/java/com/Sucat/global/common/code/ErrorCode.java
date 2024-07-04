@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import static com.Sucat.global.common.constant.ConstraintConstants.MAX_PASSWORD_LENGTH;
+import static com.Sucat.global.common.constant.ConstraintConstants.MIN_PASSWORD_LENGTH;
 import static org.springframework.http.HttpStatus.*;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -37,6 +39,13 @@ public enum ErrorCode implements BaseCode{
     INVALID_INPUT_ID_PASSWORD(BAD_REQUEST, "400", "Email 또는 Password가 일치하지 않습니다."),
     SOCIAL_TYPE_ERROR(BAD_REQUEST,"400","소셜 타입 검증에 실패했습니다."),
     TERMS_NOT_ACCEPTED(BAD_REQUEST, "400", "약관에 동의하지 않았습니다."),
+
+    /**
+     * Password
+     */
+    PASSWORD_MISSING_OR_EMPTY(BAD_REQUEST, "400", "비밀번호는 null이나 빈 문자열일 수 없습니다."),
+    PASSWORD_LENGTH_INVALID(BAD_REQUEST, "400", "비밀번호는 최소 " + MIN_PASSWORD_LENGTH + "자에서 최대 " + MAX_PASSWORD_LENGTH + "자여야 합니다."),
+    PASSWORD_COMPLEXITY_REQUIRED(BAD_REQUEST, "400", "비밀번호는 숫자, 문자, 특수문자를 모두 포함해야 합니다."),
 
     /**
      * Token
