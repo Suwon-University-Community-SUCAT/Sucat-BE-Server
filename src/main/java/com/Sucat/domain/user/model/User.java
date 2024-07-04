@@ -1,7 +1,7 @@
 package com.Sucat.domain.user.model;
 
-import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.friendship.model.FriendShip;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -36,19 +36,8 @@ public class User extends BaseEntity {
 
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
-
-//    @Column(length = 1000)
-//    private String refreshToken;
-
-    /*Using Method*/
-//    public void updateRefreshToken(String refreshToken) {
-//        this.refreshToken = refreshToken;
-//    }
-//
-//    public void destroyRefreshToken() {
-//        this.refreshToken = null;
-//    }
 
     /*연관관계 메서드*/
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -63,4 +52,9 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
+    /* Using Method */
+    // 비밀번호 변경 메서드
+    public void resetPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

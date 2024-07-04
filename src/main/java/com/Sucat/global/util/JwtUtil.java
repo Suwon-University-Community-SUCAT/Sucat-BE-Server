@@ -1,5 +1,6 @@
 package com.Sucat.global.util;
 
+import com.Sucat.domain.user.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -20,11 +21,13 @@ public interface JwtUtil {
 
     Optional<String> extractRefreshToken(HttpServletRequest request);
 
-    Optional<String> extractEmail(String accessToken);
+    String extractEmail(String accessToken);
 
     void setAccessTokenHeader(HttpServletResponse response, String accessToken);
 
     void setRefreshTokenHeader(HttpServletResponse response, String refreshToken);
 
     boolean isTokenValid(String token);
+
+    User getUserFromRequest(HttpServletRequest request);
 }

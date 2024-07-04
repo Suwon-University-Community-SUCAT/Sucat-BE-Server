@@ -5,26 +5,25 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
+import java.util.List;
+
 public class UserDto {
 
     /**
      * Request
      */
-
-    public record UserEmailRequest(
-            @Email
-            @NotNull
-            String email
-            ) {
-    }
     public record UserNicknameRequest(
             @NotNull
             String nickname
     ) {
     }
 
-    @Builder
+    public record UserTermAgree(
+            @NotNull
+            List<Boolean> agreements
+    ) {}
 
+    @Builder
     public record JoinUserRequest(
             @Email
             @NotNull
@@ -33,13 +32,12 @@ public class UserDto {
             String password,
             String name,
             String nickname,
-            String department,
-            String socialNumber // 있어야 되나?
+            String department
     ) {
-        public User toEntity(String encodePassword) {
+        public User toEntity() {
             return User.builder()
                     .email(email)
-                    .password(encodePassword)
+                    .password(password)
                     .name(name)
                     .nickname(nickname)
                     .department(department)
@@ -47,13 +45,14 @@ public class UserDto {
         }
     }
 
-    public record LoginUserRequest(
-            @Email
+    public record PasswordResetRequest(
             @NotNull
+            @Email
             String email,
             @NotNull
             String password
     ) {
+
     }
 
 

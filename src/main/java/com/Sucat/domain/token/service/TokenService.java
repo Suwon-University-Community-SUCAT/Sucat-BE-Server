@@ -19,20 +19,24 @@ public class TokenService {
     private final JwtUtil jwtUtil;
 
     public TokenResponse reissueAccessToken(HttpServletRequest request) {
-        String refreshToken = jwtUtil.extractRefreshToken(request).orElseThrow(() -> new TokenException(ErrorCode.INVALID_REFRESH_TOKEN));
-        String email = jwtUtil.extractEmail(refreshToken).orElseThrow(() -> new TokenException(ErrorCode.INVALID_REFRESH_TOKEN));
-        RefreshToken existRefreshToken = refreshTokenRepository.findByEmail(email);
-        String accessToken = null;
+        String refreshToken = jwtUtil.extractRefreshToken(request)
+                .orElseThrow(() -> new TokenException(ErrorCode.INVALID_REFRESH_TOKEN));
 
-        if (!existRefreshToken.getToken().equals(refreshToken) || !jwtUtil.isTokenValid(refreshToken)) {
-            log.info("Refresh Token이 일치하지 않거나, 만료되었습니다.");
+        //extractEmail 과정에서 토큰의 유효성 검제
+        String email = jwtUtil.extractEmail(refreshToken);
+        RefreshToken existRefreshToken = refreshTokenRepository.findByEmail(email);
+
+        if (!existRefreshToken.getToken().equals(refreshToken)) {
+            log.info("Refresh Token이 일치하지 않습니다.");
             throw new TokenException(ErrorCode.INVALID_REFRESH_TOKEN);
-        } else {
-            accessToken = jwtUtil.createAccessToken(email);
         }
+
+        String accessToken = jwtUtil.createAccessToken(email);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .build();
     }
+
+
 }

@@ -2,12 +2,12 @@ package com.Sucat.global.config;
 
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.util.JwtUtil;
 import com.Sucat.global.security.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
 import com.Sucat.global.security.handler.LoginFailureHandler;
 import com.Sucat.global.security.handler.LoginSuccessJWTProvideHandler;
 import com.Sucat.global.security.service.UserDetailsServiceImpl;
+import com.Sucat.global.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -40,9 +40,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
-                        .requestMatchers("/", "/verify-email", "/verification-code").permitAll()
-                        .requestMatchers("/join/**", "/login", "/reissue/access-token").permitAll()
+                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
+                        .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
+                        .requestMatchers("/api/v1/reissue/access-token").permitAll()
+                        .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
+                        .requestMatchers("/api/v1/verification/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
@@ -53,7 +55,7 @@ public class SecurityConfig {
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 
     // 인증 관리자 관련 설정

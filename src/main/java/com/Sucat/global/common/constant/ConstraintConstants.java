@@ -11,6 +11,16 @@ public class ConstraintConstants {
     public static final String USER_DEPARTMENT = "회원 학과";
 
     /**
+     * Password
+     */
+    // 비밀번호 정책 관련 상수
+    public static final int MIN_PASSWORD_LENGTH = 8;
+    public static final int MAX_PASSWORD_LENGTH = 20;
+    public static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\\-_=+\\\\|\\[{\\]};:'\",<.>/?]).{8,20}$";
+
+
+
+    /**
      * Security
      */
     public static final String DEFAULT_LOGIN_REQUEST_URL = "/login";
