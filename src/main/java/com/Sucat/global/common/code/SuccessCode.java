@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import static org.springframework.http.HttpStatus.*;
+
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @Getter
 @AllArgsConstructor
@@ -14,13 +16,13 @@ public enum SuccessCode implements BaseCode{
     /**
      * 전역 응답 코드
      */
-    _OK(HttpStatus.OK, "200", "성공입니다."),
-    _CREATED(HttpStatus.CREATED, "201", "생성에 성공했습니다."),
+    _OK(OK, "200", "성공입니다."),
+    _CREATED(CREATED, "201", "생성에 성공했습니다."),
 
     /**
      * Token
      */
-    CREATED_ACCESS_TOKEN(HttpStatus.CREATED, "201", "액세스 토큰 재발행에 성공했습니다.");
+    CREATED_ACCESS_TOKEN(CREATED, "201", "액세스 토큰 재발행에 성공했습니다.");
 
 
     private final HttpStatus httpStatus;

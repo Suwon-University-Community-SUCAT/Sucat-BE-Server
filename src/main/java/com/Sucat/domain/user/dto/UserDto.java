@@ -10,13 +10,6 @@ public class UserDto {
     /**
      * Request
      */
-
-    public record UserEmailRequest(
-            @Email
-            @NotNull
-            String email
-            ) {
-    }
     public record UserNicknameRequest(
             @NotNull
             String nickname
@@ -33,8 +26,7 @@ public class UserDto {
             String password,
             String name,
             String nickname,
-            String department,
-            String socialNumber // 있어야 되나?
+            String department
     ) {
         public User toEntity(String encodePassword) {
             return User.builder()

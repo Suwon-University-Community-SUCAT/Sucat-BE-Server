@@ -40,9 +40,10 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*").permitAll() // 정적 자원 설정
-                        .requestMatchers("/", "/verify-email", "/verification-code").permitAll()
-                        .requestMatchers("/join/**", "/login", "/reissue/access-token").permitAll()
+                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
+                        .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
+                        .requestMatchers("/api/v1/reissue/access-token").permitAll()
+                        .requestMatchers("/api/v1/verification/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
