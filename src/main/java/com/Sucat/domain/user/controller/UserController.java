@@ -1,18 +1,19 @@
 package com.Sucat.domain.user.controller;
 
+import com.Sucat.domain.user.dto.UserDto;
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import static com.Sucat.domain.user.dto.UserDto.*;
 import static com.Sucat.domain.user.dto.UserDto.UserNicknameRequest;
 
 @RestController
@@ -28,5 +29,18 @@ public class UserController {
     public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
         userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
         return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    @GetMapping("/password")
+    public ResponseEntity<ApiResponse<Object>> getCurrentUserEmail(HttpServletRequest request) {
+        String email = userService.getUserInfo(request).getEmail();
+        return ApiResponse.onSuccess(SuccessCode._OK, email);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<ApiResponse<Object>> resetPassword(HttpServletRequest request, @RequestBody PasswordResetRequest passwordResetRequest) {
+        User currentUser = userService.getUserInfo(request);
+        userService.resetPassword(currentUser, passwordResetRequest);
+
     }
 }

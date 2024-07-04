@@ -1,5 +1,6 @@
 package com.Sucat.global.util;
 
+import com.Sucat.domain.user.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -27,4 +28,6 @@ public interface JwtUtil {
     void setRefreshTokenHeader(HttpServletResponse response, String refreshToken);
 
     boolean isTokenValid(String token);
+
+    User getUserFromRequest(HttpServletRequest request);
 }

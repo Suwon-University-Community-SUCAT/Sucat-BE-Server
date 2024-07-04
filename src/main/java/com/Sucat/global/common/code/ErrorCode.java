@@ -34,8 +34,9 @@ public enum ErrorCode implements BaseCode{
      */
     NICKNAME_DUPLICATION(CONFLICT, "409", "중복되는 닉네임입니다."),
     USER_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 회원입니다."),
-    INVALID_INPUT_ID_PASSWORD(BAD_REQUEST, "400", "Id 또는 Password가 일치하지 않습니다."),
+    INVALID_INPUT_ID_PASSWORD(BAD_REQUEST, "400", "Email 또는 Password가 일치하지 않습니다."),
     SOCIAL_TYPE_ERROR(BAD_REQUEST,"400","소셜 타입 검증에 실패했습니다."),
+    TERMS_NOT_ACCEPTED(BAD_REQUEST, "400", "약관에 동의하지 않았습니다."),
 
     /**
      * Token

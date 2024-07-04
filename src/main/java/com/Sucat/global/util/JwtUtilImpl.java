@@ -4,6 +4,7 @@ import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.token.model.RefreshToken;
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.exception.UserException;
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import com.auth0.jwt.JWT;
@@ -19,10 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
@@ -166,5 +164,15 @@ public class JwtUtilImpl implements JwtUtil {
             log.error("유효하지 않은 Token입니다.", e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    // Request 에서 유저를 반환하는 메서드
+    public User getUserFromRequest(HttpServletRequest request) {
+        String accessToken = extractAccessToken(request).orElseThrow(() -> new TokenException(ErrorCode.INVALID_REFRESH_TOKEN));
+        String email = extractEmail(accessToken);
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 }

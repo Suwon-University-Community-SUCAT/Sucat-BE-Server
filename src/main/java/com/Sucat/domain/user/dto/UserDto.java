@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
+import java.util.List;
+
 public class UserDto {
 
     /**
@@ -16,8 +18,12 @@ public class UserDto {
     ) {
     }
 
-    @Builder
+    public record UserTermAgree(
+            @NotNull
+            List<Boolean> agreements
+    ) {}
 
+    @Builder
     public record JoinUserRequest(
             @Email
             @NotNull
@@ -39,13 +45,14 @@ public class UserDto {
         }
     }
 
-    public record LoginUserRequest(
-            @Email
+    public record PasswordResetRequest(
             @NotNull
+            @Email
             String email,
             @NotNull
             String password
     ) {
+
     }
 
 
