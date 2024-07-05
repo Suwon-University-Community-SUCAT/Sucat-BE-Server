@@ -46,6 +46,7 @@ public class UserService {
         return jwtUtil.getUserFromRequest(request);
     }
 
+    @Transactional
     public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest) {
         User user = jwtUtil.getUserFromRequest(request);
 
@@ -63,6 +64,11 @@ public class UserService {
         validatePassword(resetPassword);
         currentUser.resetPassword(passwordEncoder.encode(resetPassword));
     }
+
+//    @Transactional
+//    public void chageProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest) {
+//
+//    }
 
     // 비밀번호 유효성 검사 메서드
     public void validatePassword(String password) {
