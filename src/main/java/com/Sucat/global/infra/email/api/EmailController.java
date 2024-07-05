@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-import static com.Sucat.global.infra.email.dto.EmailRequest.*;
+import static com.Sucat.global.infra.email.dto.EmailRequest.EmailForVerificationRequest;
+import static com.Sucat.global.infra.email.dto.EmailRequest.VerificationCodeRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class EmailController {
     @PostMapping("/verification/code")
     public ResponseEntity<ApiResponse<Object>> verificationByCode(@RequestBody VerificationCodeRequest request) {
         LocalDateTime requestedAt = LocalDateTime.now();
-        emailService.verifyCode(request.getCode(), requestedAt);
+        emailService.verifyCode(request.getEmail(), request.getCode(), requestedAt);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }

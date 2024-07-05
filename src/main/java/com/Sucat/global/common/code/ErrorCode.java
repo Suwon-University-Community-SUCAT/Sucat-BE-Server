@@ -54,7 +54,14 @@ public enum ErrorCode implements BaseCode{
     INVALID_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 토큰입니다."),
     INVALID_ACCESS_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(UNAUTHORIZED, "401", "유효하지 않은 리프레쉬 토큰입니다."),
-    REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "404", "해당 유저 ID의 리프레쉬 토큰이 없습니다.");
+    REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "404", "해당 유저 ID의 리프레쉬 토큰이 없습니다."),
+
+    /**
+     * Email
+     */
+    INVALID_VERIFICATION_CODE(BAD_REQUEST, "400", "유효하지 않은 인증 코드입니다."),
+    INVALID_VERIFICATION_EMAIL(BAD_REQUEST, "400", "유효하지 않은 이메일입니다."),
+    VERIFICATION_CODE_EXPIRED(BAD_REQUEST, "400", "인증 코드가 만료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

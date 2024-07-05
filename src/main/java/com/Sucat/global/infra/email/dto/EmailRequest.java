@@ -10,6 +10,7 @@ public class EmailRequest {
 
     @Getter
     public static class VerificationCodeRequest {
+        private String email;
         private String code;
     }
 }
