@@ -1,4 +1,4 @@
-package com.Sucat.global.infra.email.dto;
+package com.Sucat.global.infra.email.model;
 
 
 import lombok.*;
@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @Builder
 public class VerificationCode {
     private String code;
+    private String email;
     private LocalDateTime createAt;
     private Integer expirationTimeInMinutes;
 

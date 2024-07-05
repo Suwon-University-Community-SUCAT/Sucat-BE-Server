@@ -1,6 +1,6 @@
 package com.Sucat.global.infra.email.repository;
 
-import com.Sucat.global.infra.email.dto.VerificationCode;
+import com.Sucat.global.infra.email.model.VerificationCode;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -15,14 +15,14 @@ public class VerificationCodeRepository {
     private final Map<String, VerificationCode> repository = new ConcurrentHashMap<>();
 
     public VerificationCode save(VerificationCode verificationCode) {
-        return repository.put(verificationCode.getCode(), verificationCode);
+        return repository.put(verificationCode.getEmail(), verificationCode);
     }
 
-    public Optional<VerificationCode> findByCode(String code) {
-        return Optional.ofNullable(repository.get(code));
+    public Optional<VerificationCode> findByEmail(String email) {
+        return Optional.ofNullable(repository.get(email));
     }
 
     public void remove(VerificationCode verificationCode) {
-        repository.remove(verificationCode.getCode());
+        repository.remove(verificationCode.getEmail());
     }
 }
