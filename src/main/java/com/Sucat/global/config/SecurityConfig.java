@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
                         .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
+                        .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/access-token").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
                         .requestMatchers("/api/v1/verification/**").permitAll()

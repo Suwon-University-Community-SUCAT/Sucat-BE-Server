@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.Sucat.domain.user.dto.UserDto.PasswordResetRequest;
+import static com.Sucat.domain.user.dto.UserDto.UserProfileUpdateRequest;
 import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 @Service
@@ -45,19 +46,22 @@ public class UserService {
         return jwtUtil.getUserFromRequest(request);
     }
 
+    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest) {
+        User user = jwtUtil.getUserFromRequest(request);
+
+        // 닉네임 중복 검사
+        nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
+
+        user.updateProfile(userProfileUpdateRequest.nickname());
+    }
+
     @Transactional
-    public void resetPassword(User currentUser, PasswordResetRequest passwordResetRequest) {
-        String currentUserEmail = currentUser.getEmail();
-
-        if (!currentUserEmail.equals(passwordResetRequest.email())) {
-            throw new UserException(ErrorCode.USER_MISMATCH);
-        }
-
-//        currentUser.resetPassword(passwordEncoder.encode(passwordResetRequest.password()));
+    public void resetPassword(PasswordResetRequest passwordResetRequest) {
+        User currentUser = findByEmail(passwordResetRequest.email());
         String resetPassword = passwordResetRequest.password();
+
         validatePassword(resetPassword);
         currentUser.resetPassword(passwordEncoder.encode(resetPassword));
-
     }
 
     // 비밀번호 유효성 검사 메서드

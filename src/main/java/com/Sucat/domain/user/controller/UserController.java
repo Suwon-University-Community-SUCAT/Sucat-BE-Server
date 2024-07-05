@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-import static com.Sucat.domain.user.dto.UserDto.PasswordResetRequest;
-import static com.Sucat.domain.user.dto.UserDto.UserNicknameRequest;
+import static com.Sucat.domain.user.dto.UserDto.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,9 +35,28 @@ public class UserController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<ApiResponse<Object>> resetPassword(HttpServletRequest request, @RequestBody PasswordResetRequest passwordResetRequest) {
-        User currentUser = userService.getUserInfo(request);
-        userService.resetPassword(currentUser, passwordResetRequest);
+    public ResponseEntity<ApiResponse<Object>> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+        userService.resetPassword(passwordResetRequest);
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+
+    // TODO: 추후 사용자 프로필 이미지 반환 추가
+    @GetMapping("/change/profile")
+    public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, user.getEmail());
+    }
+
+    @PostMapping("/change/profile")
+    public ResponseEntity<ApiResponse<Object>> updateProfile(HttpServletRequest request, @RequestBody @Valid UserProfileUpdateRequest userProfileUpdateRequest) {
+        userService.updateProfile(request, userProfileUpdateRequest);
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    @PostMapping("/change/password")
+    public ResponseEntity<ApiResponse<Object>> changeProfile(HttpServletRequest request, @RequestBody @Valid UserProfileUpdateRequest userProfileUpdateRequest) {
+        userService.updateProfile(request, userProfileUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }
