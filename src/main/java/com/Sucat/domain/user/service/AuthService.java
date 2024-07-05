@@ -27,7 +27,7 @@ public class AuthService {
         userService.emailDuplicateVerification(user.getEmail());
         userService.validatePassword(user.getPassword());
         userService.nicknameDuplicateVerification(user.getNickname());//이미 회원가입 과정에서 닉네임 중복 검사를 하지만 동시성 에러를 고려
-        user.resetPassword(passwordEncoder.encode(user.getPassword()));
+        user.updatePassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 

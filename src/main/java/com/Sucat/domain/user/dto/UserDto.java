@@ -65,6 +65,15 @@ public class UserDto {
 
     }
 
+    public record UserPasswordUpdateRequest(
+            @NotNull
+            String currentPassword,
+            @NotNull
+            String newPassword
+    ) {
+
+    }
+
 
     /**
      * Response

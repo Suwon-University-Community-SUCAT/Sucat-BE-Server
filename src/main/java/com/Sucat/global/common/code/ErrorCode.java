@@ -46,6 +46,7 @@ public enum ErrorCode implements BaseCode{
     PASSWORD_MISSING_OR_EMPTY(BAD_REQUEST, "400", "비밀번호는 null이나 빈 문자열일 수 없습니다."),
     PASSWORD_LENGTH_INVALID(BAD_REQUEST, "400", "비밀번호는 최소 " + MIN_PASSWORD_LENGTH + "자에서 최대 " + MAX_PASSWORD_LENGTH + "자여야 합니다."),
     PASSWORD_COMPLEXITY_REQUIRED(BAD_REQUEST, "400", "비밀번호는 숫자, 문자, 특수문자를 모두 포함해야 합니다."),
+    PASSWORD_MISMATCH(BAD_REQUEST, "400", "입력한 비밀번호가 기존 비밀번호와 일치하지 않습니다."),
 
     /**
      * Token

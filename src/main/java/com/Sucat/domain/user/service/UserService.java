@@ -3,7 +3,6 @@ package com.Sucat.domain.user.service;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.Sucat.domain.user.dto.UserDto.PasswordResetRequest;
-import static com.Sucat.domain.user.dto.UserDto.UserProfileUpdateRequest;
+import static com.Sucat.domain.user.dto.UserDto.*;
+import static com.Sucat.global.common.code.ErrorCode.*;
 import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 @Service
@@ -27,18 +26,18 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     public void emailDuplicateVerification(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new UserException(ErrorCode.USER_ALREADY_EXISTS);
+            throw new UserException(USER_ALREADY_EXISTS);
         }
     }
 
     public void nicknameDuplicateVerification(String nickname) {
         if (userRepository.findByNickname(nickname).isPresent())  {
-            throw new UserException(ErrorCode.NICKNAME_DUPLICATION);
+            throw new UserException(NICKNAME_DUPLICATION);
         }
     }
 
@@ -62,25 +61,41 @@ public class UserService {
         String resetPassword = passwordResetRequest.password();
 
         validatePassword(resetPassword);
-        currentUser.resetPassword(passwordEncoder.encode(resetPassword));
+        currentUser.updatePassword(passwordEncoder.encode(resetPassword));
     }
 
-//    @Transactional
-//    public void chageProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest) {
-//
-//    }
+    @Transactional
+    public void changePassword(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest) {
+        User currentUser = jwtUtil.getUserFromRequest(request);
+
+        String encodedPassword = currentUser.getPassword(); // 이미 인코딩된 비밀번호
+        String currentPassword = userPasswordUpdateRequest.currentPassword();
+        String newPassword = userPasswordUpdateRequest.newPassword();
+
+        // 비밀번호가 일치하는지 확인
+        if (!passwordEncoder.matches(currentPassword, encodedPassword)) {
+            throw new UserException(USER_MISMATCH);
+        }
+
+        // 새 비밀번호 유효성 검사
+        validatePassword(newPassword);
+
+        // 새 비밀번호로 업데이트
+        currentUser.updatePassword(passwordEncoder.encode(newPassword));
+    }
+
 
     // 비밀번호 유효성 검사 메서드
     public void validatePassword(String password) {
         // 비밀번호 만료 날짜 설정, 이전 비밀번호와의 비교 등 정책 추가 고민
         if (password == null || password.isEmpty()) {
-            throw new UserException(ErrorCode.PASSWORD_MISSING_OR_EMPTY);
+            throw new UserException(PASSWORD_MISSING_OR_EMPTY);
         }
         if (password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH) {
-            throw new UserException(ErrorCode.PASSWORD_LENGTH_INVALID);
+            throw new UserException(PASSWORD_LENGTH_INVALID);
         }
         if (!password.matches(PASSWORD_PATTERN)) {
-            throw new UserException(ErrorCode.PASSWORD_COMPLEXITY_REQUIRED);
+            throw new UserException(PASSWORD_COMPLEXITY_REQUIRED);
         }
     }
 }

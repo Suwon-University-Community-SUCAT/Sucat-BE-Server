@@ -18,7 +18,6 @@ import static com.Sucat.domain.user.dto.UserDto.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-//    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final UserDetailsService userDetailsService;
 
@@ -55,8 +54,9 @@ public class UserController {
     }
 
     @PostMapping("/change/password")
-    public ResponseEntity<ApiResponse<Object>> changeProfile(HttpServletRequest request, @RequestBody @Valid UserProfileUpdateRequest userProfileUpdateRequest) {
-        userService.updateProfile(request, userProfileUpdateRequest);
+    public ResponseEntity<ApiResponse<Object>> changeProfile(HttpServletRequest request, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
+        userService.changePassword(request, userPasswordUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
+
 }
