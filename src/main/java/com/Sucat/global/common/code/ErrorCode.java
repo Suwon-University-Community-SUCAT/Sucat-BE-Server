@@ -61,7 +61,13 @@ public enum ErrorCode implements BaseCode{
      */
     INVALID_VERIFICATION_CODE(BAD_REQUEST, "400", "유효하지 않은 인증 코드입니다."),
     INVALID_VERIFICATION_EMAIL(BAD_REQUEST, "400", "유효하지 않은 이메일입니다."),
-    VERIFICATION_CODE_EXPIRED(BAD_REQUEST, "400", "인증 코드가 만료되었습니다.");
+    VERIFICATION_CODE_EXPIRED(BAD_REQUEST, "400", "인증 코드가 만료되었습니다."),
+
+    /**
+     * Image
+     */
+    IMAGE_MISSING_OR_EMPTY(BAD_REQUEST, "400", "비밀번호는 null이나 빈 문자열일 수 없습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;

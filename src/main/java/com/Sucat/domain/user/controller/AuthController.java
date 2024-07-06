@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.JoinUserRequest;
 import static com.Sucat.domain.user.dto.UserDto.UserTermAgree;
@@ -23,10 +26,11 @@ public class AuthController {
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
 
-
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Object>> signup(@RequestBody @Valid JoinUserRequest userRequest) {
-        authService.signup(userRequest.toEntity());
+    public ResponseEntity<ApiResponse<Object>> signup(
+            @RequestPart(name = "request") @Valid JoinUserRequest userRequest,
+            @RequestPart(name = "profileImage", required = true) MultipartFile profileImage) throws IOException {
+        authService.signup(userRequest.toEntity(), profileImage);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 

@@ -1,5 +1,6 @@
 package com.Sucat.domain.board.model;
 
+import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -38,5 +39,5 @@ public class Board {
     private User user;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Images> images = new ArrayList<>();
+    private List<Image> images = new ArrayList<>();
 }

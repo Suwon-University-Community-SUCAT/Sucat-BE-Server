@@ -1,6 +1,7 @@
 package com.Sucat.domain.user.model;
 
 import com.Sucat.domain.friendship.model.FriendShip;
+import com.Sucat.domain.image.model.Image;
 import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -43,6 +44,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<FriendShip> mates = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image userImage;
+
     @Builder
     public User(String name, String email, String password, String department, String nickname) {
         this.name = name;
@@ -50,6 +54,11 @@ public class User extends BaseEntity {
         this.password = password;
         this.department = department;
         this.nickname = nickname;
+    }
+
+    /* 연관관계 메서드 */
+    public void updateUserImage(Image image) {
+        this.userImage = image;
     }
 
     /* Using Method */
