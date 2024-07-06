@@ -1,6 +1,5 @@
 package com.Sucat.domain.user.controller;
 
-import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -43,8 +42,8 @@ public class UserController {
     // TODO: 추후 사용자 프로필 이미지 반환 추가
     @GetMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(HttpServletRequest request) {
-        User user = userService.getUserInfo(request);
-        return ApiResponse.onSuccess(SuccessCode._OK, user.getEmail());
+        UserProfileResponse userProfile = userService.getUserProfile(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
 
     @PostMapping("/change/profile")

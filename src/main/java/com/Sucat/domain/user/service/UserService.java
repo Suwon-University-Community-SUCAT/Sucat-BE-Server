@@ -1,7 +1,9 @@
 package com.Sucat.domain.user.service;
 
+import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.repository.UserQueryRepository;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import static com.Sucat.global.common.constant.ConstraintConstants.*;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
     private final JwtUtil jwtUtil;
 
     // 비밀번호 암호화 메서드
@@ -82,6 +85,18 @@ public class UserService {
 
         // 새 비밀번호로 업데이트
         currentUser.updatePassword(passwordEncoder.encode(newPassword));
+    }
+
+    public UserProfileResponse getUserProfile(HttpServletRequest request) {
+        String email = getEmailByRequest(request);
+        User user = userQueryRepository.findUserProfileByEmail(email);
+        return UserProfileResponse.of(user);
+    }
+
+    private String getEmailByRequest(HttpServletRequest request) {
+        String accessToken = jwtUtil.extractAccessToken(request)
+                .orElseThrow(() -> new TokenException(INVALID_REFRESH_TOKEN));
+        return jwtUtil.extractEmail(accessToken);
     }
 
 
