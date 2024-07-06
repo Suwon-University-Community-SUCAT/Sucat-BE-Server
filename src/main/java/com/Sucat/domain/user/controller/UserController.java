@@ -1,6 +1,5 @@
 package com.Sucat.domain.user.controller;
 
-import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -10,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.*;
 
@@ -43,13 +45,16 @@ public class UserController {
     // TODO: 추후 사용자 프로필 이미지 반환 추가
     @GetMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(HttpServletRequest request) {
-        User user = userService.getUserInfo(request);
-        return ApiResponse.onSuccess(SuccessCode._OK, user.getEmail());
+        UserProfileResponse userProfile = userService.getUserProfile(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
 
     @PostMapping("/change/profile")
-    public ResponseEntity<ApiResponse<Object>> updateProfile(HttpServletRequest request, @RequestBody @Valid UserProfileUpdateRequest userProfileUpdateRequest) {
-        userService.updateProfile(request, userProfileUpdateRequest);
+    public ResponseEntity<ApiResponse<Object>> updateProfile(
+            HttpServletRequest request,
+            @RequestPart(name = "userProfileUpdateRequest") @Valid UserProfileUpdateRequest userProfileUpdateRequest,
+            @RequestPart(name = "image", required = false) MultipartFile image) throws IOException {
+        userService.updateProfile(request, userProfileUpdateRequest, image);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 

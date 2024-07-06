@@ -53,7 +53,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 accessToken -> {
                     String email = jwtUtil.extractEmail(accessToken);
                     userRepository.findByEmail(email).ifPresent(
-                            user -> saveAuthentication(user)
+                            this::saveAuthentication
                     );
                 }
         );
@@ -61,20 +61,20 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request,response);
     }
 
+    private void saveAuthentication(User user) {
+        UserDetails userDetails = createUserDetails(user);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
 
-
-    private void saveAuthentication(User users) {
-        UserDetails user = org.springframework.security.core.userdetails.User.builder()
-                .username(users.getEmail())
-                .password(users.getPassword())
-                .roles(users.getRole().name())
-                .build();
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authoritiesMapper.mapAuthorities(user.getAuthorities()));
-
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();//5
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
+    }
+
+    private UserDetails createUserDetails(User user) {
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
+                .build();
     }
 }

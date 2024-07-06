@@ -1,4 +1,4 @@
-package com.Sucat.domain.chatmessage.service;
+package com.Sucat.domain.image.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

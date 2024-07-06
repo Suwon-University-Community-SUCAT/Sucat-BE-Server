@@ -78,4 +78,17 @@ public class UserDto {
     /**
      * Response
      */
+    @Builder
+    public record UserProfileResponse(
+            @NotNull
+            String nickname,
+            String imageUrl
+    ) {
+        public static UserProfileResponse of(User user) {
+            return UserProfileResponse.builder()
+                    .nickname(user.getNickname())
+                    .imageUrl(user.getUserImage().getImageUrl())
+                    .build();
+        }
+    }
 }

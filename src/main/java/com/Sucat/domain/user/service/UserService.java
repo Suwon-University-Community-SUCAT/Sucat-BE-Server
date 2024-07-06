@@ -1,7 +1,11 @@
 package com.Sucat.domain.user.service;
 
+import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.repository.UserQueryRepository;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.*;
 import static com.Sucat.global.common.code.ErrorCode.*;
@@ -19,7 +26,9 @@ import static com.Sucat.global.common.constant.ConstraintConstants.*;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
     private final JwtUtil jwtUtil;
+    private final ImageService imageService;
 
     // 비밀번호 암호화 메서드
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -46,14 +55,18 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest) {
+    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest, MultipartFile image) throws IOException {
         User user = jwtUtil.getUserFromRequest(request);
 
         // 닉네임 중복 검사
         nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
 
         user.updateProfile(userProfileUpdateRequest.nickname());
+
+        updateUserImage(image, user);
     }
+
+
 
     @Transactional
     public void resetPassword(PasswordResetRequest passwordResetRequest) {
@@ -82,6 +95,35 @@ public class UserService {
 
         // 새 비밀번호로 업데이트
         currentUser.updatePassword(passwordEncoder.encode(newPassword));
+    }
+
+    public UserProfileResponse getUserProfile(HttpServletRequest request) {
+        String email = getEmailByRequest(request);
+        User user = userQueryRepository.findUserProfileByEmail(email);
+        return UserProfileResponse.of(user);
+    }
+
+    private void updateUserImage(MultipartFile image, User user) throws IOException {
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = imageService.storeFile(image, user.getId());
+
+            Image userImage = user.getUserImage(); // 기존의 사용자 이미지 객체를 가져옴
+
+            if (userImage == null) {
+                // 만약 기존 이미지가 없다면 새로운 이미지 객체 생성
+                userImage = Image.ofUser(user, imageUrl);
+                user.updateUserImage(userImage);
+            } else {
+                // 기존 이미지 객체의 URL만 변경
+                userImage.updateImageUrl(imageUrl);
+            }
+        }
+    }
+
+    private String getEmailByRequest(HttpServletRequest request) {
+        String accessToken = jwtUtil.extractAccessToken(request)
+                .orElseThrow(() -> new TokenException(INVALID_REFRESH_TOKEN));
+        return jwtUtil.extractEmail(accessToken);
     }
 
 

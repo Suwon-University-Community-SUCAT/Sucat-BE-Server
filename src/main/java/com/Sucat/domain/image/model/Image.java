@@ -31,6 +31,12 @@ public class Image {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    /* Using Method */
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    /* 연관관계 메서드 */
     public static Image ofUser(User user, String imageUrl) {
 
         return Image.builder()
