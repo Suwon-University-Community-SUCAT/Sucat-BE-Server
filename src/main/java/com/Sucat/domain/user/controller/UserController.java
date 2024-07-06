@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.*;
 
@@ -47,8 +50,11 @@ public class UserController {
     }
 
     @PostMapping("/change/profile")
-    public ResponseEntity<ApiResponse<Object>> updateProfile(HttpServletRequest request, @RequestBody @Valid UserProfileUpdateRequest userProfileUpdateRequest) {
-        userService.updateProfile(request, userProfileUpdateRequest);
+    public ResponseEntity<ApiResponse<Object>> updateProfile(
+            HttpServletRequest request,
+            @RequestPart(name = "userProfileUpdateRequest") @Valid UserProfileUpdateRequest userProfileUpdateRequest,
+            @RequestPart(name = "image", required = false) MultipartFile image) throws IOException {
+        userService.updateProfile(request, userProfileUpdateRequest, image);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 

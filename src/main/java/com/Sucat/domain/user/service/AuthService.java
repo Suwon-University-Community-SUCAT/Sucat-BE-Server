@@ -1,6 +1,6 @@
 package com.Sucat.domain.user.service;
 
-import com.Sucat.domain.chatmessage.service.ImageService;
+import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
