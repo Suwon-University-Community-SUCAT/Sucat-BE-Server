@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @Builder
@@ -17,10 +19,12 @@ public class Image {
     private Long id;
 
     @NotNull
-//    @URL /* 올바른 url 형식이 아니라면 검증 부분에서 에러를 발생시킴 */
+//    @URL
     private String imageUrl;
 
-    @OneToOne
+    @ManyToOne(fetch = LAZY)
+    @NotNull
+    @JoinColumn(name = "user_id")
     private User user;
 
     public static Image of(User user, String imageUrl) {
