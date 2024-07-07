@@ -41,6 +41,9 @@ Suwon University Community Project
 
 ## 🔍 Architecture
 
+## Commit Message Convention
+<img width="721" alt="commit Message" src="https://github.com/pp8817/Sucat/assets/71458064/623550c0-c44e-418e-a801-f70af1a7ac3b">
+
 ### ERD (24.07.04)
 <img width="769" alt="스크린샷 2024-07-04 17 46 44" src="https://github.com/pp8817/Sucat/assets/71458064/bade46af-fac1-44f0-ab51-72c7374cd658">
 
