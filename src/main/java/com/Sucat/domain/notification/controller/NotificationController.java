@@ -9,14 +9,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
 import static com.Sucat.domain.notification.dto.NotificationDto.CreateNotificationRequest;
-import static com.Sucat.domain.notification.dto.NotificationDto.SystemListResponse;
+import static com.Sucat.domain.notification.dto.NotificationDto.SystemListWithSizeResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +40,8 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<Object>> List(
             @PageableDefault(page = 0, size = 10) @Nullable final Pageable pageable
     ) {
-        List<SystemListResponse> systemList = notificationService.getSystemList(pageable);
+        SystemListWithSizeResponse systemListWithSizeResponse = notificationService.getSystemList(pageable);
 
-        return ApiResponse.onSuccess(SuccessCode._OK, systemList);
+        return ApiResponse.onSuccess(SuccessCode._OK, systemListWithSizeResponse);
     }
 }

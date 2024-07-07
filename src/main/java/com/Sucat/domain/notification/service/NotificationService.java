@@ -15,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.Sucat.domain.notification.dto.NotificationDto.SystemListResponse;
+import static com.Sucat.domain.notification.dto.NotificationDto.SystemListWithSizeResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +38,12 @@ public class NotificationService {
         }
     }
 
-    public List<SystemListResponse> getSystemList(Pageable pageable) {
+    public SystemListWithSizeResponse getSystemList(Pageable pageable) {
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        return notificationRepository.findAll(pageRequest).stream()
+        List<SystemListResponse> systemList = notificationRepository.findAll(pageRequest).stream()
                 .map(SystemListResponse::of)
-                .collect(Collectors.toList());
-
+                .toList();
+        int listSize = systemList.size();
+        return SystemListWithSizeResponse.of(systemList, listSize);
     }
 }

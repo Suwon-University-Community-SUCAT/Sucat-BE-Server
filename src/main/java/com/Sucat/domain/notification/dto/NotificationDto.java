@@ -6,8 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import static com.Sucat.global.common.constant.ConstraintConstants.*;
+import static com.Sucat.global.common.constant.ConstraintConstants.TIME_FORMAT_YYYY_MM_DD_HH_MM;
 
 public class NotificationDto {
 
@@ -43,4 +44,18 @@ public class NotificationDto {
                     .build();
         }
     }
+
+    @Builder
+    public record SystemListWithSizeResponse(
+            List<SystemListResponse> systemList,
+            int listSize
+    ) {
+        public static SystemListWithSizeResponse of(List<SystemListResponse> systemList, int listSize) {
+            return SystemListWithSizeResponse.builder()
+                    .systemList(systemList)
+                    .listSize(listSize)
+                    .build();
+        }
+    }
 }
+
