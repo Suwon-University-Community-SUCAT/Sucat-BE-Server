@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,16 +20,16 @@ public class ImageService {
         return fileDir + filename;
     }
 
-//    public List<String> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
-//        List<String> imageUrlList = new ArrayList<>();
-//        for (MultipartFile multipartFile : multipartFiles) {
-//            if (!multipartFile.isEmpty()) {
-//                imageUrlList.add(storeFile(multipartFile)); //파일의 이름 정보가 들어간 UploadFile 객체를 storeFileResult에 넣어줌
-//            }
-//        }
-//        return imageUrlList;
-//
-//    }
+    public List<String> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
+        List<String> imageUrlList = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            if (!multipartFile.isEmpty()) {
+                imageUrlList.add(storeFile(multipartFile)); //파일의 이름 정보가 들어간 UploadFile 객체를 storeFileResult에 넣어줌
+            }
+        }
+        return imageUrlList;
+
+    }
 
     public String storeFile(MultipartFile multipartFile) throws IOException {
         if (multipartFile.isEmpty()) {

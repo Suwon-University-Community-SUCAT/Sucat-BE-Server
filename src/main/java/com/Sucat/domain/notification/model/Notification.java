@@ -34,4 +34,13 @@ public class Notification extends BaseEntity {
 
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
+    /* 연관관계 메서드 */
+    public void addNotificationImage(Image image) {
+        this.images.add(image);
+    }
+
+    public void addNotificationImages(List<Image> image) {
+        this.images.addAll(image);
+    }
 }
