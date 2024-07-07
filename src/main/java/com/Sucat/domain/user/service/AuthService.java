@@ -37,7 +37,7 @@ public class AuthService {
         userRepository.save(user);
 
         if (image != null && !image.isEmpty()) {
-            String imageUrl = imageService.storeFile(image, user.getId());
+            String imageUrl = imageService.storeFile(image);
             Image userImage = Image.ofUser(user, imageUrl);
             user.updateUserImage(userImage);
         }

@@ -105,7 +105,7 @@ public class UserService {
 
     private void updateUserImage(MultipartFile image, User user) throws IOException {
         if (image != null && !image.isEmpty()) {
-            String imageUrl = imageService.storeFile(image, user.getId());
+            String imageUrl = imageService.storeFile(image);
 
             Image userImage = user.getUserImage(); // 기존의 사용자 이미지 객체를 가져옴
 
