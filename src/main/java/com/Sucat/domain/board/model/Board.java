@@ -17,6 +17,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board {
+    //Test
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "board_id")
