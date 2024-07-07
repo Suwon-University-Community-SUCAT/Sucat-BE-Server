@@ -1,6 +1,15 @@
 package com.Sucat.global.common.constant;
 
 public class ConstraintConstants {
+
+    /**
+     * Common
+     */
+    public static final String TIME_FORMAT_YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
+    public static final String TIME_FORMAT_YYYY_MM_DD_HH = "yyyy-MM-dd HH";
+    public static final String TIME_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
+
+
     /**
      * User
      */

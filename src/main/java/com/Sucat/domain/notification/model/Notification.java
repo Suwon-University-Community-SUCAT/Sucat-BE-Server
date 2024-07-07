@@ -37,10 +37,15 @@ public class Notification extends BaseEntity {
 
     /* 연관관계 메서드 */
     public void addNotificationImage(Image image) {
+        if (this.images == null) {
+            this.images = new ArrayList<>();
+        }
         this.images.add(image);
     }
 
-    public void addNotificationImages(List<Image> image) {
-        this.images.addAll(image);
+    public void addNotificationImages(List<Image> images) {
+        for (Image image : images) {
+            this.addNotificationImage(image);
+        }
     }
 }
