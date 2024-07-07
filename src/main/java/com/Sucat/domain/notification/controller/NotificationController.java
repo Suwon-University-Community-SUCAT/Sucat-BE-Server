@@ -20,12 +20,11 @@ import static com.Sucat.domain.notification.dto.NotificationDto.SystemListRespon
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
 public class NotificationController {
     private final NotificationService notificationService;
 
     /* 공지사항 작성 */
-    @PostMapping("/notification")
+    @PostMapping("/admin/notification")
     public ResponseEntity<ApiResponse<Object>> create(
             @RequestPart(name = "notificationRequest") @Valid CreateNotificationRequest createNotificationRequest,
             @RequestPart(name = "images", required = false) List<MultipartFile> images) throws IOException {

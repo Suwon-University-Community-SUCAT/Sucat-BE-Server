@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
                         .requestMatchers("/api/v1/verification/**").permitAll()
+                        .requestMatchers("/notification/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
