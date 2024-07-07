@@ -26,7 +26,7 @@ public class Favorite extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "board_id")
     private Board board;
 
     /*연관관계 메서드*/

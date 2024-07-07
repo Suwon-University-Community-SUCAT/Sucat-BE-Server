@@ -18,7 +18,7 @@ import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
-@Table(name = "users")// User는 예약어이기에 사용 불가
+@Table(name = "tblUser")// User는 예약어이기에 사용 불가
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
