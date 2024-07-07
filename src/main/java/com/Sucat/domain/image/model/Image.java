@@ -1,6 +1,7 @@
 package com.Sucat.domain.image.model;
 
 import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.notification.model.Notification;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -31,6 +32,10 @@ public class Image {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "notification_id")
+    private Notification notification;
+
     /* Using Method */
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
@@ -41,6 +46,15 @@ public class Image {
 
         return Image.builder()
                 .user(user) //연관관계 설정
+                .imageUrl(imageUrl)
+                .build();
+
+    }
+
+    public static Image ofNotification(Notification notification, String imageUrl) {
+
+        return Image.builder()
+                .notification(notification) //연관관계 설정
                 .imageUrl(imageUrl)
                 .build();
 

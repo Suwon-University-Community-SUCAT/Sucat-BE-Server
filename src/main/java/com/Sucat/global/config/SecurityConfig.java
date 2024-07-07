@@ -1,6 +1,8 @@
 package com.Sucat.global.config;
 
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.security.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
@@ -10,6 +12,8 @@ import com.Sucat.global.security.service.UserDetailsServiceImpl;
 import com.Sucat.global.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,19 +37,27 @@ public class SecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
+    @Value("${admin.email}")
+    private String adminEmail;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
     @Bean
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
                         .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
                         .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
                         .requestMatchers("/api/v1/verification/**").permitAll()
+                        .requestMatchers("/notification/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
@@ -78,12 +90,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler(){
+    public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
         return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, refreshTokenRepository);
     }
 
     @Bean
-    public LoginFailureHandler loginFailureHandler(){
+    public LoginFailureHandler loginFailureHandler() {
         return new LoginFailureHandler();
     }
 
@@ -97,9 +109,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter(){
+    public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
         JwtAuthenticationProcessingFilter jsonUsernamePasswordLoginFilter = new JwtAuthenticationProcessingFilter(jwtUtil, userRepository);
 
         return jsonUsernamePasswordLoginFilter;
+    }
+
+    @Bean
+    public CommandLineRunner initAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (!userRepository.existsByEmail(adminEmail)) {
+                User admin = User.builder()
+                        .email(adminEmail)
+                        .password(passwordEncoder.encode(adminPassword))
+                        .role(UserRole.ADMIN)
+                        .build();
+                userRepository.save(admin);
+            }
+        };
     }
 }

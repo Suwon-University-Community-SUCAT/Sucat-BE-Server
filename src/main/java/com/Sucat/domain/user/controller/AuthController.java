@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Object>> signup(
             @RequestPart(name = "request") @Valid JoinUserRequest userRequest,
-            @RequestPart(name = "profileImage", required = true) MultipartFile profileImage) throws IOException {
+            @RequestPart(name = "profileImage", required = false) MultipartFile profileImage) throws IOException {
         authService.signup(userRequest.toEntity(), profileImage);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }

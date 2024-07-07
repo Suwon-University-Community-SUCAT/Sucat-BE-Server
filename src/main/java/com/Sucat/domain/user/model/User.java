@@ -6,20 +6,19 @@ import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
 @Table(name = "tblUser")// User는 예약어이기에 사용 불가
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,18 +48,13 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-    @Builder
-    public User(String name, String email, String password, String department, String nickname) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.department = department;
-        this.nickname = nickname;
-    }
-
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
         this.userImage = image;
+    }
+
+    public void deleteUserImage() {
+        this.userImage = null;
     }
 
     /* Using Method */
