@@ -48,25 +48,13 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-//    @Builder
-//    public User(String name, String email, String password, String department, String nickname) {
-//        this.name = name;
-//        this.email = email;
-//        this.password = password;
-//        this.department = department;
-//        this.nickname = nickname;
-//    }
-//
-//    @Builder
-//    public User(String email, String password, UserRole role) {
-//        this.email = email;
-//        this.password = password;
-//        this.role = role;
-//    }
-
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
         this.userImage = image;
+    }
+
+    public void deleteUserImage() {
+        this.userImage = null;
     }
 
     /* Using Method */
