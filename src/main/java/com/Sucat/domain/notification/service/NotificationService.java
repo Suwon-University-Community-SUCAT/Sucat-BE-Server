@@ -2,8 +2,12 @@ package com.Sucat.domain.notification.service;
 
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.notification.dto.NotificationDto;
+import com.Sucat.domain.notification.exception.NotificationException;
 import com.Sucat.domain.notification.model.Notification;
+import com.Sucat.domain.notification.repository.NotificationQueryRepository;
 import com.Sucat.domain.notification.repository.NotificationRepository;
+import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+import static com.Sucat.domain.notification.dto.NotificationDto.*;
 import static com.Sucat.domain.notification.dto.NotificationDto.SystemListResponse;
 import static com.Sucat.domain.notification.dto.NotificationDto.SystemListWithSizeResponse;
 
@@ -23,8 +28,14 @@ import static com.Sucat.domain.notification.dto.NotificationDto.SystemListWithSi
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+    private final NotificationQueryRepository notificationQueryRepository;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
+
+    public Notification getNotification(Long id) {
+        return notificationRepository.findById(id)
+                .orElseThrow(() -> new NotificationException(ErrorCode.NOTIFICATION_NOT_FOUND));
+    }
 
     @Transactional
     public void create(Notification notification, List<MultipartFile> images) throws IOException {
@@ -45,5 +56,10 @@ public class NotificationService {
                 .toList();
         int listSize = systemList.size();
         return SystemListWithSizeResponse.of(systemList, listSize);
+    }
+
+    public NotificationDetailResponse getNotificationDetail(Long notificationId) {
+        Notification notification = notificationQueryRepository.findNotificationById(notificationId);
+        return NotificationDetailResponse.of(notification);
     }
 }
