@@ -61,7 +61,7 @@ public class UserService {
         // 닉네임 중복 검사
         nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
 
-        user.updateProfile(userProfileUpdateRequest.nickname());
+        user.updateProfile(userProfileUpdateRequest.nickname(), userProfileUpdateRequest.intro());
 
         updateUserImage(image, user);
     }
