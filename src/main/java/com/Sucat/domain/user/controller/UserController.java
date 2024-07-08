@@ -41,8 +41,6 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
-
-    // TODO: 추후 사용자 프로필 이미지 반환 추가
     @GetMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(HttpServletRequest request) {
         UserProfileResponse userProfile = userService.getUserProfile(request);

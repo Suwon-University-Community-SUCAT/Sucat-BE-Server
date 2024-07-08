@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/").permitAll() // 정적 자원 설정
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error").permitAll() // 정적 자원 설정
                         .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
                         .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()

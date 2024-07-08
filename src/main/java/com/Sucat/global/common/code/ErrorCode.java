@@ -21,6 +21,7 @@ public enum ErrorCode implements BaseCode{
     _INTERNAL_SERVER_ERROR(INTERNAL_SERVER_ERROR,"500", "서버에서 요청을 처리 하는 동안 오류가 발생했습니다."),
     _BAD_REQUEST(BAD_REQUEST,"400", "입력 값이 잘못된 요청입니다."),
     _INVALID_TYPE_VALUE(BAD_REQUEST, "400", "입력 타입이 잘못된 요청입니다."),
+    _INVALID_INPUT_VALUE(BAD_REQUEST, "400", "입력 값이 잘못된 요청입니다."),
     _UNAUTHORIZED(UNAUTHORIZED,"401", "인증이 필요합니다."),
     _FORBIDDEN(FORBIDDEN, "403", "금지된 요청입니다."),
 

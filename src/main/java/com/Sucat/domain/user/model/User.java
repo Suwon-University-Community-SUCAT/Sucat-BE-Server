@@ -34,6 +34,8 @@ public class User extends BaseEntity {
     @NotNull
     private String password;
 
+    private String intro;
+
     private String department;
 
     private String nickname;
@@ -71,7 +73,8 @@ public class User extends BaseEntity {
         this.role = UserRole.USER;
     }
 
-    public void updateProfile(String nickname) {
+    public void updateProfile(String nickname, String intro) {
         this.nickname = nickname;
+        this.intro = intro;
     }
 }
