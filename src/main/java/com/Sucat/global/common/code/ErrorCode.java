@@ -66,7 +66,12 @@ public enum ErrorCode implements BaseCode{
     /**
      * Image
      */
-    IMAGE_MISSING_OR_EMPTY(BAD_REQUEST, "400", "비밀번호는 null이나 빈 문자열일 수 없습니다.");
+    IMAGE_MISSING_OR_EMPTY(BAD_REQUEST, "400", "비밀번호는 null이나 빈 문자열일 수 없습니다."),
+
+    /**
+     * Notification
+     */
+    NOTIFICATION_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 공지사항입니다.");
 
 
     private final HttpStatus httpStatus;
