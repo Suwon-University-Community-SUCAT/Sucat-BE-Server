@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.controller;
 
+import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -7,10 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,5 +25,12 @@ public class FriendShipController {
         friendShipService.createFriendShip(request, email);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    /* 받은 친구 요청 조회 */
+    @GetMapping("/friends/received")
+    public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(HttpServletRequest request) {
+        List<WaitingFriendDto> waitingFriendList = friendShipService.getWaitingFriendList(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 }

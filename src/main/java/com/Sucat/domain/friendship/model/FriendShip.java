@@ -27,6 +27,7 @@ public class FriendShip {
 
     private String friendEmail;
 
+    @Enumerated(EnumType.STRING)
     private FriendshipStatus status;
 
     private boolean isFrom; // 어디선가 보내온 요청? 보낸 요청일수도 있기 때문
