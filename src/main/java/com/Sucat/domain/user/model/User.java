@@ -45,7 +45,7 @@ public class User extends BaseEntity {
 
     /*연관관계 메서드*/
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<FriendShip> mates = new ArrayList<>();
+    private List<FriendShip> friendShipList = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
@@ -57,6 +57,10 @@ public class User extends BaseEntity {
 
     public void deleteUserImage() {
         this.userImage = null;
+    }
+
+    public void addFriendShip(FriendShip friendShipTo) {
+        friendShipList.add(friendShipTo);
     }
 
     /* Using Method */

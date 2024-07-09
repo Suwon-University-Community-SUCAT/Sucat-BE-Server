@@ -38,6 +38,10 @@ public class UserService {
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
+    public boolean existByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public void emailDuplicateVerification(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserException(USER_ALREADY_EXISTS);
