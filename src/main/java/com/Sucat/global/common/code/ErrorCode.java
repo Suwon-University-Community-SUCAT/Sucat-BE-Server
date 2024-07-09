@@ -72,7 +72,12 @@ public enum ErrorCode implements BaseCode{
     /**
      * Notification
      */
-    NOTIFICATION_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 공지사항입니다.");
+    NOTIFICATION_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 공지사항입니다."),
+
+    /**
+     * FriendShip
+     */
+    Friendship_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 친구 정보입니다.");
 
 
     private final HttpStatus httpStatus;

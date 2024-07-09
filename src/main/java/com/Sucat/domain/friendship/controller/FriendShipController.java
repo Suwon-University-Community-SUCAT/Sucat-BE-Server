@@ -33,4 +33,10 @@ public class FriendShipController {
         List<WaitingFriendDto> waitingFriendList = friendShipService.getWaitingFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
+
+    /* 친구 수락 */
+    @PostMapping("/friends/approve/{friendshipId}")
+    public ResponseEntity<ApiResponse<Object>> approveFriendShip(Long friendshipId) {
+        friendShipService.approveFriendshipRequest(friendshipId);
+    }
 }

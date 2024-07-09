@@ -1,12 +1,14 @@
 package com.Sucat.domain.friendship.service;
 
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
+import com.Sucat.domain.friendship.exception.FriendShipException;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.friendship.model.FriendshipStatus;
 import com.Sucat.domain.friendship.repository.FriendShipQueryRepository;
 import com.Sucat.domain.friendship.repository.FriendShipRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,11 @@ public class FriendShipService {
     private final FriendShipQueryRepository friendShipQueryRepository;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+
+    public FriendShip getFriendShip(Long id) {
+        return friendShipRepository.findById(id)
+                .orElseThrow(() -> new FriendShipException(ErrorCode.Friendship_NOT_FOUND));
+    }
 
     @Transactional
     public void createFriendShip(HttpServletRequest request, String toEmail) {
@@ -59,5 +66,14 @@ public class FriendShipService {
     public List<WaitingFriendDto> getWaitingFriendList(HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
         return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
+    }
+
+    public void approveFriendshipRequest(Long friendshipId) {
+        FriendShip friendShip = getFriendShip(friendshipId);
+        FriendShip counterFriendship = getFriendShip(friendShip.getCounterpartId());
+
+        // 상태를 ACCEPT로 변경
+        friendShip.acceptFriendshipRequest();
+        counterFriendship.acceptFriendshipRequest();
     }
 }
