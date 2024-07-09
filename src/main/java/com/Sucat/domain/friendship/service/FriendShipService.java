@@ -75,13 +75,12 @@ public class FriendShipService {
         return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
     }
 
+    @Transactional
     public void approveFriendshipRequest(Long friendshipId) {
         FriendShip friendShip = getFriendShip(friendshipId);
-        FriendShip counterFriendship = getFriendShip(friendShip.getCounterpartId());
 
         // 상태를 ACCEPT로 변경
         friendShip.acceptFriendshipRequest();
-        counterFriendship.acceptFriendshipRequest();
     }
 
     private void checkFriendshipAlready(String toEmail, String fromEmail) {

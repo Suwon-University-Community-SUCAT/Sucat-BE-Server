@@ -15,9 +15,9 @@ public class FriendShipQueryRepository {
 
     public List<WaitingFriendDto> findPendingFriendShipsByEmail(String userEmail) {
         return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, u.email, u.nickname) " +
+                        "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.userEmail, u.nickname) " +
                                 "from FriendShip f join User u on f.friendEmail = u.email " +
-                                "where f.userEmail = :userEmail and f.isFrom = false and f.status = :status", WaitingFriendDto.class)
+                                "where f.friendEmail = :userEmail and f.isFrom = true and f.status = :status", WaitingFriendDto.class)
                 .setParameter("userEmail", userEmail)
                 .setParameter("status", FriendshipStatus.WAITING)
                 .getResultList();

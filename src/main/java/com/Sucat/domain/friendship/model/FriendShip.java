@@ -36,7 +36,7 @@ public class FriendShip {
 
     /* Using Method */
     public void acceptFriendshipRequest() {
-        status = FriendshipStatus.ACCEPT;
+        this.status = FriendshipStatus.ACCEPT;
     }
 
     public void setCounterpartId(Long id) {
