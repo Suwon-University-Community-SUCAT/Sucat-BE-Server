@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,37 +33,41 @@ public class FriendShipService {
 
     @Transactional
     public void createFriendShip(HttpServletRequest request, String toEmail) {
-        User toUser = userService.findByEmail(toEmail);
         User fromUser = jwtUtil.getUserFromRequest(request);
+        if (toEmail == fromUser.getEmail()) {
+            throw new FriendShipException(ErrorCode.SELF_FRIENDSHIP_REQUEST);
+        }
+        User toUser = userService.findByEmail(toEmail);
 
-        checkFriendshipAlready(toEmail, fromUser);
+        if (!checkReverseFriendship(toEmail, fromUser.getEmail())) {
+            checkFriendshipAlready(toEmail, fromUser.getEmail());
+            FriendShip friendShipFrom = FriendShip.builder()
+                    .user(fromUser)
+                    .userEmail(fromUser.getEmail())
+                    .friendEmail(toEmail)
+                    .status(FriendshipStatus.WAITING)
+                    .isFrom(true) // 받은 요청이다.
+                    .build();
 
-        FriendShip friendShipFrom = FriendShip.builder()
-                .user(fromUser)
-                .userEmail(fromUser.getEmail())
-                .friendEmail(toEmail)
-                .status(FriendshipStatus.WAITING)
-                .isFrom(true) // 받은 요청이다.
-                .build();
+            FriendShip friendShipTo = FriendShip.builder()
+                    .user(toUser)
+                    .userEmail(toEmail)
+                    .friendEmail(fromUser.getEmail())
+                    .status(FriendshipStatus.ACCEPT)
+                    .isFrom(false) // 보낸 요청이다.
+                    .build();
 
-        FriendShip friendShipTo = FriendShip.builder()
-                .user(toUser)
-                .userEmail(toEmail)
-                .friendEmail(fromUser.getEmail())
-                .status(FriendshipStatus.WAITING)
-                .isFrom(false) // 보낸 요청이다.
-                .build();
+            // 각각 친구 리스트에 추가
+            fromUser.addFriendShip(friendShipTo);
+            toUser.addFriendShip(friendShipFrom);
 
-        // 각각 친구 리스트에 추가
-        fromUser.addFriendShip(friendShipTo);
-        toUser.addFriendShip(friendShipFrom);
+            friendShipRepository.save(friendShipTo);
+            friendShipRepository.save(friendShipFrom);
 
-        friendShipRepository.save(friendShipTo);
-        friendShipRepository.save(friendShipFrom);
-
-        // 매칭되는 친구 요청의 아이디를 서로 저장
-        friendShipTo.setCounterpartId(friendShipFrom.getId());
-        friendShipFrom.setCounterpartId(friendShipTo.getId());
+            // 매칭되는 친구 요청의 아이디를 서로 저장
+            friendShipTo.setCounterpartId(friendShipFrom.getId());
+            friendShipFrom.setCounterpartId(friendShipTo.getId());
+        }
     }
 
     public List<WaitingFriendDto> getWaitingFriendList(HttpServletRequest request) {
@@ -79,11 +84,37 @@ public class FriendShipService {
         counterFriendship.acceptFriendshipRequest();
     }
 
-    private void checkFriendshipAlready(String toEmail, User fromUser) {
+    private void checkFriendshipAlready(String toEmail, String fromEmail) {
         // 이미 존재하는 친구 요청인지 확인
-        boolean exist = friendShipRepository.existsByUserEmailAndFriendEmail(fromUser.getEmail(), toEmail);
+        boolean exist = friendShipRepository.existsByUserEmailAndFriendEmail(fromEmail, toEmail);
         if (exist) {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_ALREADY_EXISTS);
         }
+    }
+
+    private boolean checkReverseFriendship(String toEmail, String fromEmail) {
+        Optional<FriendShip>  reverseFriendshipOpt = friendShipRepository.findByUserEmailAndFriendEmail(toEmail, fromEmail);
+
+        if (reverseFriendshipOpt.isPresent()){
+            FriendShip reverseFriendship = reverseFriendshipOpt.get();
+            if (reverseFriendship.getStatus() == FriendshipStatus.WAITING) {
+                // 받은 친구 요청이 존재한다면, 자동으로 친구 수락
+                acceptFriendship(reverseFriendship);
+                return true;
+            } else {
+
+                throw new FriendShipException(ErrorCode.REVERSE_FRIENDSHIP_ALREADY_EXISTS);
+            }
+        }
+        return false;
+    }
+
+    private void acceptFriendship(FriendShip reverseFriendship) {
+        reverseFriendship.acceptFriendshipRequest();
+        friendShipRepository.save(reverseFriendship);
+
+        FriendShip counterpart = getFriendShip(reverseFriendship.getCounterpartId());
+        counterpart.acceptFriendshipRequest();
+        friendShipRepository.save(counterpart);
     }
 }
