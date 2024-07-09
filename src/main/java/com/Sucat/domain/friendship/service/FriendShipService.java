@@ -34,7 +34,7 @@ public class FriendShipService {
     @Transactional
     public void createFriendShip(HttpServletRequest request, String toEmail) {
         User fromUser = jwtUtil.getUserFromRequest(request);
-        if (toEmail == fromUser.getEmail()) {
+        if (toEmail.equals(fromUser.getEmail())) {
             throw new FriendShipException(ErrorCode.SELF_FRIENDSHIP_REQUEST);
         }
         User toUser = userService.findByEmail(toEmail);
@@ -102,7 +102,6 @@ public class FriendShipService {
                 acceptFriendship(reverseFriendship);
                 return true;
             } else {
-
                 throw new FriendShipException(ErrorCode.REVERSE_FRIENDSHIP_ALREADY_EXISTS);
             }
         }
