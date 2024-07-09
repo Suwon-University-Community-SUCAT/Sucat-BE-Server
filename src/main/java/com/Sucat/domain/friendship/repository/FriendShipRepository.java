@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
 
+    boolean existsByUserEmailAndFriendEmail(String userEmail, String friendEmail);
 }

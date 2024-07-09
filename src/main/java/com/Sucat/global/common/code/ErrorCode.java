@@ -77,7 +77,9 @@ public enum ErrorCode implements BaseCode{
     /**
      * FriendShip
      */
-    Friendship_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 친구 정보입니다.");
+    Friendship_NOT_FOUND(NOT_FOUND, "404", "존재하지 않는 친구 정보입니다."),
+    FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "409", "이미 존재하는 친구 요청입니다.");
+
 
 
     private final HttpStatus httpStatus;

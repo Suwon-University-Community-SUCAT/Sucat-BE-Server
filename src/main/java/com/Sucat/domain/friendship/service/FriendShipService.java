@@ -35,6 +35,8 @@ public class FriendShipService {
         User toUser = userService.findByEmail(toEmail);
         User fromUser = jwtUtil.getUserFromRequest(request);
 
+        checkFriendshipAlready(toEmail, fromUser);
+
         FriendShip friendShipFrom = FriendShip.builder()
                 .user(fromUser)
                 .userEmail(fromUser.getEmail())
@@ -75,5 +77,13 @@ public class FriendShipService {
         // 상태를 ACCEPT로 변경
         friendShip.acceptFriendshipRequest();
         counterFriendship.acceptFriendshipRequest();
+    }
+
+    private void checkFriendshipAlready(String toEmail, User fromUser) {
+        // 이미 존재하는 친구 요청인지 확인
+        boolean exist = friendShipRepository.existsByUserEmailAndFriendEmail(fromUser.getEmail(), toEmail);
+        if (exist) {
+            throw new FriendShipException(ErrorCode.FRIENDSHIP_ALREADY_EXISTS);
+        }
     }
 }
