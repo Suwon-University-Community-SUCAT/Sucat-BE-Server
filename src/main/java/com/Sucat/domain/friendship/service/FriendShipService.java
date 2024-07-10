@@ -10,6 +10,7 @@ import com.Sucat.domain.friendship.repository.FriendShipRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
+import com.Sucat.global.error.exception.BusinessException;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -82,8 +83,13 @@ public class FriendShipService {
     }
 
     @Transactional
-    public void approveFriendshipRequest(Long friendshipId) {
+    public void approveFriendshipRequest(Long friendshipId, HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
         FriendShip friendShip = getFriendShip(friendshipId);
+
+        if (user.getEmail().equals(friendShip.getUserEmail())) {
+            throw new BusinessException(ErrorCode._BAD_REQUEST);
+        }
 
         // 상태를 ACCEPT로 변경
         friendShip.acceptFriendshipRequest();

@@ -37,8 +37,8 @@ public class FriendShipController {
 
     /* 친구 수락 */
     @PostMapping("/friends/approve/{friendshipId}")
-    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId) {
-        friendShipService.approveFriendshipRequest(friendshipId);
+    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
+        friendShipService.approveFriendshipRequest(friendshipId, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
