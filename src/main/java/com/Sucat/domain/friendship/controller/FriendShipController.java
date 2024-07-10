@@ -42,6 +42,14 @@ public class FriendShipController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 친구 요청 취소, 거절 */
+    @PostMapping("/friends/refuse/{friendshipId}")
+    public ResponseEntity<ApiResponse<Object>> refuseFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
+        friendShipService.refuseFriendshipRequest(friendshipId, request);
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+
     /* 친구 목록 */
     @GetMapping("/friends")
     public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {

@@ -10,7 +10,6 @@ import com.Sucat.domain.friendship.repository.FriendShipRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
-import com.Sucat.global.error.exception.BusinessException;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -88,11 +87,24 @@ public class FriendShipService {
         FriendShip friendShip = getFriendShip(friendshipId);
 
         if (user.getEmail().equals(friendShip.getUserEmail())) {
-            throw new BusinessException(ErrorCode._BAD_REQUEST);
+            throw new FriendShipException(ErrorCode.FRIENDSHIP_ACCEPT_NOT_ALLOWED);
         }
 
         // 상태를 ACCEPT로 변경
         friendShip.acceptFriendshipRequest();
+    }
+
+    @Transactional
+    public void refuseFriendshipRequest(Long friendshipId, HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
+        FriendShip friendShip = getFriendShip(friendshipId);
+
+        if (user.getEmail().equals(friendShip.getUserEmail())) {
+            throw new FriendShipException(ErrorCode.FRIENDSHIP_DECLINE_NOT_ALLOWED);
+        }
+
+        friendShipRepository.deleteById(friendShip.getId());
+        friendShipRepository.deleteById(friendShip.getCounterpartId());
     }
 
     private void checkFriendshipAlready(String toEmail, String fromEmail) {
