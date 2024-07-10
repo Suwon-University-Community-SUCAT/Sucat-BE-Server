@@ -169,7 +169,7 @@ public class JwtUtilImpl implements JwtUtil {
     @Override
     // Request 에서 유저를 반환하는 메서드
     public User getUserFromRequest(HttpServletRequest request) {
-        String accessToken = extractAccessToken(request).orElseThrow(() -> new TokenException(ErrorCode.INVALID_REFRESH_TOKEN));
+        String accessToken = extractAccessToken(request).orElseThrow(() -> new TokenException(ErrorCode.INVALID_ACCESS_TOKEN));
         String email = extractEmail(accessToken);
 
         return userRepository.findByEmail(email)

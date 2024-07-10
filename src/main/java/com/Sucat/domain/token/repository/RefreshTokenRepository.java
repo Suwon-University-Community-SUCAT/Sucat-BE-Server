@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     @Query("SELECT u FROM RefreshToken u WHERE u.email = :email")
-    RefreshToken findByEmail(String email);
+    Optional<RefreshToken> findByEmail(String email);
 
     @Query("SELECT u FROM RefreshToken u WHERE u.token = :token")
     Optional<RefreshToken> findByToken(String token);

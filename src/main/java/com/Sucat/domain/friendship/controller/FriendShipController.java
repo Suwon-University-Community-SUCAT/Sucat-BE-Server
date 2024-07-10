@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.controller;
 
+import com.Sucat.domain.friendship.dto.AcceptFriendDto;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
@@ -36,8 +37,23 @@ public class FriendShipController {
 
     /* 친구 수락 */
     @PostMapping("/friends/approve/{friendshipId}")
-    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId) {
-        friendShipService.approveFriendshipRequest(friendshipId);
+    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
+        friendShipService.approveFriendshipRequest(friendshipId, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    /* 친구 요청 취소, 거절 */
+    @PostMapping("/friends/refuse/{friendshipId}")
+    public ResponseEntity<ApiResponse<Object>> refuseFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
+        friendShipService.refuseFriendshipRequest(friendshipId, request);
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+
+    /* 친구 목록 */
+    @GetMapping("/friends")
+    public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {
+        List<AcceptFriendDto> acceptFriendList = friendShipService.getAcceptFriendList(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 }

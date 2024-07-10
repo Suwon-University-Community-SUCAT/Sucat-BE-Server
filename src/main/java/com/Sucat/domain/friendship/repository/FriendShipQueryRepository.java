@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.repository;
 
+import com.Sucat.domain.friendship.dto.AcceptFriendDto;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.model.FriendshipStatus;
 import jakarta.persistence.EntityManager;
@@ -20,6 +21,16 @@ public class FriendShipQueryRepository {
                                 "where f.friendEmail = :userEmail and f.isFrom = true and f.status = :status", WaitingFriendDto.class)
                 .setParameter("userEmail", userEmail)
                 .setParameter("status", FriendshipStatus.WAITING)
+                .getResultList();
+    }
+
+    public List<AcceptFriendDto> findAcceptFriendShipsByEmail(String userEmail) {
+        return em.createQuery(
+                        "select new com.Sucat.domain.friendship.dto.AcceptFriendDto(u.email,u.nickname,u.department,u.intro) " +
+                                "from FriendShip f join User u on f.friendEmail = u.email " +
+                                "where f.userEmail = :userEmail and f.status = :status", AcceptFriendDto.class)
+                .setParameter("userEmail", userEmail)
+                .setParameter("status", FriendshipStatus.ACCEPT)
                 .getResultList();
     }
 }

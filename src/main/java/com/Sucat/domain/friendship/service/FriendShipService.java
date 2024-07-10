@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.service;
 
+import com.Sucat.domain.friendship.dto.AcceptFriendDto;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.exception.FriendShipException;
 import com.Sucat.domain.friendship.model.FriendShip;
@@ -75,12 +76,35 @@ public class FriendShipService {
         return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
     }
 
+    public List<AcceptFriendDto> getAcceptFriendList(HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
+        return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail());
+    }
+
     @Transactional
-    public void approveFriendshipRequest(Long friendshipId) {
+    public void approveFriendshipRequest(Long friendshipId, HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
         FriendShip friendShip = getFriendShip(friendshipId);
+
+        if (user.getEmail().equals(friendShip.getUserEmail())) {
+            throw new FriendShipException(ErrorCode.FRIENDSHIP_ACCEPT_NOT_ALLOWED);
+        }
 
         // 상태를 ACCEPT로 변경
         friendShip.acceptFriendshipRequest();
+    }
+
+    @Transactional
+    public void refuseFriendshipRequest(Long friendshipId, HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
+        FriendShip friendShip = getFriendShip(friendshipId);
+
+        if (user.getEmail().equals(friendShip.getUserEmail())) {
+            throw new FriendShipException(ErrorCode.FRIENDSHIP_DECLINE_NOT_ALLOWED);
+        }
+
+        friendShipRepository.deleteById(friendShip.getId());
+        friendShipRepository.deleteById(friendShip.getCounterpartId());
     }
 
     private void checkFriendshipAlready(String toEmail, String fromEmail) {

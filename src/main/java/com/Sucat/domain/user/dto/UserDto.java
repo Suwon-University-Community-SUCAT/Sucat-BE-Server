@@ -1,19 +1,13 @@
 package com.Sucat.domain.user.dto;
 
 import com.Sucat.domain.image.model.Image;
-import com.Sucat.domain.notification.dto.NotificationDto;
-import com.Sucat.domain.notification.model.Notification;
 import com.Sucat.domain.user.model.User;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.Sucat.global.common.constant.ConstraintConstants.TIME_FORMAT_YYYY_MM_DD_HH_MM;
 
 public class UserDto {
 

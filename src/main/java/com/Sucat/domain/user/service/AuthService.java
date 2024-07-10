@@ -1,11 +1,15 @@
 package com.Sucat.domain.user.service;
 
-import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.common.code.ErrorCode;
+import com.Sucat.global.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +26,8 @@ import static com.Sucat.domain.user.dto.UserDto.UserTermAgree;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtUtil jwtUtil;
     private final UserService userService;
     private final ImageService imageService;
 
@@ -42,6 +48,17 @@ public class AuthService {
             Image userImage = Image.ofUser(user, imageUrl);
             user.updateUserImage(userImage);
         }
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String email = jwtUtil.getUserFromRequest(request).getEmail();
+
+        // 리프레시 토큰 삭제
+        refreshTokenRepository.deleteByEmail(email);
+
+        // 클라이언트 측 토큰 삭제
+        jwtUtil.setAccessTokenHeader(response, "");
+        jwtUtil.setRefreshTokenHeader(response, "");
     }
 
     public User findByEmail(String email) {

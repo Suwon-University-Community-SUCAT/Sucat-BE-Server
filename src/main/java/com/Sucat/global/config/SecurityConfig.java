@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error").permitAll() // 정적 자원 설정
-                        .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
+                        .requestMatchers("/api/v1/users/signup/**", "/api/v1/users/logout", "/login").permitAll()
                         .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
