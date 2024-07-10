@@ -4,6 +4,8 @@ import com.Sucat.domain.user.service.AuthService;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,12 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Object>> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request, response);
+        return ApiResponse.onSuccess(SuccessCode._OK, "Successfully logged out.");
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Object>> signup(

@@ -55,7 +55,7 @@ public enum ErrorCode implements BaseCode{
     INVALID_TOKEN(UNAUTHORIZED, "T001", "유효하지 않은 토큰입니다."),
     INVALID_ACCESS_TOKEN(UNAUTHORIZED, "T002", "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(UNAUTHORIZED, "T003", "유효하지 않은 리프레쉬 토큰입니다."),
-    REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "T004", "해당 유저 ID의 리프레쉬 토큰이 없습니다."),
+    REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "T004", "해당 유저의 리프레쉬 토큰이 없습니다."),
 
     /**
      * Email

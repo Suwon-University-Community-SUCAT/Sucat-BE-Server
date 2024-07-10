@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,18 +26,26 @@ public class TokenService {
 
         //extractEmail 과정에서 토큰의 유효성 검제
         String email = jwtUtil.extractEmail(refreshToken);
-        RefreshToken existRefreshToken = refreshTokenRepository.findByEmail(email);
 
-        if (!existRefreshToken.getToken().equals(refreshToken)) {
-            log.info("Refresh Token이 일치하지 않습니다.");
-            throw new TokenException(ErrorCode.INVALID_REFRESH_TOKEN);
-        }
+        validateRefreshToken(email, refreshToken); // 토큰이 존재하는지, 일치하는지 검증
 
         String accessToken = jwtUtil.createAccessToken(email);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .build();
+    }
+
+    private void validateRefreshToken(String email, String refreshToken) {
+
+        Optional<RefreshToken> existRefreshTokenOpt = refreshTokenRepository.findByEmail(email);
+        if (!existRefreshTokenOpt.isPresent()) {
+            throw new TokenException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        if ((!existRefreshTokenOpt.get().getToken().equals(refreshToken))) {
+            throw new TokenException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
     }
 
 
