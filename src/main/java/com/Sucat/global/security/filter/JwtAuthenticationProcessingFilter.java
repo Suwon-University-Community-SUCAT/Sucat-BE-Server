@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -24,9 +25,12 @@ import java.io.IOException;
  */
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
+
+    @Value("${admin.email}")
+    private String adminEmail;
+
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-//    private final RefreshTokenRepository refreshTokenRepository;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -39,9 +43,23 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("Received request URI: " + request.getRequestURI());
-        if (request.getRequestURI().equals(NO_CHECK_URL)) {
+        String requestURI = request.getRequestURI();
+
+        if (requestURI.equals(NO_CHECK_URL)) {
             filterChain.doFilter(request, response);
             return;
+        }
+
+        String email = extractEmailFromRequest(request);
+
+        // Admin 계정인 경우 인증 생략
+        if (email != null && isAdminEmail(email)) {
+            User adminUser = userRepository.findByEmail(email).orElse(null);
+            if (adminUser != null) {
+                saveAuthentication(adminUser);
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
         checkAccessTokenAndAuthentication(request, response, filterChain);
@@ -76,5 +94,17 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .password(user.getPassword())
                 .roles(user.getRole().name())
                 .build();
+    }
+
+    /**
+     * Admin 계정으로 로그인하는 경우에는 헤더에 이메일 정보 포함
+     * 프론트 단에서 현재 로그인을 시도하는 Email이
+     */
+    private String extractEmailFromRequest(HttpServletRequest request) {
+        return request.getHeader("X-Admin-Email");
+    }
+
+    private boolean isAdminEmail(String email) {
+        return email.equals(adminEmail);
     }
 }
