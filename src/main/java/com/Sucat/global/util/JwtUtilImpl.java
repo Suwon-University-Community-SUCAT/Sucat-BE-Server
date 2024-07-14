@@ -20,7 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
@@ -30,6 +33,10 @@ import static com.Sucat.global.common.constant.ConstraintConstants.*;
 @Setter(value = AccessLevel.PRIVATE)
 @Slf4j
 public class JwtUtilImpl implements JwtUtil {
+
+    private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
+    //    private static final long ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS = Long.MAX_VALUE; // 사실상 무기한
+    private static final long ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS = 500 * 60 * 60; // 사실상 무기한
 
     /*jwt.yml에 설정된 값 가져오기*/
     @Value("${jwt.secret}")
@@ -57,6 +64,26 @@ public class JwtUtilImpl implements JwtUtil {
                 .withClaim(USERNAME_CLAIM, email) // 토큰에 사용자 이메일 정보를 클레임으로 추가
                 .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 토큰에 서명. 서명 키: secret 변수로 설정된 값
     }
+
+    @Override
+    public String createAdminAccessToken(String email) {
+        log.info(String.valueOf(ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS));
+        log.info("Admin Access Token이 발행되었습니다.");
+        return JWT.create()
+                .withSubject(ACCESS_TOKEN_SUBJECT)
+                .withExpiresAt(new Date(System.currentTimeMillis() + ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
+                .withClaim(USERNAME_CLAIM, email)
+                .sign(Algorithm.HMAC512(secret));
+    }
+
+//    @Override
+//    public String createAdminAccessToken(String email) {
+//        log.info("Admin Access Token이 발행되었습니다.");
+//        return JWT.create()
+//                .withSubject(ACCESS_TOKEN_SUBJECT)
+//                .withClaim(USERNAME_CLAIM, email)
+//                .sign(Algorithm.HMAC512(secret));
+//    }
 
     @Override
     public String createRefreshToken(String email) {
@@ -159,8 +186,10 @@ public class JwtUtilImpl implements JwtUtil {
     public boolean isTokenValid(String token) {
         try {
             JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
+            log.info("유효한 Token입니다.");
             return true;
         } catch (Exception e) {
+            log.info("토큰 검사: {}", token);
             log.error("유효하지 않은 Token입니다.", e.getMessage());
             return false;
         }

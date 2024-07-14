@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import java.io.IOException;
  * OncePerRequestFilter: 모든 서블릿 컨테이너에서 요청 디스패치당 단일 실행을 보장하는 것을 목표로 하는 필터 기본 클래스
  */
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Value("${admin.email}")
@@ -50,30 +52,19 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String email = extractEmailFromRequest(request);
-
-        // Admin 계정인 경우 인증 생략
-        if (email != null && isAdminEmail(email)) {
-            User adminUser = userRepository.findByEmail(email).orElse(null);
-            if (adminUser != null) {
-                saveAuthentication(adminUser);
-                filterChain.doFilter(request, response);
-                return;
-            }
-        }
-
         checkAccessTokenAndAuthentication(request, response, filterChain);
     }
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        jwtUtil.extractAccessToken(request).filter(jwtUtil::isTokenValid).ifPresent(
-                accessToken -> {
-                    String email = jwtUtil.extractEmail(accessToken);
-                    userRepository.findByEmail(email).ifPresent(
-                            this::saveAuthentication
-                    );
-                }
+        jwtUtil.extractAccessToken(request)
+                .filter(jwtUtil::isTokenValid)
+                .ifPresentOrElse(
+                    accessToken -> {
+                        String email = jwtUtil.extractEmail(accessToken);
+                        userRepository.findByEmail(email).ifPresent(this::saveAuthentication);
+                    },
+                        () -> log.warn("Invalid or missing access token")
         );
 
         filterChain.doFilter(request,response);
@@ -96,15 +87,4 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .build();
     }
 
-    /**
-     * Admin 계정으로 로그인하는 경우에는 헤더에 이메일 정보 포함
-     * 프론트 단에서 현재 로그인을 시도하는 Email이
-     */
-    private String extractEmailFromRequest(HttpServletRequest request) {
-        return request.getHeader("X-Admin-Email");
-    }
-
-    private boolean isAdminEmail(String email) {
-        return email.equals(adminEmail);
-    }
 }
