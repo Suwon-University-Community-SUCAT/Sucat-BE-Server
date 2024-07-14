@@ -4,6 +4,7 @@ import com.Sucat.domain.token.model.RefreshToken;
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
@@ -46,21 +47,26 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
 
         log.info("유저 이메일: {}", email);
 
-        String accessToken = jwtUtil.createAccessToken(email); // AccessToken 발급
-        String refreshToken = jwtUtil.createRefreshToken(email); // RefreshToken 발급
+        boolean isAdmin = existUser.getRole() == UserRole.ADMIN;
+        if (isAdmin) {
+            String accessToken = jwtUtil.createAdminAccessToken(email);
+            log.info("토큰 발급: {}", accessToken);
+            jwtUtil.sendAccessToken(response, accessToken);
+        } else {
+            String accessToken = jwtUtil.createAccessToken(email); // AccessToken 발급
+            String refreshToken = jwtUtil.createRefreshToken(email); // RefreshToken 발급
 
-        RefreshToken newRefreshToken = RefreshToken.builder()
-                .email(existUser.getEmail())
-                .token(refreshToken)
-                .build();
+            RefreshToken newRefreshToken = RefreshToken.builder()
+                    .email(existUser.getEmail())
+                    .token(refreshToken)
+                    .build();
 
-        refreshTokenRepository.save(newRefreshToken);
+            refreshTokenRepository.save(newRefreshToken);
 
-        jwtUtil.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
+            jwtUtil.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
+        }
 
         log.info( "로그인에 성공합니다. email: {}" , email);
-        log.info( "AccessToken 을 발급합니다. AccessToken: {}" ,accessToken);
-        log.info( "RefreshToken 을 발급합니다. RefreshToken: {}" ,refreshToken);
 
         response.getWriter().write("success");
     }

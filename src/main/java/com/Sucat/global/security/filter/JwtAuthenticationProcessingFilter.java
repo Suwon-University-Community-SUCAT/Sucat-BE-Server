@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -23,10 +25,14 @@ import java.io.IOException;
  * OncePerRequestFilter: 모든 서블릿 컨테이너에서 요청 디스패치당 단일 실행을 보장하는 것을 목표로 하는 필터 기본 클래스
  */
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
+
+    @Value("${admin.email}")
+    private String adminEmail;
+
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-//    private final RefreshTokenRepository refreshTokenRepository;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -39,7 +45,9 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("Received request URI: " + request.getRequestURI());
-        if (request.getRequestURI().equals(NO_CHECK_URL)) {
+        String requestURI = request.getRequestURI();
+
+        if (requestURI.equals(NO_CHECK_URL)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,13 +57,14 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        jwtUtil.extractAccessToken(request).filter(jwtUtil::isTokenValid).ifPresent(
-                accessToken -> {
-                    String email = jwtUtil.extractEmail(accessToken);
-                    userRepository.findByEmail(email).ifPresent(
-                            this::saveAuthentication
-                    );
-                }
+        jwtUtil.extractAccessToken(request)
+                .filter(jwtUtil::isTokenValid)
+                .ifPresentOrElse(
+                    accessToken -> {
+                        String email = jwtUtil.extractEmail(accessToken);
+                        userRepository.findByEmail(email).ifPresent(this::saveAuthentication);
+                    },
+                        () -> log.warn("Invalid or missing access token")
         );
 
         filterChain.doFilter(request,response);
@@ -77,4 +86,5 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .roles(user.getRole().name())
                 .build();
     }
+
 }
