@@ -1,10 +1,10 @@
 package com.Sucat.domain.chatroom.model;
 
-import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,13 +20,28 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "chat_room_id")
     private Long id;
 
-    @NotNull
-    private Long senderId;
-
-    @NotNull
-    private Long receiverId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "reveiver_id")
+    private User receiver;
+
+    @Builder
+    public ChatRoom(User sender, User receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
+    }
+
+    /* Using Method */
+
+    /* 연관관계 메서드 */
+    public void setSender(User user) {
+        this.sender = user;
+    }
+
+    public void setReceiver(User user) {
+        this.receiver = user;
+    }
 }
