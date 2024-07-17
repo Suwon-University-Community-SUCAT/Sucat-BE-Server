@@ -1,7 +1,7 @@
 package com.Sucat.domain.user.service;
 
-import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
@@ -32,6 +32,11 @@ public class UserService {
 
     // 비밀번호 암호화 메서드
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
+    }
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
