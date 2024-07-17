@@ -14,11 +14,13 @@ public class RedisSubscriber {
     private final ObjectMapper objectMapper;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    public void onMessage(String message) {
+    public void sendMessage(String message) {
         try {
+            log.info("publish 전 message: {}", message);
             PublishMessage publishMessage = objectMapper.readValue(message, PublishMessage.class);
 
             messagingTemplate.convertAndSend("/sub/chats/" + publishMessage.getRoomId(), publishMessage);
+            log.info("publish 후 message: {}", publishMessage.getContent());
         } catch (Exception e) {
             log.error(e.getMessage());
         }
