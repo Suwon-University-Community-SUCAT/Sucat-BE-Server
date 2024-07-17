@@ -1,5 +1,6 @@
 package com.Sucat.domain.chatmessage.model;
 
+import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import jakarta.persistence.*;
@@ -17,13 +18,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 public class ChatMessage extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "chat_massage_id")
+    @Column(name = "chat_message_id")
     private Long id;
 
+    @NotNull
     private String content;
 
-    @NotNull
-    private Long senderId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "chat_room_id")

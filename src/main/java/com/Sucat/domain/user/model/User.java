@@ -1,5 +1,6 @@
 package com.Sucat.domain.user.model;
 
+import com.Sucat.domain.chatmessage.model.ChatMessage;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.global.common.dao.BaseEntity;
@@ -49,6 +50,9 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
