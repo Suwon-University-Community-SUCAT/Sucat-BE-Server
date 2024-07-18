@@ -76,15 +76,6 @@ public class JwtUtilImpl implements JwtUtil {
                 .sign(Algorithm.HMAC512(secret));
     }
 
-//    @Override
-//    public String createAdminAccessToken(String email) {
-//        log.info("Admin Access Token이 발행되었습니다.");
-//        return JWT.create()
-//                .withSubject(ACCESS_TOKEN_SUBJECT)
-//                .withClaim(USERNAME_CLAIM, email)
-//                .sign(Algorithm.HMAC512(secret));
-//    }
-
     @Override
     public String createRefreshToken(String email) {
         log.info("Refresh Token이 발행되었습니다.");

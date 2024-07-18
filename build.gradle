@@ -31,6 +31,8 @@ dependencies {
 	// Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	testImplementation 'org.springframework:spring-messaging'
+	testImplementation 'org.springframework:spring-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// Email
@@ -50,7 +52,9 @@ dependencies {
 //	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java'
 	implementation 'mysql:mysql-connector-java:8.0.32'
-//	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
