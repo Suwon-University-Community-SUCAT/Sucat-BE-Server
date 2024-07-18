@@ -50,7 +50,7 @@ public class MessageController {
     }
 
 
-    // 채팅방 열기
+    // 채팅방 메시지 목록 가져오기
     @GetMapping("/api/v1/chats/messages/{room-id}")
     public ResponseEntity<ApiResponse<Object>> getMessages(@PathVariable("room-id") Long roomId,
                                                            @RequestParam(defaultValue = "1") int page,

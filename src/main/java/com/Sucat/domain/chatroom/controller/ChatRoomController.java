@@ -34,7 +34,6 @@ public class ChatRoomController {
 
 
         URI location = UriComponentsBuilder.newInstance()
-//                .path("/api/v1/chats/{room-id}")
                 .path("/api/v1/chats/{roomId}")
                 .buildAndExpand(roomId)
                 .toUri();

@@ -33,6 +33,8 @@ public class ChatRoomService {
 
         ChatRoom chatRoom = null;
 
+        // TODO: 채팅방 roomId를 UUID로 변경
+
         int status = 1;
         if(optionalChatRoom.isPresent()) {
             chatRoom = optionalChatRoom.get();
