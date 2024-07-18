@@ -1,6 +1,7 @@
 package com.Sucat.domain.chatmessage.dto;
 
 import com.Sucat.domain.chatmessage.model.ChatMessage;
+import com.Sucat.domain.user.dto.UserDto;
 import com.Sucat.global.common.response.PageInfo;
 import lombok.Builder;
 
@@ -12,18 +13,16 @@ public class MessageResponse {
      * Response
      */
     @Builder
-    public record ChatRoomMessageResponse(
+    public record ChatRoomMessageResponse( // 채팅방 속 하나의 메시지
             Long messageId,
-            String senderEmail,
-            String senderName,
+            UserDto.ResponseOnlyUserNameWithId sender,
             String content,
             LocalDateTime sendTime
     ) {
         public static ChatRoomMessageResponse of(ChatMessage chatMessage) {
             return ChatRoomMessageResponse.builder()
                     .messageId(chatMessage.getId())
-                    .senderEmail(chatMessage.getSender().getEmail())
-                    .senderName(chatMessage.getSender().getName())
+                    .sender(UserDto.ResponseOnlyUserNameWithId.of(chatMessage.getSender()))
                     .content(chatMessage.getContent())
                     .sendTime(chatMessage.getCreatedAt())
                     .build();

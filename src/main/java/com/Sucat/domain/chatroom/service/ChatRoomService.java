@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,7 +22,7 @@ public class ChatRoomService {
     private final UserService userService;
     private final RoomRepository roomRepository;
 
-    public Long createRoom(String email, HttpServletRequest request) {
+    public Map<String, Object> createRoom(String email, HttpServletRequest request) {
         User sender = userService.getUserInfo(request);
         User receiver = userService.findByEmail(email);
 
@@ -31,25 +33,45 @@ public class ChatRoomService {
 
         ChatRoom chatRoom = null;
 
+        int status = 1;
         if(optionalChatRoom.isPresent()) {
             chatRoom = optionalChatRoom.get();
-            log.info("find chat room");
-            return chatRoom.getId();
+            Long roomId = chatRoom.getId();
+            log.info("Found existing chat room");
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", status);
+            response.put("roomId", roomId);
+
+            return response;
         } else if (optionalChatRoom2.isPresent()) {
             chatRoom = optionalChatRoom2.get();
-            log.info("find chat room");
-            return chatRoom.getId();
+            Long roomId = chatRoom.getId();
+            log.info("Found existing chat room");
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", status);
+            response.put("roomId", roomId);
+
+            return response;
         } else {
             chatRoom = ChatRoom.builder()
                     .sender(sender)
                     .receiver(receiver)
                     .build();
-            log.info("create chat room");
+            log.info("Create new chat room");
+            status = 0;
         }
 
         ChatRoom saveChatRoom = roomRepository.save(chatRoom);
+        Long roomId = saveChatRoom.getId();
 
-        return saveChatRoom.getId();
+        // status와 roomId를 Map으로 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status);
+        response.put("roomId", roomId);
+
+        return response;
     }
 
     public ChatRoom findById(Long roomId) {

@@ -98,4 +98,17 @@ public class UserDto {
                     .build();
         }
     }
+
+    @Builder
+    public record ResponseOnlyUserNameWithId(
+            Long userId,
+            String nickname
+            ) {
+        public static ResponseOnlyUserNameWithId of(User user) {
+            return ResponseOnlyUserNameWithId.builder()
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .build();
+        }
+    }
 }
