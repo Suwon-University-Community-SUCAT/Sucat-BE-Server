@@ -1,18 +1,19 @@
 package com.Sucat.global.config;
 
 import com.Sucat.global.security.handler.JwtHandshakeInterceptor;
-import com.Sucat.global.websocket.handler.WebSockChatHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final WebSockChatHandler webSockChatHandler;
+//    private final WebSockChatHandler webSockChatHandler;
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     // sockJS Fallback을 이용해 노출할 endpoint 설정
@@ -28,10 +29,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 서버 -> 클라이언트로 발행하는ㅁ ㅔ시지에 대한 endpoint 설정 : 구독
-        config.enableSimpleBroker("/sub"); // 메시지 브로커의 Prefix를 등록, 클라이언트는 토픽을 구독할 시 /sub 경로로 요청해야 함
+        config.enableSimpleBroker("/sub"); // 클라이언트가 '/sub/**' 경로를 구독하고 있으면, 서버가 '/sub/**'로 메시지를 보내면 브로커가 이를 클라이언트에게 전달
 
         // 클라이언트 -> 서버로 발행하는 메시지에 대한 endpoint 설정 : 구독에 대한 메시지
-        config.setApplicationDestinationPrefixes("/pub");
+        config.setApplicationDestinationPrefixes("/pub"); // '/pub/**' 경로로 메시지를 보내면, 애플리케이션의 메시지 핸들러(@MessageMapping 애너테이션이 붙은 메서드)에서 처리하도록 함
     }
 
 

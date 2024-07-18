@@ -19,7 +19,7 @@ public class RedisSubscriber {
             log.info("publish 전 message: {}", message);
             PublishMessage publishMessage = objectMapper.readValue(message, PublishMessage.class);
 
-            messagingTemplate.convertAndSend("/sub/chats/" + publishMessage.getRoomId(), publishMessage);
+            messagingTemplate.convertAndSend("/sub/chats/" + publishMessage.getRoomId(), publishMessage); // roomId를 사용하여 적절한 STOMP 브로커 주제로 메시지를 전송한다.
             log.info("publish 후 message: {}", publishMessage.getContent());
         } catch (Exception e) {
             log.error(e.getMessage());

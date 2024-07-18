@@ -37,7 +37,7 @@ public class ChatService {
         log.info("메시지 저장 완료");
     }
 
-    public Page<ChatMessage> findMessages(Long roomId, int page, int size) {
+    public Page<ChatMessage> getChatRoomMessages(Long roomId, int page, int size) {
         ChatRoom chatRoom = chatRoomService.findById(roomId);
 
         Pageable pageable = PageRequest.of(page-1, size, Sort.by("id").descending());
