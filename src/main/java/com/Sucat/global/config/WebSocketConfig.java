@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // WebSocket이 handshake를 하기 위해 연결하는 endpoint
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/stomp/chat")
 //                .addInterceptors(jwtHandshakeInterceptor)
                 .setAllowedOriginPatterns("*");
 //                .withSockJS(); // Web Socket을 지원하지 않는 브라우저에서 HTTP의 Polling과 같은 방식으로 WebSocket의 요청을 수행하도록 돕는다.
