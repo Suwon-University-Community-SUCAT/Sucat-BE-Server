@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -23,9 +25,9 @@ public class ChatService {
     private final ChatRoomService chatRoomService;
     private final MessageRepository messageRepository;
 
-    public void saveMessage(MessageDto dto,Long roomId) {
+    public void saveMessage(MessageDto dto, UUID roomId) {
         User user = userService.findById(dto.getSenderId());
-        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .content(dto.getContent())
@@ -37,8 +39,8 @@ public class ChatService {
         log.info("메시지 저장 완료");
     }
 
-    public Page<ChatMessage> getChatRoomMessages(Long roomId, int page, int size) {
-        ChatRoom chatRoom = chatRoomService.findById(roomId);
+    public Page<ChatMessage> getChatRoomMessages(UUID roomId, int page, int size) {
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
 
         Pageable pageable = PageRequest.of(page-1, size, Sort.by("id").descending());
         Page<ChatMessage> messages = messageRepository.findByChatRoom(pageable, chatRoom);

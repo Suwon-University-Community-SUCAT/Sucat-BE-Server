@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -38,7 +39,7 @@ public class ChatRoomService {
         int status = 1;
         if(optionalChatRoom.isPresent()) {
             chatRoom = optionalChatRoom.get();
-            Long roomId = chatRoom.getId();
+            UUID roomId = chatRoom.getRoomId();
             log.info("Found existing chat room");
 
             Map<String, Object> response = new HashMap<>();
@@ -48,7 +49,7 @@ public class ChatRoomService {
             return response;
         } else if (optionalChatRoom2.isPresent()) {
             chatRoom = optionalChatRoom2.get();
-            Long roomId = chatRoom.getId();
+            UUID roomId = chatRoom.getRoomId();
             log.info("Found existing chat room");
 
             Map<String, Object> response = new HashMap<>();
@@ -64,9 +65,10 @@ public class ChatRoomService {
             log.info("Create new chat room");
             status = 0;
         }
-
+        UUID setRoomId = UUID.randomUUID();
+        chatRoom.setRoomId(setRoomId);
         ChatRoom saveChatRoom = roomRepository.save(chatRoom);
-        Long roomId = saveChatRoom.getId();
+        UUID roomId = saveChatRoom.getRoomId();
 
         // status와 roomId를 Map으로 반환
         Map<String, Object> response = new HashMap<>();
@@ -76,8 +78,13 @@ public class ChatRoomService {
         return response;
     }
 
-    public ChatRoom findById(Long roomId) {
-        return roomRepository.findById(roomId)
+    public ChatRoom findById(Long id) {
+        return roomRepository.findById(id)
+                .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
+    }
+
+    public ChatRoom findByRoomId(UUID roomId) {
+        return roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
     }
 }

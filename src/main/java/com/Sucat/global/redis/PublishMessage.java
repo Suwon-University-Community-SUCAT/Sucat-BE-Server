@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -20,7 +21,7 @@ public class PublishMessage implements Serializable {
     private static final long serialVersionUID = 2082503192322391880L;
 
     @NotNull
-    private Long roomId;
+    private UUID roomId;
 
     @NotNull
     private Long serderId;

@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Getter
@@ -28,10 +30,16 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "reveiver_id")
     private User receiver;
 
+    private UUID roomId; // 각 채팅방을 식별하기 위한 식별자 추가
+
     @Builder
     public ChatRoom(User sender, User receiver) {
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    public void setRoomId(UUID roomId) {
+        this.roomId = roomId;
     }
 
     /* Using Method */

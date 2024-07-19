@@ -19,6 +19,7 @@ import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,7 @@ public class MessageControllerWebSocketTest {
     @Test
     void testMessageMapping() throws Exception {
         // Given
-        Long roomId = 1L;
+        UUID roomId = UUID.randomUUID();
         MessageDto messageDto = new MessageDto(roomId, 3L, "Hello, World1");
 
         when(topic.getTopic()).thenReturn("testTopic");
