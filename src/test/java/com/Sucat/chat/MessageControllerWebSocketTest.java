@@ -19,6 +19,7 @@ import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,8 @@ public class MessageControllerWebSocketTest {
     @Test
     void testMessageMapping() throws Exception {
         // Given
-        Long roomId = 1L;
+        UUID uuid = UUID.randomUUID();
+        String roomId = String.valueOf(uuid);
         MessageDto messageDto = new MessageDto(roomId, 3L, "Hello, World1");
 
         when(topic.getTopic()).thenReturn("testTopic");
@@ -70,7 +72,7 @@ public class MessageControllerWebSocketTest {
 
         PublishMessage capturedPublishMessage = publishMessageCaptor.getValue();
         assertEquals(roomId, capturedPublishMessage.getRoomId());
-        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSerderId());
+        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSenderId());
         assertEquals(messageDto.getContent(), capturedPublishMessage.getContent());
     }
 }

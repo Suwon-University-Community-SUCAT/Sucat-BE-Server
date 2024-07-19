@@ -29,7 +29,7 @@ public class ChatRoomController {
     @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, HttpServletRequest request) {
         Map<String, Object> room = chatRoomService.createRoom(email, request);
-        Long roomId = (Long) room.get("roomId");
+        String roomId = (String) room.get("roomId");
         int status = (int) room.get("status");
 
 
@@ -47,11 +47,11 @@ public class ChatRoomController {
 
     //  채팅방 열기
     @GetMapping("/{room-id}")
-    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("room-id") Long roomId,
+    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("room-id") String roomId,
                                       HttpServletRequest request) {
 
         User sender = userService.getUserInfo(request);
-        ChatRoom chatRoom = chatRoomService.findById(roomId);
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
         Long receiverId = null;
         if (chatRoom.getSender().getId().equals(sender.getId())) {
             receiverId = chatRoom.getReceiver().getId();

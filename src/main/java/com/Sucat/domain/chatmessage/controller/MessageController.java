@@ -38,7 +38,7 @@ public class MessageController {
     private final RedisTemplate redisTemplate;
 
     @MessageMapping("/chats/messages/{room-id}") // '/pub/chats/messages/{room-id}' 경로로 보낸 메시지를 처리
-    public void message(@DestinationVariable("room-id") Long roomId, MessageDto messageDto) {
+    public void message(@DestinationVariable("room-id") String roomId, MessageDto messageDto) {
         PublishMessage publishMessage =
                 new PublishMessage(messageDto.getRoomId(), messageDto.getSenderId(), messageDto.getContent(), LocalDateTime.now());
         log.info("publishMessage: {}", publishMessage.getContent());
@@ -52,7 +52,7 @@ public class MessageController {
 
     // 채팅방 메시지 목록 가져오기
     @GetMapping("/api/v1/chats/messages/{room-id}")
-    public ResponseEntity<ApiResponse<Object>> getMessages(@PathVariable("room-id") Long roomId,
+    public ResponseEntity<ApiResponse<Object>> getMessages(@PathVariable("room-id") String roomId,
                                                            @RequestParam(defaultValue = "1") int page,
                                                            @RequestParam(defaultValue = "10") int size,
                                                            HttpServletRequest request) {

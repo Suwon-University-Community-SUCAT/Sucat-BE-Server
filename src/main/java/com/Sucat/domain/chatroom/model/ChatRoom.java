@@ -28,10 +28,16 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "reveiver_id")
     private User receiver;
 
+    private String roomId; // 각 채팅방을 식별하기 위한 식별자 추가
+
     @Builder
     public ChatRoom(User sender, User receiver) {
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
     /* Using Method */

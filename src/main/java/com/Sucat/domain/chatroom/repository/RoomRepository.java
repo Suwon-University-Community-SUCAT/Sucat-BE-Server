@@ -10,5 +10,7 @@ import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findBySenderAndReceiver(User sender, User receiver);
+
+    Optional<ChatRoom> findByRoomId(String roomId);
     Page<ChatRoom> findAllBySenderOrReceiver(Pageable pageable, User sender, User receiver);
 }

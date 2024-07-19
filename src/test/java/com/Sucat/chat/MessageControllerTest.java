@@ -13,6 +13,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +40,8 @@ class MessageControllerTest {
     @Test
     void testMessage() {
         // Given
-        Long roomId = 1L;
+        UUID uuid = UUID.randomUUID();
+        String roomId = String.valueOf(uuid);
         MessageDto messageDto = new MessageDto(roomId, 3L, "Hello, World!");
 
         when(topic.getTopic()).thenReturn("testTopic");
@@ -53,7 +56,7 @@ class MessageControllerTest {
 
         PublishMessage capturedPublishMessage = publishMessageCaptor.getValue();
         assertEquals(roomId, capturedPublishMessage.getRoomId());
-        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSerderId());
+        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSenderId());
         assertEquals(messageDto.getContent(), capturedPublishMessage.getContent());
     }
 }

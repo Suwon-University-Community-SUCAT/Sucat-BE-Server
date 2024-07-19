@@ -20,10 +20,10 @@ public class PublishMessage implements Serializable {
     private static final long serialVersionUID = 2082503192322391880L;
 
     @NotNull
-    private Long roomId;
+    private String roomId;
 
     @NotNull
-    private Long serderId;
+    private Long senderId;
 
     @NotBlank
     private String content;
