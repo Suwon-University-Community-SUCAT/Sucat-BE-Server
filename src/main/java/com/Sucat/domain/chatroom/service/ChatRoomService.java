@@ -65,8 +65,8 @@ public class ChatRoomService {
             log.info("Create new chat room");
             status = 0;
         }
-        UUID setRoomId = UUID.randomUUID();
-        chatRoom.setRoomId(String.valueOf(setRoomId));
+        String setRoomId = UUID.randomUUID().toString();
+        chatRoom.setRoomId(setRoomId);
         ChatRoom saveChatRoom = roomRepository.save(chatRoom);
         String roomId = saveChatRoom.getRoomId();
 
