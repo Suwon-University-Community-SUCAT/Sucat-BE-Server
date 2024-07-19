@@ -8,6 +8,12 @@ build/
 # Ignore application properties file
 /src/main/resources/application.properties
 /src/main/resources/application.yml
+/src/main/resources/application-admin.yml
+/src/main/resources/application-file.yml
+/src/main/resources/application-jwt.yml
+/src/main/resources/application-mail.yml
+/src/main/resources/application-redis.yml
+
 
 ### STS ###
 .apt_generated
