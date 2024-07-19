@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +14,7 @@ import java.util.UUID;
 public class MessageDto implements Serializable {
     private static final long serialVersionUID = 2082503192322391880L;
     @NotNull
-    private UUID roomId;
+    private String roomId;
     @NotNull
     private Long senderId;
     @NotBlank

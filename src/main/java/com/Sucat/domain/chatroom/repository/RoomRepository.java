@@ -7,11 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface RoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findBySenderAndReceiver(User sender, User receiver);
 
-    Optional<ChatRoom> findByRoomId(UUID roomId);
+    Optional<ChatRoom> findByRoomId(String roomId);
     Page<ChatRoom> findAllBySenderOrReceiver(Pageable pageable, User sender, User receiver);
 }

@@ -40,7 +40,8 @@ class MessageControllerTest {
     @Test
     void testMessage() {
         // Given
-        UUID roomId = UUID.randomUUID();
+        UUID uuid = UUID.randomUUID();
+        String roomId = String.valueOf(uuid);
         MessageDto messageDto = new MessageDto(roomId, 3L, "Hello, World!");
 
         when(topic.getTopic()).thenReturn("testTopic");
@@ -55,7 +56,7 @@ class MessageControllerTest {
 
         PublishMessage capturedPublishMessage = publishMessageCaptor.getValue();
         assertEquals(roomId, capturedPublishMessage.getRoomId());
-        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSerderId());
+        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSenderId());
         assertEquals(messageDto.getContent(), capturedPublishMessage.getContent());
     }
 }

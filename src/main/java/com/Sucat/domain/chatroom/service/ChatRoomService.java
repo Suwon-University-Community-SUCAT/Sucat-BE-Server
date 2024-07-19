@@ -39,7 +39,7 @@ public class ChatRoomService {
         int status = 1;
         if(optionalChatRoom.isPresent()) {
             chatRoom = optionalChatRoom.get();
-            UUID roomId = chatRoom.getRoomId();
+            String roomId = chatRoom.getRoomId();
             log.info("Found existing chat room");
 
             Map<String, Object> response = new HashMap<>();
@@ -49,7 +49,7 @@ public class ChatRoomService {
             return response;
         } else if (optionalChatRoom2.isPresent()) {
             chatRoom = optionalChatRoom2.get();
-            UUID roomId = chatRoom.getRoomId();
+            String roomId = chatRoom.getRoomId();
             log.info("Found existing chat room");
 
             Map<String, Object> response = new HashMap<>();
@@ -66,9 +66,9 @@ public class ChatRoomService {
             status = 0;
         }
         UUID setRoomId = UUID.randomUUID();
-        chatRoom.setRoomId(setRoomId);
+        chatRoom.setRoomId(String.valueOf(setRoomId));
         ChatRoom saveChatRoom = roomRepository.save(chatRoom);
-        UUID roomId = saveChatRoom.getRoomId();
+        String roomId = saveChatRoom.getRoomId();
 
         // status와 roomId를 Map으로 반환
         Map<String, Object> response = new HashMap<>();
@@ -83,7 +83,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
     }
 
-    public ChatRoom findByRoomId(UUID roomId) {
+    public ChatRoom findByRoomId(String roomId) {
         return roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
     }

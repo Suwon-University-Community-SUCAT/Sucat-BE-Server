@@ -56,7 +56,8 @@ public class MessageControllerWebSocketTest {
     @Test
     void testMessageMapping() throws Exception {
         // Given
-        UUID roomId = UUID.randomUUID();
+        UUID uuid = UUID.randomUUID();
+        String roomId = String.valueOf(uuid);
         MessageDto messageDto = new MessageDto(roomId, 3L, "Hello, World1");
 
         when(topic.getTopic()).thenReturn("testTopic");
@@ -71,7 +72,7 @@ public class MessageControllerWebSocketTest {
 
         PublishMessage capturedPublishMessage = publishMessageCaptor.getValue();
         assertEquals(roomId, capturedPublishMessage.getRoomId());
-        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSerderId());
+        assertEquals(messageDto.getSenderId(), capturedPublishMessage.getSenderId());
         assertEquals(messageDto.getContent(), capturedPublishMessage.getContent());
     }
 }
