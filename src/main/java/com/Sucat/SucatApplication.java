@@ -12,4 +12,5 @@ public class SucatApplication {
 		SpringApplication.run(SucatApplication.class, args);
 	}
 
+
 }
