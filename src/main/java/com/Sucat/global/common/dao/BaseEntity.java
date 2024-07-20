@@ -20,10 +20,10 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false)
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
-    protected LocalDateTime createdAt;
+    protected LocalDateTime createdAtBoard;
 
     @LastModifiedDate
     @Column
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
-    protected LocalDateTime updateAt;
+    protected LocalDateTime updateAtBoard;
 }

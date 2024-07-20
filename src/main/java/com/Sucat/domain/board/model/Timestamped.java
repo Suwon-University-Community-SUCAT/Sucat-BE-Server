@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class Timestamped {
-
+//게시한 시간 및 수정한 시간
     @CreatedDate
     private LocalDateTime createdAtBoard;
 
