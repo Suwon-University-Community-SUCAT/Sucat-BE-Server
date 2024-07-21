@@ -35,7 +35,7 @@ public class FriendShip {
     private Long counterpartId; // 상대 요청의 아이디
 
     /* Using Method */
-    public void acceptFriendshipRequest() {
+    public void acceptRequest() {
         this.status = FriendshipStatus.ACCEPT;
     }
 
