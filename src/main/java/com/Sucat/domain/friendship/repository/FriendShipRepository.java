@@ -11,4 +11,6 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
 
     boolean existsByUserEmailAndFriendEmail(String userEmail, String friendEmail);
     Optional<FriendShip> findByUserEmailAndFriendEmail(String userEmail, String friendEmail);
+
+    FriendShip findByUserEmail(String userEmail);
 }

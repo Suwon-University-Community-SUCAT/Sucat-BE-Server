@@ -78,11 +78,12 @@ public enum ErrorCode implements BaseCode{
      * FriendShip
      */
     Friendship_NOT_FOUND(NOT_FOUND, "F001", "존재하지 않는 친구 정보입니다."),
-    FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F002", "기존에 보낸적 있는 친구 요청입니다."),
-    REVERSE_FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F003", "이미 친구인 사용자입니다."),
-    SELF_FRIENDSHIP_REQUEST(CONFLICT, "F004", "자기 자신에게 친구 요청을 보낼 수 없습니다."),
-    FRIENDSHIP_ACCEPT_NOT_ALLOWED(FORBIDDEN, "F005", "친구 요청 수락은 요청을 받은 사람만 할 수 있습니다."),
-    FRIENDSHIP_DECLINE_NOT_ALLOWED(FORBIDDEN, "F006", "친구 요청 거절은 요청을 받은 사람만 할 수 있습니다."),
+    INVALID_FRIENDSHIP_REQUEST_USER(FORBIDDEN, "F002", "친구 요청에 해당하는 사용자가 아닙니다."),
+    FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F003", "기존에 보낸적 있는 친구 요청입니다."),
+    REVERSE_FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F004", "이미 친구인 사용자입니다."),
+    SELF_FRIENDSHIP_REQUEST(CONFLICT, "F005", "자기 자신에게 친구 요청을 보낼 수 없습니다."),
+    FRIENDSHIP_ACCEPT_NOT_ALLOWED(FORBIDDEN, "F006", "친구 요청 수락은 요청을 받은 사람만 할 수 있습니다."),
+    FRIENDSHIP_DECLINE_NOT_ALLOWED(FORBIDDEN, "F007", "친구 요청 거절은 요청을 받은 사람만 할 수 있습니다."),
 
     /**
      * ChatRoom

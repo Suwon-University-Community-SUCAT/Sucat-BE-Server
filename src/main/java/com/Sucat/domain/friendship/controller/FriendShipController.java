@@ -49,6 +49,14 @@ public class FriendShipController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 친구 삭제 */
+    @DeleteMapping("/{friendshipId}")
+    public ResponseEntity<ApiResponse<Object>> unfriend(@PathVariable("friendshipId") Long friendshipId,HttpServletRequest request) {
+
+        friendShipService.unfriend(request, friendshipId);
+
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
 
     /* 친구 목록 */
     @GetMapping

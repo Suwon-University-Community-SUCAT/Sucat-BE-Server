@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
+
 @Service
 @RequiredArgsConstructor
 public class FriendShipService {
@@ -27,7 +29,7 @@ public class FriendShipService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    public FriendShip getFriendShip(Long id) {
+    public FriendShip getFriendShipById(Long id) {
         return friendShipRepository.findById(id)
                 .orElseThrow(() -> new FriendShipException(ErrorCode.Friendship_NOT_FOUND));
     }
@@ -84,7 +86,7 @@ public class FriendShipService {
     @Transactional
     public void approveFriendshipRequest(Long friendshipId, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
-        FriendShip friendShip = getFriendShip(friendshipId);
+        FriendShip friendShip = getFriendShipById(friendshipId);
 
         if (user.getEmail().equals(friendShip.getUserEmail())) {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_ACCEPT_NOT_ALLOWED);
@@ -97,7 +99,7 @@ public class FriendShipService {
     @Transactional
     public void refuseFriendshipRequest(Long friendshipId, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
-        FriendShip friendShip = getFriendShip(friendshipId);
+        FriendShip friendShip = getFriendShipById(friendshipId);
 
         if (user.getEmail().equals(friendShip.getUserEmail())) {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_DECLINE_NOT_ALLOWED);
@@ -113,6 +115,27 @@ public class FriendShipService {
         if (exist) {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_ALREADY_EXISTS);
         }
+    }
+
+    /* 친구 삭제 */
+    @Transactional
+    public void unfriend(HttpServletRequest request, Long fromFriendshipId) {
+        String userEmail = userService.getUserInfo(request).getEmail();
+        FriendShip fromFriendShip = getFriendShipById(fromFriendshipId);
+
+        if (!fromFriendShip.getFriendEmail().equals(userEmail)) {
+            throw new FriendShipException(INVALID_FRIENDSHIP_REQUEST_USER);
+        }
+
+        FriendShip toFriendShip = friendShipRepository.findByUserEmail(userEmail);
+        Long toFriendShipId = toFriendShip.getId();
+
+        if ((fromFriendShip.getStatus().equals(FriendshipStatus.WAITING)) || (toFriendShip.getStatus().equals(FriendshipStatus.WAITING))) {
+            throw new FriendShipException(INVALID_FRIENDSHIP_REQUEST_USER);
+        }
+
+        friendShipRepository.deleteById(fromFriendshipId);
+        friendShipRepository.deleteById(toFriendShipId);
     }
 
     private boolean checkReverseFriendship(String toEmail, String fromEmail) {
@@ -135,7 +158,7 @@ public class FriendShipService {
         reverseFriendship.acceptFriendshipRequest();
         friendShipRepository.save(reverseFriendship);
 
-        FriendShip counterpart = getFriendShip(reverseFriendship.getCounterpartId());
+        FriendShip counterpart = getFriendShipById(reverseFriendship.getCounterpartId());
         counterpart.acceptFriendshipRequest();
         friendShipRepository.save(counterpart);
     }
