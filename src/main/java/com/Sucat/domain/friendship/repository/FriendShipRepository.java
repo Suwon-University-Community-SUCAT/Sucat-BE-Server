@@ -13,4 +13,5 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     Optional<FriendShip> findByUserEmailAndFriendEmail(String userEmail, String friendEmail);
 
     FriendShip findByUserEmail(String userEmail);
+    FriendShip findByFriendEmail(String friendEmail);
 }

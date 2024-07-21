@@ -123,11 +123,11 @@ public class FriendShipService {
         String userEmail = userService.getUserInfo(request).getEmail();
         FriendShip fromFriendShip = getFriendShipById(fromFriendshipId);
 
-        if (!fromFriendShip.getFriendEmail().equals(userEmail)) {
+        if (!fromFriendShip.getUserEmail().equals(userEmail)) {
             throw new FriendShipException(INVALID_FRIENDSHIP_REQUEST_USER);
         }
 
-        FriendShip toFriendShip = friendShipRepository.findByUserEmail(userEmail);
+        FriendShip toFriendShip = friendShipRepository.findByFriendEmail(userEmail);
         Long toFriendShipId = toFriendShip.getId();
 
         if ((fromFriendShip.getStatus().equals(FriendshipStatus.WAITING)) || (toFriendShip.getStatus().equals(FriendshipStatus.WAITING))) {
