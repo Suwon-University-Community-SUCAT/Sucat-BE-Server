@@ -19,7 +19,7 @@ public class ImageService {
     public String getFullPath(String filename) {
         return fileDir + filename;
     }
-
+    
     public List<String> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
         List<String> imageUrlList = new ArrayList<>();
         for (MultipartFile multipartFile : multipartFiles) {
