@@ -54,7 +54,7 @@ public class FriendShipService {
                     .user(toUser)
                     .userEmail(toEmail)
                     .friendEmail(fromUser.getEmail())
-                    .status(FriendshipStatus.ACCEPT)
+                    .status(FriendshipStatus.ACCEPT) // 보낸 이는 자동으로 친구 요청을 수락한 상태
                     .isFrom(false) // 보낸 요청이다.
                     .build();
 
@@ -124,7 +124,7 @@ public class FriendShipService {
                 // 받은 친구 요청이 존재한다면, 자동으로 친구 수락
                 acceptFriendship(reverseFriendship);
                 return true;
-            } else {
+            } else if (reverseFriendship.getStatus() == FriendshipStatus.ACCEPT) {
                 throw new FriendShipException(ErrorCode.REVERSE_FRIENDSHIP_ALREADY_EXISTS);
             }
         }
