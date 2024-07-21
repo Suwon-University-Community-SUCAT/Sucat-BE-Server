@@ -29,11 +29,7 @@ public class FriendShipService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    public FriendShip getFriendShipById(Long id) {
-        return friendShipRepository.findById(id)
-                .orElseThrow(() -> new FriendShipException(ErrorCode.Friendship_NOT_FOUND));
-    }
-
+    /* 친구 요청 */
     @Transactional
     public void createFriendShip(HttpServletRequest request, String toEmail) {
         User fromUser = jwtUtil.getUserFromRequest(request);
@@ -48,6 +44,7 @@ public class FriendShipService {
         }
     }
 
+    /* 친구 요청 목록 조회 */
     public List<WaitingFriendDto> getWaitingFriendList(HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
         return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
@@ -59,6 +56,7 @@ public class FriendShipService {
         return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail());
     }
 
+    /* 친구 요청 승인 */
     @Transactional
     public void approveFriendshipRequest(Long friendshipId, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
@@ -71,6 +69,7 @@ public class FriendShipService {
         acceptFriendship(friendShip);
     }
 
+    /* 친구 요청 거절 */
     @Transactional
     public void refuseFriendshipRequest(Long friendshipId, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
@@ -98,6 +97,10 @@ public class FriendShipService {
     }
 
     /* Using Method */
+    public FriendShip getFriendShipById(Long id) {
+        return friendShipRepository.findById(id)
+                .orElseThrow(() -> new FriendShipException(ErrorCode.Friendship_NOT_FOUND));
+    }
 
     private void validateSelfRequest(String toEmail, String fromEmail) {
         if (toEmail.equals(fromEmail)) {
