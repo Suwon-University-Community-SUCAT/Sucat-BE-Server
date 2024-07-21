@@ -26,7 +26,7 @@ public class FriendShipQueryRepository {
 
     public List<AcceptFriendDto> findAcceptFriendShipsByEmail(String userEmail) {
         return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.AcceptFriendDto(u.email,u.nickname,u.department,u.intro) " +
+                        "select new com.Sucat.domain.friendship.dto.AcceptFriendDto(f.id, u.email,u.nickname,u.department,u.intro) " +
                                 "from FriendShip f join User u on f.friendEmail = u.email " +
                                 "where f.userEmail = :userEmail and f.status = :status", AcceptFriendDto.class)
                 .setParameter("userEmail", userEmail)

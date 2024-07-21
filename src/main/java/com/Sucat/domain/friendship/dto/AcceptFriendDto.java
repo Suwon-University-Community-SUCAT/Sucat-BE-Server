@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AcceptFriendDto {
+    private Long friendshipId;
     private String friendEmail;
     private String friendNickname;
     private String department;
