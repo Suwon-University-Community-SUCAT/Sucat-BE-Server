@@ -106,7 +106,7 @@ public class FriendShipService {
         User user = jwtUtil.getUserFromRequest(request);
         FriendShip friendShip = getFriendShipById(friendshipId);
 
-        if (user.getEmail().equals(friendShip.getUserEmail())) {
+        if (user.getEmail().equals(friendShip.getFriendEmail())) {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_DECLINE_NOT_ALLOWED);
         }
 
