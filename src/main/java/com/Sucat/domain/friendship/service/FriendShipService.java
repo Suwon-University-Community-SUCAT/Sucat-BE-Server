@@ -167,6 +167,8 @@ public class FriendShipService {
         return false;
     }
 
+
+
     private void checkFriendshipAlready(FriendShip friendShip) {
 
         if (friendShip.getStatus().equals(FriendshipStatus.ACCEPT)) { // 이미 친구인지 검증
@@ -192,4 +194,17 @@ public class FriendShipService {
             throw new FriendShipException(INVALID_FRIENDSHIP_REQUEST_USER);
         }
     }
+
+    public void validateFriendship(String userEmail, String friendEmail) {
+        Optional<FriendShip> friendShipOpt = friendShipRepository.findByUserEmailAndFriendEmail(userEmail, friendEmail);
+        if (friendShipOpt.isPresent()) {
+            FriendShip friendShip = friendShipOpt.get();
+            if (!friendShip.getStatus().equals(FriendshipStatus.ACCEPT)) {
+                throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
+            }
+        } else {
+            throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
+        }
+    }
+
 }
