@@ -112,6 +112,11 @@ public class UserService {
         return UserProfileResponse.of(user);
     }
 
+    public FriendProfileResponse getFriendProfile(String email) {
+        User user = userQueryRepository.findUserProfileByEmail(email);
+        return FriendProfileResponse.of(user);
+    }
+
     private void updateUserImage(MultipartFile image, User user) throws IOException {
         if (image != null && !image.isEmpty()) {
             String imageUrl = imageService.storeFile(image);

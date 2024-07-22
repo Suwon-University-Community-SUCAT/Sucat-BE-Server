@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -64,4 +66,13 @@ public class FriendShipController {
         List<AcceptFriendDto> acceptFriendList = friendShipService.getAcceptFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
+
+    /* 친구 프로필 확인 */
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<ApiResponse<Object>> getFriendProfile(HttpServletRequest request, @PathVariable("email") String email) {
+        FriendProfileResponse friendProfile = friendShipService.getFriendProfile(request, email);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
+    }
+
 }

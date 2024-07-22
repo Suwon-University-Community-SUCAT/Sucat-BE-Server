@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
 @Service
@@ -94,6 +95,21 @@ public class FriendShipService {
         FriendShip toFriendShip = friendShipRepository.findByFriendEmail(userEmail);
         friendShipRepository.deleteById(fromFriendshipId);
         friendShipRepository.deleteById(toFriendShip.getId());
+    }
+
+    /* 친구 프로필 확인 */
+    public FriendProfileResponse getFriendProfile(HttpServletRequest request, String friendEmail) {
+        String userEmail = userService.getUserInfo(request).getEmail();
+
+        Optional<FriendShip> friendShipOpt = friendShipRepository.findByUserEmailAndFriendEmail(userEmail, friendEmail);
+        if (friendShipOpt.isPresent()) {
+            FriendShip friendShip = friendShipOpt.get();
+            if (friendShip.getStatus().equals(FriendshipStatus.ACCEPT)) {
+                return userService.getFriendProfile(friendEmail);
+            }
+        }
+
+        throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
     }
 
     /* Using Method */
