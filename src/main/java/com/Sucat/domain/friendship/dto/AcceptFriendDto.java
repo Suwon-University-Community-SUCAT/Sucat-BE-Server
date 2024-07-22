@@ -15,4 +15,5 @@ public class AcceptFriendDto {
     private String friendNickname;
     private String department;
     private String info;
+    private String profileImageUrl;
 }
