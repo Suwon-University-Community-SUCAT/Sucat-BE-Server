@@ -1,6 +1,5 @@
 package com.Sucat.domain.user.model;
 
-import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.global.common.dao.BaseEntity;
@@ -51,8 +50,8 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-    @OneToMany(mappedBy = "user")
-    private List<ChatRoom> chatRoomList = new ArrayList<>();
+//    @OneToMany(mappedBy = "user")
+//    private List<ChatRoom> chatRoomList = new ArrayList<>();
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
@@ -67,9 +66,9 @@ public class User extends BaseEntity {
         this.friendShipList.add(friendShipTo);
     }
 
-    public void addChatRoom(ChatRoom chatRoom) {
-        this.chatRoomList.add(chatRoom);
-    }
+//    public void addChatRoom(ChatRoom chatRoom) {
+//        this.chatRoomList.add(chatRoom);
+//    }
 
     /* Using Method */
     // 비밀번호 변경 메서드

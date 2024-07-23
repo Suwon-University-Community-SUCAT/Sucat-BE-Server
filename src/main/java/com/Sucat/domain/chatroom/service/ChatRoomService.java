@@ -71,8 +71,8 @@ public class ChatRoomService {
             status = 0;
 
             // Add the chat room to both users
-            sender.addChatRoom(chatRoom);
-            receiver.addChatRoom(chatRoom);
+//            sender.addChatRoom(chatRoom);
+//            receiver.addChatRoom(chatRoom);
         }
         String setRoomId = UUID.randomUUID().toString();
         chatRoom.setRoomId(setRoomId);
