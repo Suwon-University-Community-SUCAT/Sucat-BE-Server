@@ -1,6 +1,5 @@
 package com.Sucat.domain.chatroom.controller;
 
-import com.Sucat.domain.chatroom.dto.ChatRoomDto;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
 import com.Sucat.domain.user.model.User;
@@ -15,7 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.ChatRoomListResponse;
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.RoomResponse;
 
 @RestController
 @Slf4j
@@ -56,11 +59,19 @@ public class ChatRoomController {
 
         User receiver = userService.findById(receiverId);
 
-        ChatRoomDto.RoomResponse roomResponse = ChatRoomDto.RoomResponse.of(chatRoom.getId(), sender, receiver);
+        RoomResponse roomResponse = RoomResponse.of(chatRoom.getId(), sender, receiver);
 
         return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
 
         // 채팅방을 열고 이전 채팅방 가져오기에서 응답 코드가 201이라면 이 메서드에서 끝이고, 200이라면 채팅방 메시지 가져오기 메서드 실행
+    }
+
+    /* 채팅방 목록 */
+    @GetMapping
+    public ResponseEntity<ApiResponse<Object>> getChats(HttpServletRequest request) {
+        List<ChatRoomListResponse> chats = chatRoomService.getChats(request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, chats);
     }
 
     private URI buildChatRoomUri(String roomId) {

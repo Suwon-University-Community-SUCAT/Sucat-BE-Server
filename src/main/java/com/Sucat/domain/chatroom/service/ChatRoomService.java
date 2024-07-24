@@ -13,10 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.ChatRoomListResponse;
 
 @Service
 @Slf4j
@@ -85,6 +84,19 @@ public class ChatRoomService {
         response.put("roomId", roomId);
 
         return response;
+    }
+
+    public List<ChatRoomListResponse> getChats(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        List<ChatRoom> chatRooms = roomRepository.findAllBySenderOrReceiver(user, user);
+
+        List<ChatRoomListResponse> chatRoomListResponses =
+                chatRooms.stream().map(chatRoom -> {
+            User receiver = chatRoom.getSender().equals(user) ? chatRoom.getReceiver() : chatRoom.getSender();
+            return ChatRoomListResponse.of(chatRoom, receiver);
+        }).toList();
+
+        return chatRoomListResponses;
     }
 
     public ChatRoom findById(Long id) {
