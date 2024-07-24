@@ -50,8 +50,9 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<ChatMessage> chatMessages = new ArrayList<>();
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "users")
+//    private ChatRoom chatRoom;
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
@@ -63,8 +64,12 @@ public class User extends BaseEntity {
     }
 
     public void addFriendShip(FriendShip friendShipTo) {
-        friendShipList.add(friendShipTo);
+        this.friendShipList.add(friendShipTo);
     }
+
+//    public void addChatRoom(ChatRoom chatRoom) {
+//        this.chatRoomList.add(chatRoom);
+//    }
 
     /* Using Method */
     // 비밀번호 변경 메서드

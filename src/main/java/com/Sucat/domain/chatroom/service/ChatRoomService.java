@@ -3,6 +3,7 @@ package com.Sucat.domain.chatroom.service;
 import com.Sucat.domain.chatroom.exception.ChatRoomException;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.repository.RoomRepository;
+import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
@@ -12,10 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.ChatRoomListResponse;
 
 @Service
 @Slf4j
@@ -23,11 +23,15 @@ import java.util.UUID;
 public class ChatRoomService {
     private final UserService userService;
     private final RoomRepository roomRepository;
+    private final FriendShipService friendShipService;
 
     @Transactional
     public Map<String, Object> createRoom(String email, HttpServletRequest request) {
         User sender = userService.getUserInfo(request);
         User receiver = userService.findByEmail(email);
+
+       friendShipService.validateFriendship(sender.getEmail(), receiver.getEmail()); // 친구 관계인지 검증
+
 
         // TODO 한 명이라도 상대방에게 채팅을 보낸다면 양쪽 모두에게 채팅방 정보가 저장되도록
         // 둘의 채팅이 있는지 확인
@@ -35,8 +39,6 @@ public class ChatRoomService {
         Optional<ChatRoom> optionalChatRoom2 = roomRepository.findBySenderAndReceiver(receiver, sender);
 
         ChatRoom chatRoom = null;
-
-        // TODO: 채팅방 roomId를 UUID로 변경
 
         int status = 1;
         if(optionalChatRoom.isPresent()) {
@@ -66,6 +68,10 @@ public class ChatRoomService {
                     .build();
             log.info("Create new chat room");
             status = 0;
+
+            // Add the chat room to both users
+//            sender.addChatRoom(chatRoom);
+//            receiver.addChatRoom(chatRoom);
         }
         String setRoomId = UUID.randomUUID().toString();
         chatRoom.setRoomId(setRoomId);
@@ -78,6 +84,19 @@ public class ChatRoomService {
         response.put("roomId", roomId);
 
         return response;
+    }
+
+    public List<ChatRoomListResponse> getChats(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        List<ChatRoom> chatRooms = roomRepository.findAllBySenderOrReceiver(user, user);
+
+        List<ChatRoomListResponse> chatRoomListResponses =
+                chatRooms.stream().map(chatRoom -> {
+            User receiver = chatRoom.getSender().equals(user) ? chatRoom.getReceiver() : chatRoom.getSender();
+            return ChatRoomListResponse.of(chatRoom, receiver);
+        }).toList();
+
+        return chatRoomListResponses;
     }
 
     public ChatRoom findById(Long id) {

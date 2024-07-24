@@ -100,6 +100,29 @@ public class UserDto {
     }
 
     @Builder
+    public record FriendProfileResponse(
+            String email,
+            @NotNull
+            String nickname,
+            String department,
+            String intro,
+            String imageUrl
+    ) {
+        public static FriendProfileResponse of(User user) {
+            Image userImage = user.getUserImage();
+            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
+
+            return FriendProfileResponse.builder()
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .department(user.getDepartment())
+                    .intro(user.getIntro())
+                    .imageUrl(imageUrl)
+                    .build();
+        }
+    }
+
+    @Builder
     public record ResponseOnlyUserNameWithId(
             Long userId,
             String nickname

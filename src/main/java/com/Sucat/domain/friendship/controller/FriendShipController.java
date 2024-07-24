@@ -13,15 +13,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/friends")
 public class FriendShipController {
     private final FriendShipService friendShipService;
 
     /* 친구 요청 전송 */
-    @PostMapping("/friends/{email}")
+    @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> sendFriendShipRequest(@PathVariable(name = "email") String email, HttpServletRequest request) {
         friendShipService.createFriendShip(request, email);
 
@@ -29,31 +31,48 @@ public class FriendShipController {
     }
 
     /* 받은 친구 요청 조회 */
-    @GetMapping("/friends/received")
+    @GetMapping("/received")
     public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(HttpServletRequest request) {
         List<WaitingFriendDto> waitingFriendList = friendShipService.getWaitingFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 
     /* 친구 수락 */
-    @PostMapping("/friends/approve/{friendshipId}")
+    @PostMapping("/approve/{friendshipId}")
     public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
         friendShipService.approveFriendshipRequest(friendshipId, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /* 친구 요청 취소, 거절 */
-    @PostMapping("/friends/refuse/{friendshipId}")
+    @PostMapping("/refuse/{friendshipId}")
     public ResponseEntity<ApiResponse<Object>> refuseFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
         friendShipService.refuseFriendshipRequest(friendshipId, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 친구 삭제 */
+    @DeleteMapping("/{friendshipId}")
+    public ResponseEntity<ApiResponse<Object>> unfriend(@PathVariable("friendshipId") Long friendshipId,HttpServletRequest request) {
+
+        friendShipService.unfriend(request, friendshipId);
+
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
 
     /* 친구 목록 */
-    @GetMapping("/friends")
+    @GetMapping
     public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {
         List<AcceptFriendDto> acceptFriendList = friendShipService.getAcceptFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
+
+    /* 친구 프로필 확인 */
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<ApiResponse<Object>> getFriendProfile(HttpServletRequest request, @PathVariable("email") String email) {
+        FriendProfileResponse friendProfile = friendShipService.getFriendProfile(request, email);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
+    }
+
 }

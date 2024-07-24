@@ -13,6 +13,5 @@ public class WaitingFriendDto {
     private Long friendshipId;
     private String friendEmail;
     private String friendNickname;
-//    private FriendshipStatus status;
-//    private String imgUrl;
+    private String profileImageUrl;
 }
