@@ -50,8 +50,9 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<ChatRoom> chatRoomList = new ArrayList<>();
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "users")
+//    private ChatRoom chatRoom;
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {

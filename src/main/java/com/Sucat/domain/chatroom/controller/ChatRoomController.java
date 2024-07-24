@@ -28,15 +28,10 @@ public class ChatRoomController {
     // 채팅방 주소 생성/가져오기
     @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, HttpServletRequest request) {
-        Map<String, Object> room = chatRoomService.createRoom(email, request);
-        String roomId = (String) room.get("roomId");
-        int status = (int) room.get("status");
+        Map<String, Object> roomCreationResult = chatRoomService.createRoom(email, request);
+        int status = (int) roomCreationResult.get("status");
 
-
-        URI location = UriComponentsBuilder.newInstance()
-                .path("/api/v1/chats/{roomId}")
-                .buildAndExpand(roomId)
-                .toUri();
+        URI location = buildChatRoomUri((String) roomCreationResult.get("roomId"));
 
         if (status == 0) { // 채팅방 생성
             return ApiResponse.onSuccess(SuccessCode._CREATED, location);
@@ -66,6 +61,13 @@ public class ChatRoomController {
         return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
 
         // 채팅방을 열고 이전 채팅방 가져오기에서 응답 코드가 201이라면 이 메서드에서 끝이고, 200이라면 채팅방 메시지 가져오기 메서드 실행
+    }
+
+    private URI buildChatRoomUri(String roomId) {
+        return UriComponentsBuilder.newInstance()
+                .path("/api/v1/chats/{roomId}")
+                .buildAndExpand(roomId)
+                .toUri();
     }
 
 }
