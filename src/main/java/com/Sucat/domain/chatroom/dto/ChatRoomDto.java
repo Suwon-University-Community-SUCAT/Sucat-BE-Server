@@ -31,7 +31,7 @@ public class ChatRoomDto {
             String roomId,
             String receiverEmail,
             String receiverNickname,
-            String profileImageUrl,
+            String profileImageName,
             LocalDateTime createTime
     ) {
         public static ChatRoomListResponse of(ChatRoom chatRoom, User receiver) {
@@ -39,7 +39,7 @@ public class ChatRoomDto {
                     .roomId(chatRoom.getRoomId())
                     .receiverEmail(receiver.getEmail())
                     .receiverNickname(receiver.getNickname())
-                    .profileImageUrl(receiver.getUserImage().getImageUrl())
+                    .profileImageName(receiver.getUserImage().getImageName())
                     .createTime(chatRoom.getCreatedAt())
                     .build();
         }

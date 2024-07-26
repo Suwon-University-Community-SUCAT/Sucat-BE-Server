@@ -44,8 +44,8 @@ public class AuthService {
         user.updatePassword(passwordEncoder.encode(user.getPassword()));
 
         if (image != null && !image.isEmpty()) {
-            String imageUrl = imageService.storeFile(image);
-            Image userImage = Image.ofUser(user, imageUrl);
+            String imageName = imageService.storeFile(image);
+            Image userImage = Image.ofUser(user, imageName);
             user.updateUserImage(userImage);
         }
     }

@@ -21,8 +21,7 @@ public class Image {
     private Long id;
 
     @NotNull
-//    @URL
-    private String imageUrl;
+    private String imageName;
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
@@ -37,34 +36,34 @@ public class Image {
     private Notification notification;
 
     /* Using Method */
-    public void updateImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void updateImageName(String imageName) {
+        this.imageName = imageName;
     }
 
     /* 연관관계 메서드 */
-    public static Image ofUser(User user, String imageUrl) {
+    public static Image ofUser(User user, String imageName) {
 
         return Image.builder()
                 .user(user) //연관관계 설정
-                .imageUrl(imageUrl)
+                .imageName(imageName)
                 .build();
 
     }
 
-    public static Image ofNotification(Notification notification, String imageUrl) {
+    public static Image ofNotification(Notification notification, String imageName) {
 
         return Image.builder()
                 .notification(notification) //연관관계 설정
-                .imageUrl(imageUrl)
+                .imageName(imageName)
                 .build();
 
     }
 
-    public static Image ofBoard(Board board, String imageUrl) {
+    public static Image ofBoard(Board board, String imageName) {
 
         return Image.builder()
                 .board(board) //연관관계 설정
-                .imageUrl(imageUrl)
+                .imageName(imageName)
                 .build();
 
     }
