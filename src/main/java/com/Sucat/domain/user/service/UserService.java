@@ -119,17 +119,17 @@ public class UserService {
 
     private void updateUserImage(MultipartFile image, User user) throws IOException {
         if (image != null && !image.isEmpty()) {
-            String imageUrl = imageService.storeFile(image);
+            String imageName = imageService.storeFile(image);
 
             Image userImage = user.getUserImage(); // 기존의 사용자 이미지 객체를 가져옴
 
             if (userImage == null) {
                 // 만약 기존 이미지가 없다면 새로운 이미지 객체 생성
-                userImage = Image.ofUser(user, imageUrl);
+                userImage = Image.ofUser(user, imageName);
                 user.updateUserImage(userImage);
             } else {
                 // 기존 이미지 객체의 URL만 변경
-                userImage.updateImageUrl(imageUrl);
+                userImage.updateImageName(imageName);
             }
         }
     }

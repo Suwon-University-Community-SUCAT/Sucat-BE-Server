@@ -85,16 +85,16 @@ public class UserDto {
             @NotNull
             String nickname,
             String intro,
-            String imageUrl
+            String imageName
     ) {
         public static UserProfileResponse of(User user) {
             Image userImage = user.getUserImage();
-            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
+            String imageName = (userImage != null) ? userImage.getImageName() : null;
 
             return UserProfileResponse.builder()
                     .nickname(user.getNickname())
                     .intro(user.getIntro())
-                    .imageUrl(imageUrl)
+                    .imageName(imageName)
                     .build();
         }
     }
@@ -106,18 +106,18 @@ public class UserDto {
             String nickname,
             String department,
             String intro,
-            String imageUrl
+            String imageName
     ) {
         public static FriendProfileResponse of(User user) {
             Image userImage = user.getUserImage();
-            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
+            String imageName = (userImage != null) ? userImage.getImageName() : null;
 
             return FriendProfileResponse.builder()
                     .email(user.getEmail())
                     .nickname(user.getNickname())
                     .department(user.getDepartment())
                     .intro(user.getIntro())
-                    .imageUrl(imageUrl)
+                    .imageName(imageName)
                     .build();
         }
     }

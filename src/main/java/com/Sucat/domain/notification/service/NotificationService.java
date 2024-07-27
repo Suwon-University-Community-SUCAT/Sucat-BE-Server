@@ -2,7 +2,6 @@ package com.Sucat.domain.notification.service;
 
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
-import com.Sucat.domain.notification.dto.NotificationDto;
 import com.Sucat.domain.notification.exception.NotificationException;
 import com.Sucat.domain.notification.model.Notification;
 import com.Sucat.domain.notification.repository.NotificationQueryRepository;
@@ -21,8 +20,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.Sucat.domain.notification.dto.NotificationDto.*;
-import static com.Sucat.domain.notification.dto.NotificationDto.SystemListResponse;
-import static com.Sucat.domain.notification.dto.NotificationDto.SystemListWithSizeResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +39,8 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         if (images != null && !images.isEmpty()) {
-            imageService.storeFiles(images).forEach(imageUrl -> {
-                Image image = Image.ofNotification(notification, imageUrl);
+            imageService.storeFiles(images).forEach(imageName -> {
+                Image image = Image.ofNotification(notification, imageName);
                 notification.addNotificationImage(image);
             });
         }
