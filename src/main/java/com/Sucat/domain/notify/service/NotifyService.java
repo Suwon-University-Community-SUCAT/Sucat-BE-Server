@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,19 +27,38 @@ public class NotifyService {
     private final EmitterRepository emitterRepository;
     private final JwtUtil jwtUtil;
 
+    /**
+     * [SSE 연결 메서드]
+     * 알림 서버 접속 시 요청 회원의 고유 이벤트 id를 key, SseEmitter 인스턴스를 value로
+     * 알림 서버 저장소에 추가합니다.
+     */
     public SseEmitter subscribe(HttpServletRequest request, String lastEventId) {
         String email = jwtUtil.getEmailFromRequest(request);
-        String emitterId = makeTimeIncludeId(email); // email을 포함한 SseEmitter을 식별하기 위한 고유 아이디 생성
 
+        // 매 연결마다 고유 이벤트 id 부여
+        String emitterId = makeTimeIncludeId(email);
+
+        // SseEmitter 인스턴스 생성 후 Map에 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
         log.info("new emitter added : {}", emitter);
         log.info("lastEventId : {}", lastEventId);
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId)); // SseEmitter가 완료될 때 실행될 콜백을 등록
-        emitter.onTimeout(() -> emitterRepository.deleteById(emitterId)); // Sse가 타임아웃될 때 실행될 콜백을 등록
-        emitter.onError((e) -> emitterRepository.deleteById(emitterId));
+        // 이벤트 전송 시
+        emitter.onCompletion(() -> {
+            handleEmitterCompletion(emitterId);
+        });
 
-        /* 503 Service Unavailable 방지용 Dummy event 전송 */
+        // 이벤트 스트림 연결 끊길 시
+        emitter.onTimeout(() -> {
+            handleEmitterTimeout(emitterId);
+        });
+
+        // 에러가 발생할 시
+        emitter.onError((e) -> {
+            handleEmitterError(emitterId, e);
+        });
+
+        /* 첫 연결 시 503 Service Unavailable 방지용 Dummy event 전송 */
         String eventId = makeTimeIncludeId(email);
         sendNotification(emitter, eventId, "EventStream Created. [userEmail=" + email + "]");
 
@@ -51,15 +71,20 @@ public class NotifyService {
     }
 
     /* [SSE 통신] specific user에게 알림 전송 */
+    @Async
     public void send(User receiver, NotifyType notifyType, String content, String url) {
         Notify notify = notifyRepository.save(createNotify(receiver, notifyType, content, url));
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiver.getEmail());
         emitters.forEach(
                 (key, emitter) -> {
-                    log.info("key, notify : {}, {}", key, notify);
-                    emitterRepository.saveEventCache(key, notify); // 저장
-                    emitEventToClient(emitter, key, notify); // 전송
+                    try {
+                        log.info("key, notify : {}, {}", key, notify);
+                        emitterRepository.saveEventCache(key, notify); // 데이터 캐시 저장(유실된 데이터 처리하기 위함)
+                        emitEventToClient(emitter, key, notify); // 데이터 전송
+                    } catch (Exception e) {
+                        handleSendError(emitter, key, e);
+                    }
                 }
         );
     }
@@ -84,7 +109,10 @@ public class NotifyService {
     }
 
     /* [SSE 통신] */
-    private void emitEventToClient(SseEmitter emitter, String emitterId, Object data) {
+    private void emitEventToClient(
+            SseEmitter emitter,
+            String emitterId,
+            Object data) {
         try {
             send(emitter, emitterId, data);
             emitterRepository.deleteById(emitterId);
