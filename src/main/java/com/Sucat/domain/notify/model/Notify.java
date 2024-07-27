@@ -21,8 +21,6 @@ public class Notify extends BaseEntity {
     @Column(name = "notify_id")
     private Long id;
 
-    private String notifyId;
-
     private String content;
 
     private String url;
@@ -40,8 +38,7 @@ public class Notify extends BaseEntity {
     private User user;
 
     @Builder
-    public Notify(String notifyId, String content, String url, Boolean isRead, NotifyType notifyType, User user) {
-        this.notifyId = notifyId;
+    public Notify(String content, String url, Boolean isRead, NotifyType notifyType, User user) {
         this.content = content;
         this.url = url;
         this.isRead = isRead;
