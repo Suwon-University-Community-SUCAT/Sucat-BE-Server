@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class NotifyQueryRepositoryimpl implements NotifyQueryRepository {
+public class NotifyQueryRepositoryImpl implements NotifyQueryRepository {
     private final EntityManager em;
 
     @Override
