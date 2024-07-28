@@ -1,12 +1,14 @@
 package com.Sucat.domain.notify.model;
 
-import com.Sucat.global.common.dao.BaseEntity;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -19,16 +21,28 @@ public class Notify extends BaseEntity {
     @Column(name = "notify_id")
     private Long id;
 
+    private String content;
+
     private String url;
 
+    @Column(nullable = false)
     private Boolean isRead;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotifyType notifyType;
-
-    @NotNull
-    private Long receiverId; // 연관관계 설정으로 각 알림이 어떤 유저에 대한 알림인지 알 수 있다. 이 속성이 필요할까?
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    @Builder
+    public Notify(String content, String url, Boolean isRead, NotifyType notifyType, User user) {
+        this.content = content;
+        this.url = url;
+        this.isRead = isRead;
+        this.notifyType = notifyType;
+        this.user = user;
+    }
 }

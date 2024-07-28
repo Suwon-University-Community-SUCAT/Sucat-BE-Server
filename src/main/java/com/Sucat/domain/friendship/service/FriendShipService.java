@@ -7,6 +7,8 @@ import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.friendship.model.FriendshipStatus;
 import com.Sucat.domain.friendship.repository.FriendShipQueryRepository;
 import com.Sucat.domain.friendship.repository.FriendShipRepository;
+import com.Sucat.domain.notify.model.NotifyType;
+import com.Sucat.domain.notify.service.NotifyService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
@@ -28,6 +30,7 @@ public class FriendShipService {
     private final FriendShipRepository friendShipRepository;
     private final FriendShipQueryRepository friendShipQueryRepository;
     private final UserService userService;
+    private final NotifyService notifyService;
     private final JwtUtil jwtUtil;
 
     /* 친구 요청 */
@@ -39,9 +42,10 @@ public class FriendShipService {
 
         validateSelfRequest(toEmail, fromEmail);
 
-        if (!checkReverseFriendship(fromEmail, toEmail)) {
+        if (!checkReverseFriendship(fromEmail, toEmail, fromUser.getNickname())) {
             User toUser = userService.findByEmail(toEmail);
             saveFriendShipRequest(fromUser, toUser);
+            notifyService.send(toUser, NotifyType.FRIEND_REQUEST, fromUser.getNickname() + "님이 친구 요청을 보냈습니다.", "/api/v1/friends/received"); // 알림 클릭시 '받은 친구 요청 조회 페이지'로 이동
         }
     }
 
@@ -67,7 +71,7 @@ public class FriendShipService {
             throw new FriendShipException(ErrorCode.FRIENDSHIP_ACCEPT_NOT_ALLOWED);
         }
 
-        acceptFriendship(friendShip);
+        acceptFriendship(friendShip, user.getNickname());
     }
 
     /* 친구 요청 거절 */
@@ -150,7 +154,7 @@ public class FriendShipService {
                 .build();
     }
 
-    private boolean checkReverseFriendship(String fromEmail, String toEmail) {
+    private boolean checkReverseFriendship(String fromEmail, String toEmail, String fromUserNickname) {
         Optional<FriendShip>  reverseFriendshipOpt = friendShipRepository.findByUserEmailAndFriendEmail(fromEmail, toEmail);
 
         if (reverseFriendshipOpt.isPresent()){
@@ -160,7 +164,7 @@ public class FriendShipService {
 
             if (reverseFriendship.getStatus() == FriendshipStatus.WAITING && !reverseFriendship.isFrom()) {
                 // 받은 친구 요청이 존재한다면, 자동으로 친구 수락
-                acceptFriendship(reverseFriendship);
+                acceptFriendship(reverseFriendship, fromUserNickname);
                 return true;
             }
         }
@@ -179,13 +183,15 @@ public class FriendShipService {
 
     }
 
-    private void acceptFriendship(FriendShip reverseFriendship) {
+    private void acceptFriendship(FriendShip reverseFriendship, String fromUserNickname) {
         reverseFriendship.acceptRequest();
         friendShipRepository.save(reverseFriendship);
 
         FriendShip counterpart = getFriendShipById(reverseFriendship.getCounterpartId());
         counterpart.acceptRequest();
         friendShipRepository.save(counterpart);
+
+        notifyService.send(counterpart.getUser(), NotifyType.FRIEND_ACCEPTED, fromUserNickname + "님이 친구 요청을 수락했습니다.", "/api/v1/friends");
     }
 
     private void validateUnfriendRequest(String userEmail, FriendShip fromFriendShip) {

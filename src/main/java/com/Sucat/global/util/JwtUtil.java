@@ -31,4 +31,6 @@ public interface JwtUtil {
     boolean isTokenValid(String token);
 
     User getUserFromRequest(HttpServletRequest request);
+
+    String getEmailFromRequest(HttpServletRequest request);
 }

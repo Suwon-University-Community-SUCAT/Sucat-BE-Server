@@ -16,7 +16,7 @@ public class FriendShipQueryRepository {
 
     public List<WaitingFriendDto> findPendingFriendShipsByEmail(String userEmail) {
         return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageUrl) " +
+                        "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageName) " +
                                 "from FriendShip f " +
                                 "join User u on f.friendEmail = u.email " +
                                 "LEFT join u.userImage ui on u.userImage.id = ui.id " +
@@ -28,7 +28,7 @@ public class FriendShipQueryRepository {
 
     public List<AcceptFriendDto> findAcceptFriendShipsByEmail(String userEmail) {
         return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.AcceptFriendDto(f.id, u.email, u.nickname, u.department, u.intro, ui.imageUrl) " +
+                        "select new com.Sucat.domain.friendship.dto.AcceptFriendDto(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
                                 "from FriendShip f " +
                                 "join User u on f.friendEmail = u.email " +
                                 "LEFT join u.userImage ui on u.userImage.id = ui.id " +
