@@ -93,16 +93,17 @@ public enum ErrorCode implements BaseCode{
     /**
      * Image
      */
-    IMAGE_NOT_UPLOADED(BAD_REQUEST, "F001", "이미가이 업로드되지 않았습니다."),
+    IMAGE_NOT_UPLOADED(BAD_REQUEST, "F001", "이미지가 업로드되지 않았습니다."),
     IMAGE_EMPTY(BAD_REQUEST, "F002", "빈 이미지입니다."),
     IMAGE_UPLOAD_FAILED(INTERNAL_SERVER_ERROR, "F003", "이미지 업로드에 실패했습니다."),
     IMAGE_NOT_FOUND(NOT_FOUND, "F004", "이미지를 찾을 수 없습니다."),
     INVALID_FILE_IMAGE(UNAUTHORIZED, "F005", "이미지 형식이 맞지 않습니다."),
-    IMAGE_STORAGE_ERROR(INSUFFICIENT_STORAGE, "F005", "이미지 저장에 실패했습니다");
+    IMAGE_STORAGE_ERROR(INSUFFICIENT_STORAGE, "F005", "이미지 저장에 실패했습니다"),
 
     /**
      * Notify
      */
+    NOTIFY_NOT_FOUND(NOT_FOUND, "NT001", "존재하지 않는 알림입니다.");
 
 
     private final HttpStatus httpStatus;

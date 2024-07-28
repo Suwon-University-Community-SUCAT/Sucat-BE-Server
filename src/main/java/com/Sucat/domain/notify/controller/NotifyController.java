@@ -5,13 +5,11 @@ import com.Sucat.domain.notify.service.NotifyService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -41,4 +39,9 @@ public class NotifyController {
         return ApiResponse.onSuccess(SuccessCode._OK, findNotifyResponses);
     }
 
+    @PatchMapping
+    public ResponseEntity<ApiResponse<Object>> read(@RequestBody @Valid List<NotifyDto.ReadNotifyRequest> readNotifyRequestList) {
+        notifyService.read(readNotifyRequestList);
+        return ApiResponse.onSuccess(SuccessCode._OK);
+    }
 }
