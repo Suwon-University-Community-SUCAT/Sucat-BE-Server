@@ -37,6 +37,8 @@ public class Notify extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+
+    /* Using Method */
     @Builder
     public Notify(String content, String url, Boolean isRead, NotifyType notifyType, User user) {
         this.content = content;
@@ -44,5 +46,9 @@ public class Notify extends BaseEntity {
         this.isRead = isRead;
         this.notifyType = notifyType;
         this.user = user;
+    }
+
+    public void updateIsRead() {
+        this.isRead = true;
     }
 }

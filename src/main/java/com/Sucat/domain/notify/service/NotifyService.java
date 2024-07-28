@@ -1,21 +1,31 @@
 package com.Sucat.domain.notify.service;
 
+import com.Sucat.domain.notify.exception.NotifyException;
 import com.Sucat.domain.notify.model.Notify;
 import com.Sucat.domain.notify.model.NotifyType;
 import com.Sucat.domain.notify.repository.EmitterRepository;
+import com.Sucat.domain.notify.repository.NotifyQueryRepository;
 import com.Sucat.domain.notify.repository.NotifyRepository;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+
+import static com.Sucat.domain.notify.dto.NotifyDto.FindNotifyResponse;
+import static com.Sucat.domain.notify.dto.NotifyDto.ReadNotifyRequest;
 
 @Service
 @Slf4j
@@ -24,6 +34,7 @@ public class NotifyService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
     private final NotifyRepository notifyRepository;
+    private final NotifyQueryRepository notifyQueryRepository;
     private final EmitterRepository emitterRepository;
     private final JwtUtil jwtUtil;
 
@@ -162,6 +173,45 @@ public class NotifyService {
                 .build();
     }
 
+    /* 알림 목록 */
+    public List<FindNotifyResponse> find(HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
+        Long userId = user.getId();
+        List<Notify> notifyList = notifyQueryRepository.findByUserId(userId, LocalDateTime.now().minusDays(31));
+
+        return notifyList.stream().map(
+                FindNotifyResponse::of
+        ).toList();
+    }
+
+    /* 알림 수정 메서드
+    * 사용자가 알림을 읽으면 isRead를 True로 수정
+    *  */
+    @Transactional
+    public void read(List<ReadNotifyRequest> readNotifyRequestList) {
+        for (ReadNotifyRequest readNotifyRequest : readNotifyRequestList) {
+            Notify notify = getNotifyById(readNotifyRequest.notifyId());
+            notify.updateIsRead();
+        }
+    }
+
+    /**
+     * 알림 삭제 메서드
+     * 30일이 지난 알림은 매일 자정에 삭제
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void delete() {
+        LocalDateTime date = LocalDateTime.now().minusDays(30);
+        notifyRepository.deleteByCreatedAt(date);
+    }
+
+
+    public Notify getNotifyById(Long id) {
+        return notifyRepository.findById(id)
+                .orElseThrow(() -> new NotifyException(ErrorCode.NOTIFY_NOT_FOUND));
+    }
+
     /* Error handler */
     private void handleEmitterCompletion(String emitterId) {
         log.info("Emitter completed: {}", emitterId);
@@ -183,5 +233,4 @@ public class NotifyService {
         emitterRepository.deleteById(emitterId);
         emitter.completeWithError(exception);
     }
-
 }
