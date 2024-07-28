@@ -1,5 +1,6 @@
 package com.Sucat.domain.notify.service;
 
+import com.Sucat.domain.notify.dto.NotifyDto;
 import com.Sucat.domain.notify.model.Notify;
 import com.Sucat.domain.notify.model.NotifyType;
 import com.Sucat.domain.notify.repository.EmitterRepository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -162,6 +165,17 @@ public class NotifyService {
                 .build();
     }
 
+    /* 알림 목록 */
+    public List<NotifyDto.FindNotifyResponse> find(HttpServletRequest request) {
+        User user = jwtUtil.getUserFromRequest(request);
+        Long userId = user.getId();
+        List<Notify> notifyList = notifyRepository.findByUserId(userId, LocalDateTime.now().minusDays(31));
+
+        return notifyList.stream().map(
+                NotifyDto.FindNotifyResponse::of
+        ).toList();
+    }
+
     /* Error handler */
     private void handleEmitterCompletion(String emitterId) {
         log.info("Emitter completed: {}", emitterId);
@@ -183,5 +197,4 @@ public class NotifyService {
         emitterRepository.deleteById(emitterId);
         emitter.completeWithError(exception);
     }
-
 }

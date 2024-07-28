@@ -1,6 +1,9 @@
 package com.Sucat.domain.notify.controller;
 
+import com.Sucat.domain.notify.dto.NotifyDto;
 import com.Sucat.domain.notify.service.NotifyService;
+import com.Sucat.global.common.code.SuccessCode;
+import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +33,12 @@ public class NotifyController {
 
         SseEmitter sseEmitter = notifyService.subscribe(request, lastEventId);// 사용자의 구독을 처리
         return ResponseEntity.ok(sseEmitter);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Object>> find(HttpServletRequest request) {
+        List<NotifyDto.FindNotifyResponse> findNotifyResponses = notifyService.find(request);
+        return ApiResponse.onSuccess(SuccessCode._OK, findNotifyResponses);
     }
 
 }
