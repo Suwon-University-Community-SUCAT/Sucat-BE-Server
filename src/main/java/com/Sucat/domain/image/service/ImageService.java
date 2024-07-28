@@ -36,7 +36,7 @@ public class ImageService {
         try {
             Files.createDirectories(fileStorageLocation);
         } catch (IOException ex) {
-            throw new ImageException(ErrorCode.IMAGE_STORGE_ERROR);
+            throw new ImageException(ErrorCode.IMAGE_STORAGE_ERROR);
         }
     }
 
@@ -93,7 +93,7 @@ public class ImageService {
                     .map(Path::toFile)
                     .forEach(File::delete);
         } catch (IOException ex) {
-            throw new ImageException(ErrorCode.IMAGE_STORGE_ERROR);
+            throw new ImageException(ErrorCode.IMAGE_STORAGE_ERROR);
         }
     }
 
