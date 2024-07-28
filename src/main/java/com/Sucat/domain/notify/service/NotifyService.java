@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -193,6 +194,18 @@ public class NotifyService {
             notify.updateIsRead();
         }
     }
+
+    /**
+     * 알림 삭제 메서드
+     * 30일이 지난 알림은 매일 자정에 삭제
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void delete() {
+        LocalDateTime date = LocalDateTime.now().minusDays(30);
+        notifyRepository.deleteByCreatedAt(date);
+    }
+
 
     public Notify getNotifyById(Long id) {
         return notifyRepository.findById(id)
