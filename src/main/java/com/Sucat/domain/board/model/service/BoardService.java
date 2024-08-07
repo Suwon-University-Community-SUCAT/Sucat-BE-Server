@@ -52,7 +52,7 @@ public class BoardService {
         BoardResponseDto dto = new BoardResponseDto();
         dto.setCreatedAtBoard(board.getUser().getCreatedAtBoard());  // Assuming you have a createdDate field in Board
         dto.setImageUrlList(board.getImages().stream()
-                .map(image -> image.getImageUrl())
+                .map(image -> image.getImageURL()) // 이코드는 맞게한건지 모르겠음 ..
                 .collect(Collectors.toList()));
         dto.setTitle(board.getTitle());
         dto.setContent(board.getContent());

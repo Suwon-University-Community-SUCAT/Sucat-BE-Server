@@ -5,6 +5,7 @@ import com.Sucat.domain.notification.model.Notification;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -34,6 +35,11 @@ public class Image {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "notification_id")
     private Notification notification;
+
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "image_url", nullable = false)
+    private String imageURL;
 
     /* Using Method */
     public void updateImageName(String imageName) {
@@ -68,3 +74,5 @@ public class Image {
 
     }
 }
+
+
