@@ -2,7 +2,9 @@ package com.Sucat.domain.user.model;
 
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.notify.model.Notify;
 import com.Sucat.global.common.dao.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -47,11 +49,16 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<FriendShip> friendShipList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<Notify> notifyList = new ArrayList<>(); // 회원의 알림 리스트
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<ChatMessage> chatMessages = new ArrayList<>();
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "users")
+//    private ChatRoom chatRoom;
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
@@ -63,8 +70,12 @@ public class User extends BaseEntity {
     }
 
     public void addFriendShip(FriendShip friendShipTo) {
-        friendShipList.add(friendShipTo);
+        this.friendShipList.add(friendShipTo);
     }
+
+//    public void addChatRoom(ChatRoom chatRoom) {
+//        this.chatRoomList.add(chatRoom);
+//    }
 
     /* Using Method */
     // 비밀번호 변경 메서드

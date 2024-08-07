@@ -1,10 +1,12 @@
 package com.Sucat.global.common.response;
 
 import com.Sucat.global.common.code.BaseCode;
+import com.Sucat.global.common.dto.ReasonDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 public class ApiResponse<T> {
     @JsonProperty("is_success")
     private final Boolean isSuccess;
+    private final HttpStatus status;
     private final String code;
     private final String message;
 
@@ -20,17 +23,20 @@ public class ApiResponse<T> {
     private final T payload;
 
     public static <T> ResponseEntity<ApiResponse<T>> onSuccess(BaseCode code, T payload) {
-        ApiResponse<T> response = new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), payload);
-        return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
+        ReasonDto reasonHttpStatus = code.getReasonHttpStatus();
+        ApiResponse<T> response = new ApiResponse<>(true, reasonHttpStatus.getHttpStatus(), reasonHttpStatus.getCode(), reasonHttpStatus.getMessage(), payload);
+        return ResponseEntity.status(reasonHttpStatus.getHttpStatus()).body(response);
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> onSuccess(BaseCode code) {
-        ApiResponse<T> response = new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), null);
+        ReasonDto reasonHttpStatus = code.getReasonHttpStatus();
+        ApiResponse<T> response = new ApiResponse<>(true, reasonHttpStatus.getHttpStatus(), reasonHttpStatus.getCode(), reasonHttpStatus.getMessage(), null);
         return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> onFailure(BaseCode code) {
-        ApiResponse<T> response = new ApiResponse<>(false, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), null);
+        ReasonDto reasonHttpStatus = code.getReasonHttpStatus();
+        ApiResponse<T> response = new ApiResponse<>(false, reasonHttpStatus.getHttpStatus(), reasonHttpStatus.getCode(), reasonHttpStatus.getMessage(), null);
         return ResponseEntity.status(code.getReasonHttpStatus().getHttpStatus()).body(response);
     }
 }

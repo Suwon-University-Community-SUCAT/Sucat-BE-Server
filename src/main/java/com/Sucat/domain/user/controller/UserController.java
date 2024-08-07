@@ -29,12 +29,6 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
-    @GetMapping("/password")
-    public ResponseEntity<ApiResponse<Object>> getCurrentUserEmail(HttpServletRequest request) {
-        String email = userService.getUserInfo(request).getEmail();
-        return ApiResponse.onSuccess(SuccessCode._OK, email);
-    }
-
     @PostMapping("/password")
     public ResponseEntity<ApiResponse<Object>> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
         userService.resetPassword(passwordResetRequest);
