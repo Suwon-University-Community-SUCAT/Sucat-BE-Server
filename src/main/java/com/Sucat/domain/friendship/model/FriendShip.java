@@ -1,6 +1,7 @@
 package com.Sucat.domain.friendship.model;
 
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FriendShip {
+public class FriendShip extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
