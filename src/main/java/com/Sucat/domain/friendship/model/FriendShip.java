@@ -27,6 +27,8 @@ public class FriendShip {
 
     private String friendEmail;
 
+    private String friendName;
+
     @Enumerated(EnumType.STRING)
     private FriendshipStatus status;
 
