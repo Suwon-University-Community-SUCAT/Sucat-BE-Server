@@ -28,8 +28,6 @@ public class FriendShip extends BaseEntity {
 
     private String friendEmail;
 
-    private String friendName;
-
     @Enumerated(EnumType.STRING)
     private FriendshipStatus status;
 

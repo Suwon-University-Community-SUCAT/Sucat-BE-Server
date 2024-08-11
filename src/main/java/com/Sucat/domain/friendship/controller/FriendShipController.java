@@ -1,13 +1,17 @@
 package com.Sucat.domain.friendship.controller;
 
 import com.Sucat.domain.friendship.dto.AcceptFriendDto;
+import com.Sucat.domain.friendship.dto.FriendShipDto;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,4 +79,16 @@ public class FriendShipController {
         return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
     }
 
+    /* 친구 검색 */
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Object>> friendSearch(
+            @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword,
+            @PageableDefault(page = 0, size = 30) @Nullable final Pageable pageable,
+            @RequestParam(name = "sortKey", defaultValue = "name") @Nullable final String sortKey,
+            HttpServletRequest request
+    ) {
+        List<FriendShipDto.FriendSearchResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, pageable, sortKey, request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, friendSearchResponses);
+    }
 }

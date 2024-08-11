@@ -15,12 +15,17 @@ import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.Sucat.domain.friendship.dto.FriendShipDto.FriendSearchResponse;
 import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
@@ -115,6 +120,48 @@ public class FriendShipService {
 
         throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
     }
+
+    /* 친구 검색 메서드 */
+    public List<FriendSearchResponse> getSearchFriend(final String keyword, final Pageable pageable, final String sortKey, HttpServletRequest request) {
+        // 사용자 정보 가져오기
+        User user = jwtUtil.getUserFromRequest(request);
+
+        // 사용자의 친구 목록을 가져오고, 해당 친구들의 User를 찾음
+        //TODO 로직 개선 필요
+        List<FriendShip> friendShipList = user.getFriendShipList().stream()
+                .filter(friendShip -> friendShip.getStatus() == FriendshipStatus.ACCEPT)
+                .filter(friendShip -> {
+                    User friendUser = userService.findByEmail(friendShip.getFriendEmail());
+                    return friendUser.getName().toLowerCase().contains(keyword.toLowerCase());
+                })
+                .collect(Collectors.toList());
+
+        // 2. 정렬 조건에 따른 정렬
+//        Comparator<FriendShip> comparator;
+//        switch (sortKey) {
+//            case "createAt":
+//                comparator = Comparator.comparing(FriendShip::getCreatedAt).reversed();
+//                break;
+//            case "name":
+//                comparator = Comparator.comparing(friendShip -> friendShip.getFriendEmail());//수정
+//                break;
+//            default:
+//                comparator = Comparator.comparing(FriendShip::getCreatedAt).reversed();
+//                break;
+//        }
+//
+//        friendShipList.sort(comparator);
+
+        List<FriendSearchResponse> friendSearchResponses = friendShipList.stream()
+                .map(f ->
+                {
+                    User friend = userService.findByEmail(f.getFriendEmail());
+                    return FriendSearchResponse.of(f, friend);
+                }).toList();
+
+        return friendSearchResponses;
+    }
+
 
     /* Using Method */
     public FriendShip getFriendShipById(Long id) {
@@ -211,6 +258,22 @@ public class FriendShipService {
         } else {
             throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
         }
+    }
+
+    private Pageable pagingCondition(final Pageable pageable, final String sortKey) {
+        Sort sort;
+        switch (sortKey) {
+            case "createAt":
+                sort = Sort.by(Sort.Direction.DESC, "createAt");
+                break;
+            case "name":
+                sort = Sort.by(Sort.Direction.ASC, "name"); // 이름순 정렬 추가
+                break;
+            default:
+                sort = Sort.by(Sort.Direction.DESC, "createdAt");
+                break;
+        }
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
     }
 
 }
