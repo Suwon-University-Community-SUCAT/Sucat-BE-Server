@@ -20,17 +20,18 @@ public class FriendShipDto {
             String friendEmail,
             String friendName,
             String friendDepartment,
-            String friendInfo,
-            String friendProfileImage
+            String friendIntro,
+            String friendProfileImageName
     ) {
-        public static FriendSearchResponse of(FriendShip friendShip, User Friend) {
-//            use.findByEmail(friendShip.getFriendEmail());
+        public static FriendSearchResponse of(FriendShip friendShip, User friend) {
             return FriendSearchResponse.builder()
                     .id(friendShip.getId())
                     .friendEmail(friendShip.getFriendEmail())
                     .friendName(friendShip.getUser().getName())
+                    .friendDepartment(friend.getDepartment())
+                    .friendIntro(friend.getIntro())
+                    .friendProfileImageName(friend.getUserImage().getImageName())
                     .build();
-//                    .friendDepartment(friendShip.ge)
         }
     }
 }
