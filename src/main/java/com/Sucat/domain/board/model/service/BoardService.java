@@ -50,9 +50,9 @@ public class BoardService {
 
     private BoardResponseDto convertToDto(Board board) {
         BoardResponseDto dto = new BoardResponseDto();
-        dto.setCreatedAtBoard(board.getUser().getCreatedAtBoard());  // Assuming you have a createdDate field in Board
+        dto.setCreatedAtBoard(board.getUser().getCreatedAt());  // Assuming you have a createdDate field in Board
         dto.setImageUrlList(board.getImages().stream()
-                .map(image -> image.getImageUrl())
+                .map(Image -> Image.getImageUrl())
                 .collect(Collectors.toList()));
         dto.setTitle(board.getTitle());
         dto.setContent(board.getContent());

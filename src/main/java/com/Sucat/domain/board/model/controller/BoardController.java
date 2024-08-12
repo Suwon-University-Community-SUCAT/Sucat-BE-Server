@@ -42,9 +42,9 @@ public class BoardController {
 
     // 게시판 생성
     @PostMapping
-    public ResponseEntity<Board> createBoard(@RequestBody Board board) {
+    public ResponseEntity<String> createBoard(@RequestBody Board board) {
         Board createdBoard = boardService.saveBoard(board);
-        return ResponseEntity.ok(createdBoard);
+        return ResponseEntity.ok("성공");
     }
 
     // 게시판 상세 조회
@@ -60,10 +60,10 @@ public class BoardController {
 
     // 게시판 수정
     @PutMapping("edit/{id}")
-    public ResponseEntity<Board> updateBoard(@PathVariable Long id, @RequestBody Board updatedBoard) {
+    public ResponseEntity<String> updateBoard(@PathVariable Long id, @RequestBody Board updatedBoard) {
         Board board = boardService.updateBoard(id, updatedBoard);
         if (board != null) {
-            return ResponseEntity.ok(board);
+            return ResponseEntity.ok("성공");
         } else {
             return ResponseEntity.notFound().build();
         }
