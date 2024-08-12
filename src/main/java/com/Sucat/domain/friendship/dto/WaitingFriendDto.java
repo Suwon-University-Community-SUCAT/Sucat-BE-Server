@@ -14,4 +14,9 @@ public class WaitingFriendDto {
     private String friendEmail;
     private String friendNickname;
     private String profileImageName;
+    private int totalCount;
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
 }

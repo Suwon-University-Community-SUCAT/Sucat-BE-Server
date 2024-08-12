@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.Sucat.domain.friendship.dto.FriendShipDto.WaitingFriendWithTotalCountResponse;
 import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
@@ -53,9 +54,14 @@ public class FriendShipService {
     }
 
     /* 친구 요청 목록 조회 */
-    public List<WaitingFriendDto> getWaitingFriendList(HttpServletRequest request) {
+    public WaitingFriendWithTotalCountResponse getWaitingFriendList(HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
-        return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
+        List<WaitingFriendDto> pendingFriendShipsByEmail = friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
+        int totalCount = pendingFriendShipsByEmail.size();
+
+        WaitingFriendWithTotalCountResponse waitingFriendWithTotalCountResponse = WaitingFriendWithTotalCountResponse.of(pendingFriendShipsByEmail, totalCount);
+
+        return waitingFriendWithTotalCountResponse;
     }
 
     /* 친구 목록 조회 */

@@ -1,7 +1,7 @@
 package com.Sucat.domain.friendship.controller;
 
 import com.Sucat.domain.friendship.dto.FriendListResponse;
-import com.Sucat.domain.friendship.dto.WaitingFriendDto;
+import com.Sucat.domain.friendship.dto.FriendShipDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -36,7 +36,7 @@ public class FriendShipController {
     /* 받은 친구 요청 조회 */
     @GetMapping("/received")
     public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(HttpServletRequest request) {
-        List<WaitingFriendDto> waitingFriendList = friendShipService.getWaitingFriendList(request);
+        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 
