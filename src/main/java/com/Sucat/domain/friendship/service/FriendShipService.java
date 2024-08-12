@@ -1,6 +1,6 @@
 package com.Sucat.domain.friendship.service;
 
-import com.Sucat.domain.friendship.dto.AcceptFriendDto;
+import com.Sucat.domain.friendship.dto.FriendListResponse;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.exception.FriendShipException;
 import com.Sucat.domain.friendship.model.FriendShip;
@@ -23,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static com.Sucat.domain.friendship.dto.FriendShipDto.FriendSearchResponse;
 import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
@@ -61,7 +59,7 @@ public class FriendShipService {
     }
 
     /* 친구 목록 조회 */
-    public List<AcceptFriendDto> getAcceptFriendList(HttpServletRequest request) {
+    public List<FriendListResponse> getAcceptFriendList(HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
         return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail());
     }
@@ -122,44 +120,10 @@ public class FriendShipService {
     }
 
     /* 친구 검색 메서드 */
-    public List<FriendSearchResponse> getSearchFriend(final String keyword, final Pageable pageable, final String sortKey, HttpServletRequest request) {
-        // 사용자 정보 가져오기
-        User user = jwtUtil.getUserFromRequest(request);
+    public List<FriendListResponse> getSearchFriend(final String keyword, final Pageable pageable, final String sortKey, HttpServletRequest request) {
+        List<FriendListResponse> searchFriendList = friendShipQueryRepository.getSearchFriend(keyword, pageable, sortKey, request);
 
-        // 사용자의 친구 목록을 가져오고, 해당 친구들의 User를 찾음
-        //TODO 로직 개선 필요
-        List<FriendShip> friendShipList = user.getFriendShipList().stream()
-                .filter(friendShip -> friendShip.getStatus() == FriendshipStatus.ACCEPT)
-                .filter(friendShip -> {
-                    User friendUser = userService.findByEmail(friendShip.getFriendEmail());
-                    return friendUser.getName().toLowerCase().contains(keyword.toLowerCase());
-                })
-                .collect(Collectors.toList());
-
-        // 2. 정렬 조건에 따른 정렬
-//        Comparator<FriendShip> comparator;
-//        switch (sortKey) {
-//            case "createAt":
-//                comparator = Comparator.comparing(FriendShip::getCreatedAt).reversed();
-//                break;
-//            case "name":
-//                comparator = Comparator.comparing(friendShip -> friendShip.getFriendEmail());//수정
-//                break;
-//            default:
-//                comparator = Comparator.comparing(FriendShip::getCreatedAt).reversed();
-//                break;
-//        }
-//
-//        friendShipList.sort(comparator);
-
-        List<FriendSearchResponse> friendSearchResponses = friendShipList.stream()
-                .map(f ->
-                {
-                    User friend = userService.findByEmail(f.getFriendEmail());
-                    return FriendSearchResponse.of(f, friend);
-                }).toList();
-
-        return friendSearchResponses;
+        return searchFriendList;
     }
 
 

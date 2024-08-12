@@ -1,7 +1,6 @@
 package com.Sucat.domain.friendship.controller;
 
-import com.Sucat.domain.friendship.dto.AcceptFriendDto;
-import com.Sucat.domain.friendship.dto.FriendShipDto;
+import com.Sucat.domain.friendship.dto.FriendListResponse;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
@@ -67,7 +66,7 @@ public class FriendShipController {
     /* 친구 목록 */
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {
-        List<AcceptFriendDto> acceptFriendList = friendShipService.getAcceptFriendList(request);
+        List<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 
@@ -87,7 +86,7 @@ public class FriendShipController {
             @RequestParam(name = "sortKey", defaultValue = "name") @Nullable final String sortKey,
             HttpServletRequest request
     ) {
-        List<FriendShipDto.FriendSearchResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, pageable, sortKey, request);
+        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, pageable, sortKey, request);
 
         return ApiResponse.onSuccess(SuccessCode._OK, friendSearchResponses);
     }
