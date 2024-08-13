@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.JoinUserRequest;
-import static com.Sucat.domain.user.dto.UserDto.UserTermAgree;
 
 @RestController
 @RequiredArgsConstructor

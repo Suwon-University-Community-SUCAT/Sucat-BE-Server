@@ -5,6 +5,7 @@ import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,8 +25,8 @@ public class UserController {
     private final UserDetailsService userDetailsService;
 
     @GetMapping("/nickname/duplication")
-    public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
-        userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
+    public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestParam("nickname") @NotNull String nickname) {
+        userService.nicknameDuplicateVerification(nickname);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 

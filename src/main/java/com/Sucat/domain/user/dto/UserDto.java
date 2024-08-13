@@ -12,11 +12,6 @@ public class UserDto {
     /**
      * Request
      */
-    public record UserNicknameRequest(
-            @NotNull
-            String nickname
-    ) {
-    }
 
 
     @Builder
