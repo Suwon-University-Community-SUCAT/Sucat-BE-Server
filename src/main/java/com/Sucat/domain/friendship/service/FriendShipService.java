@@ -15,6 +15,7 @@ import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -65,9 +66,12 @@ public class FriendShipService {
     }
 
     /* 친구 목록 조회 */
-    public List<FriendListResponse> getAcceptFriendList(HttpServletRequest request, int page, int size, String sortKey) {
+    public Page<FriendListResponse> getAcceptFriendList(HttpServletRequest request, int page, int size, String sortKey) {
         User user = jwtUtil.getUserFromRequest(request);
-        return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail(), page, size, sortKey);
+
+        Pageable pageable = pagingCondition(page, size, sortKey);
+
+        return friendShipRepository.findAcceptFriendShipsByEmail(user.getEmail(), FriendshipStatus.ACCEPT, pageable);
     }
 
     /* 친구 요청 승인 */
@@ -230,20 +234,20 @@ public class FriendShipService {
         }
     }
 
-    private Pageable pagingCondition(final Pageable pageable, final String sortKey) {
+    private Pageable pagingCondition(int page, int size, String sortKey) {
         Sort sort;
         switch (sortKey) {
-            case "createAt":
-                sort = Sort.by(Sort.Direction.DESC, "createAt");
+            case "createdAsc":
+                sort = Sort.by(Sort.Direction.ASC, "createdAt");
                 break;
             case "name":
                 sort = Sort.by(Sort.Direction.ASC, "name"); // 이름순 정렬 추가
                 break;
-            default:
+            default: // 최신순
                 sort = Sort.by(Sort.Direction.DESC, "createdAt");
                 break;
         }
-        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        return PageRequest.of(page, size, sort);
     }
 
 }

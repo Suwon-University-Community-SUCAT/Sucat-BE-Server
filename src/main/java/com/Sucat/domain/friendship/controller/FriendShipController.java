@@ -9,7 +9,7 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,8 +68,8 @@ public class FriendShipController {
             HttpServletRequest request,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(name = "sortKey", defaultValue = "createAtDesc") @Nullable final String sortKey, Sort sort) {
-        List<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request, page, size, sortKey);
+            @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
+        Page<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request, page, size, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 

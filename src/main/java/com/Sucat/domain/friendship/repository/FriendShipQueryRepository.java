@@ -34,7 +34,8 @@ public class FriendShipQueryRepository {
         String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
                 "from FriendShip f " +
                 "join User u on f.friendEmail = u.email " +
-                "LEFT join u.userImage ui on u.userImage.id = ui.id";
+                "LEFT join u.userImage ui on u.userImage.id = ui.id " +
+                "where f.userEmail = :userEmail and f.status = :status";
 
         String orderByClause = createOrderByClause(sortKey);
 
@@ -48,7 +49,7 @@ public class FriendShipQueryRepository {
                 .getResultList();
     }
 
-    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortkey, HttpServletRequest request) {
+    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
 
         String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
@@ -58,7 +59,7 @@ public class FriendShipQueryRepository {
                 "where f.userEmail = :userEmail and f.status = :status and " +
                 "(u.nickname like :keyword)";
 
-        String orderByClause = createOrderByClause(sortkey);
+        String orderByClause = createOrderByClause(sortKey);
 
         queryStr += orderByClause;
 
@@ -75,7 +76,7 @@ public class FriendShipQueryRepository {
             case "name": // 이름순 정렬
                 orderByClause = " order by u.nickname asc";
                 break;
-            case "createAtAsc": // 오래된순 정렬
+            case "createdAtAsc": // 오래된순 정렬
                 orderByClause = " order by f.createdAt asc";
                 break;
             default: // 최신순 정렬
