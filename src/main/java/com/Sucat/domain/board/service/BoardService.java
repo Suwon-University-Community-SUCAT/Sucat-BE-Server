@@ -1,10 +1,12 @@
 package com.Sucat.domain.board.service;
 
 import com.Sucat.domain.board.DTO.BoardPostRequestDTO;
+import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
 import com.Sucat.domain.board.DTO.ResponseDTO;
 import com.Sucat.domain.board.comment.CommentPostResponse;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.DTO.BoardResponse;
+import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
@@ -33,7 +35,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateBoard(Long id, BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+    public void updateBoard(Long id, BoardUpdateRequestDTO requestDTO, HttpServletRequest request) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
@@ -44,7 +46,7 @@ public class BoardService {
             throw new RuntimeException("Unauthorized to update this board");
         }
 
-        board.updateBoard(requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
+        board.updateBoard(requestDTO.getTitle(), requestDTO.getContent());
     }
 
     @Transactional
@@ -62,8 +64,9 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    public ResponseDTO getAllBoards() {
-        List<BoardResponse> posts = boardRepository.findAll().stream()
+    //특정 카테고리의 게시글 목록 조회
+    public ResponseDTO getAllBoards(BoardCategory category) {
+        List<BoardResponse> posts = boardRepository.findByCategory(category).stream()
                 .map(board -> new BoardResponse(
                         board.getMinute().toString(),
                         //board.getImages().stream().map(image -> image.getUrl()).collect(Collectors.toList()),
@@ -72,8 +75,8 @@ public class BoardService {
                         board.getUser().getName(),
                         board.getLikeCount(),
                         board.getCommentCount(),
-                        board.getScrapCount(),
-                        board.getCategory()
+                        board.getScrapCount()
+                        //board.getCategory()
                 ))
                 .collect(Collectors.toList());
         //TODO 쿼리 최적화 필요
@@ -110,8 +113,8 @@ public class BoardService {
                 board.getUser().getName(),
                 board.getLikeCount(),
                 board.getCommentCount(),
-                board.getScrapCount(),
-                board.getCategory()
+                board.getScrapCount()
+                //board.getCategory()
         );
         boardResponse.setComments(comments);
         return boardResponse;

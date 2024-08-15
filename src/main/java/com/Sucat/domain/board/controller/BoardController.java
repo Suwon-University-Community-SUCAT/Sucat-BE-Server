@@ -2,7 +2,9 @@ package com.Sucat.domain.board.controller;
 
 import com.Sucat.domain.board.DTO.BoardPostRequestDTO;
 import com.Sucat.domain.board.DTO.BoardResponse;
+import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
 import com.Sucat.domain.board.DTO.ResponseDTO;
+import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -32,10 +34,10 @@ public class BoardController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
-    /* 게시글 목록 조회 */
+    /* (자유, 비밀, 중고장터) 카테고리의 게시글 목록 조회 */
     @GetMapping
-    public ResponseDTO getAllBoards() {
-        return boardService.getAllBoards();
+    public ResponseDTO getBoardsByCategory(@RequestParam BoardCategory category) {
+        return boardService.getAllBoards(category);
     }
 
     /* 게시글 단일 조회 */
@@ -47,9 +49,9 @@ public class BoardController {
     /* 게시글 수정 */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Objects>> updateBoard(@PathVariable Long id,
-                                                            @RequestBody BoardPostRequestDTO boardPostRequestDTO,
+                                                            @RequestBody BoardUpdateRequestDTO boardUpdateRequestDTO,
                                                             HttpServletRequest request) {
-        boardService.updateBoard(id, boardPostRequestDTO, request);
+        boardService.updateBoard(id, boardUpdateRequestDTO, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 

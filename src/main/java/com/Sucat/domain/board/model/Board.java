@@ -1,9 +1,12 @@
 package com.Sucat.domain.board.model;
 
+import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
 import com.Sucat.domain.board.comment.Comment;
 import com.Sucat.domain.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -68,9 +71,9 @@ public class Board {
         this.user = user;
     }
 
-    public void updateBoard(String title, String content, BoardCategory category) {
+    public void updateBoard(String title, String content/*, BoardCategory category*/) {
         this.title = title;
         this.content = content;
-        this.category = category;
+        /*this.category = category;*/
     }
 }
