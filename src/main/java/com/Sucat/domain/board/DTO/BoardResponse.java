@@ -1,4 +1,7 @@
-package com.Sucat.domain.board.model;
+package com.Sucat.domain.board.DTO;
+
+import com.Sucat.domain.board.comment.CommentPostResponse;
+import com.Sucat.domain.board.model.BoardCategory;
 
 import java.util.List;
 
@@ -22,6 +25,9 @@ public class BoardResponse {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.scrapCount = scrapCount;
+    }
+
+    public BoardResponse(String string, String title, String content, String name, int likeCount, int commentCount, int scrapCount, BoardCategory category) {
     }
 
     public String getMinute() {

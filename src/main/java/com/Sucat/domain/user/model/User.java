@@ -1,5 +1,6 @@
 package com.Sucat.domain.user.model;
 
+import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.notify.model.Notify;
@@ -56,6 +57,9 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Board> boardList = new ArrayList<>();
+
 //    @ManyToOne(fetch = LAZY)
 //    @JoinColumn(name = "users")
 //    private ChatRoom chatRoom;
@@ -71,6 +75,10 @@ public class User extends BaseEntity {
 
     public void addFriendShip(FriendShip friendShipTo) {
         this.friendShipList.add(friendShipTo);
+    }
+
+    public void addBoard(Board board) {
+        this.boardList.add(board);
     }
 
 //    public void addChatRoom(ChatRoom chatRoom) {

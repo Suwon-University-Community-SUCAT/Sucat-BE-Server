@@ -1,31 +1,65 @@
-package com.Sucat.domain.board.model;
+package com.Sucat.domain.board.service;
 
+import com.Sucat.domain.board.DTO.BoardPostRequestDTO;
+import com.Sucat.domain.board.DTO.ResponseDTO;
+import com.Sucat.domain.board.comment.CommentPostResponse;
+import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.board.DTO.BoardResponse;
+import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserService userService;
 
-    @Autowired
-    public BoardService(BoardRepository boardRepository, UserService userService) {
-        this.boardRepository = boardRepository;
-        this.userService = userService;
+    @Transactional
+    public Board createBoard(BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        Board board = new Board(user.getName(), requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
+        board.addUser(user);
+        user.addBoard(board);
+        return boardRepository.save(board);
     }
 
+    @Transactional
+    public void updateBoard(Long id, BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
 
-    public Board createBoard(String name, String title, String content, BoardCategory category, HttpServletRequest request) {
         User user = userService.getUserInfo(request);
-        Board board = new Board(name, title, content, category, user);
-        return boardRepository.save(board);
+
+        // 게시글 작성자만 수정 가능
+        if (!board.getUser().equals(user)) {
+            throw new RuntimeException("Unauthorized to update this board");
+        }
+
+        board.updateBoard(requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
+    }
+
+    @Transactional
+    public void deleteBoard(Long id, HttpServletRequest request) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+
+        User user = userService.getUserInfo(request);
+
+        // 게시글 작성자만 삭제 가능
+        if (!board.getUser().equals(user)) {
+            throw new RuntimeException("Unauthorized to delete this board");
+        }
+
+        boardRepository.delete(board);
     }
 
     public ResponseDTO getAllBoards() {
@@ -38,9 +72,11 @@ public class BoardService {
                         board.getUser().getName(),
                         board.getLikeCount(),
                         board.getCommentCount(),
-                        board.getScrapCount()
+                        board.getScrapCount(),
+                        board.getCategory()
                 ))
                 .collect(Collectors.toList());
+        //TODO 쿼리 최적화 필요
         //핫포스트
         Board hotPost = boardRepository.findAll().stream()
                 .max((a, b) -> Integer.compare(a.getLikeCount(), b.getLikeCount()))
@@ -74,7 +110,8 @@ public class BoardService {
                 board.getUser().getName(),
                 board.getLikeCount(),
                 board.getCommentCount(),
-                board.getScrapCount()
+                board.getScrapCount(),
+                board.getCategory()
         );
         boardResponse.setComments(comments);
         return boardResponse;

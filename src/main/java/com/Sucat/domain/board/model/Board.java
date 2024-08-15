@@ -1,5 +1,6 @@
 package com.Sucat.domain.board.model;
 
+import com.Sucat.domain.board.comment.Comment;
 import com.Sucat.domain.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -17,6 +18,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class Board {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -39,6 +41,7 @@ public class Board {
     private LocalDateTime minute;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private BoardCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,7 +52,7 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    public Board(String name, String title, String content, BoardCategory category, User user) {
+    public Board(String name, String title, String content, BoardCategory category) {
         this.name = name;
         this.title = title;
         this.content = content;
@@ -58,7 +61,16 @@ public class Board {
         this.scrapCount = 0;    //초기 스크랩 수
         this.minute = LocalDateTime.now();  //현재 시간을 게시 시간으로 설정
         this.category = category;
-        this.user = user;
         //this.images = new ArrayList<>();
+    }
+
+    public void addUser(User user) {
+        this.user = user;
+    }
+
+    public void updateBoard(String title, String content, BoardCategory category) {
+        this.title = title;
+        this.content = content;
+        this.category = category;
     }
 }

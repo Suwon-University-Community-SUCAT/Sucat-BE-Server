@@ -1,4 +1,4 @@
-package com.Sucat.domain.board.model;
+package com.Sucat.domain.board.DTO;
 
 import java.util.List;
 

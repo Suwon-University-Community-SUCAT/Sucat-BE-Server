@@ -1,5 +1,6 @@
-package com.Sucat.domain.board.model;
+package com.Sucat.domain.board.comment;
 
+import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
