@@ -126,8 +126,8 @@ public class FriendShipService {
     }
 
     /* 친구 검색 메서드 */
-    public List<FriendListResponse> getSearchFriend(final String keyword, final Pageable pageable, final String sortKey, HttpServletRequest request) {
-        List<FriendListResponse> searchFriendList = friendShipQueryRepository.getSearchFriend(keyword, pageable, sortKey, request);
+    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, HttpServletRequest request) {
+        List<FriendListResponse> searchFriendList = friendShipQueryRepository.getSearchFriend(keyword, sortKey, request);
 
         return searchFriendList;
     }

@@ -8,7 +8,6 @@ import com.Sucat.global.util.JwtUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public class FriendShipQueryRepository {
                 .getResultList();
     }
 
-    public List<FriendListResponse> getSearchFriend(final String keyword, final Pageable pageable, final String sortkey, HttpServletRequest request) {
+    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortkey, HttpServletRequest request) {
         User user = jwtUtil.getUserFromRequest(request);
 
         String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
@@ -67,8 +66,6 @@ public class FriendShipQueryRepository {
                 .setParameter("userEmail", user.getEmail())
                 .setParameter("status", FriendshipStatus.ACCEPT)
                 .setParameter("keyword", "%" + keyword + "%")
-//                .setFirstResult((int) pageable.getOffset())
-//                .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
 

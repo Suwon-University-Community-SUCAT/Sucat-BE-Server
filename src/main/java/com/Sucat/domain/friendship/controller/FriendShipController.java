@@ -9,9 +9,7 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,11 +85,10 @@ public class FriendShipController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Object>> friendSearch(
             @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword,
-            @PageableDefault(page = 0, size = 30) @Nullable final Pageable pageable,
             @RequestParam(name = "sortKey", defaultValue = "name") @Nullable final String sortKey,
             HttpServletRequest request
     ) {
-        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, pageable, sortKey, request);
+        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, sortKey, request);
 
         return ApiResponse.onSuccess(SuccessCode._OK, friendSearchResponses);
     }
