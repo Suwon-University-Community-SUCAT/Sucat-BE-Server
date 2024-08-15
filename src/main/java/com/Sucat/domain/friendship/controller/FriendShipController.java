@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,8 +66,12 @@ public class FriendShipController {
 
     /* 친구 목록 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {
-        List<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request);
+    public ResponseEntity<ApiResponse<Object>> getFriendList(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(name = "sortKey", defaultValue = "createAtDesc") @Nullable final String sortKey, Sort sort) {
+        List<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request, page, size, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 

@@ -31,15 +31,21 @@ public class FriendShipQueryRepository {
                 .getResultList();
     }
 
-    public List<FriendListResponse> findAcceptFriendShipsByEmail(String userEmail) {
-        return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
-                                "from FriendShip f " +
-                                "join User u on f.friendEmail = u.email " +
-                                "LEFT join u.userImage ui on u.userImage.id = ui.id " +
-                                "where f.userEmail = :userEmail and f.status = :status", FriendListResponse.class)
+    public List<FriendListResponse> findAcceptFriendShipsByEmail(String userEmail, int page, int size, String sortKey) {
+        String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
+                "from FriendShip f " +
+                "join User u on f.friendEmail = u.email " +
+                "LEFT join u.userImage ui on u.userImage.id = ui.id";
+
+        String orderByClause = createOrderByClause(sortKey);
+
+        queryStr += orderByClause;
+        
+        return em.createQuery(queryStr, FriendListResponse.class)
                 .setParameter("userEmail", userEmail)
                 .setParameter("status", FriendshipStatus.ACCEPT)
+                .setFirstResult(page * size)  // 페이지의 시작점 설정
+                .setMaxResults(size)           // 페이지 크기 설정
                 .getResultList();
     }
 
@@ -53,18 +59,7 @@ public class FriendShipQueryRepository {
                 "where f.userEmail = :userEmail and f.status = :status and " +
                 "(u.nickname like :keyword)";
 
-        String orderByClause;
-        switch (sortkey) {
-            case "name":
-                orderByClause = " order by u.nickname asc";
-                break;
-            case "createAt":
-                orderByClause = " order by f.createAt desc";
-                break;
-            default:
-                orderByClause = " order by f.createdAt asc";
-                break;
-        }
+        String orderByClause = createOrderByClause(sortkey);
 
         queryStr += orderByClause;
 
@@ -75,5 +70,21 @@ public class FriendShipQueryRepository {
 //                .setFirstResult((int) pageable.getOffset())
 //                .setMaxResults(pageable.getPageSize())
                 .getResultList();
+    }
+
+    private static String createOrderByClause(String sortkey) {
+        String orderByClause;
+        switch (sortkey) {
+            case "name": // 이름순 정렬
+                orderByClause = " order by u.nickname asc";
+                break;
+            case "createAtAsc": // 오래된순 정렬
+                orderByClause = " order by f.createdAt asc";
+                break;
+            default: // 최신순 정렬
+                orderByClause = " order by f.createdAt desc";
+                break;
+        }
+        return orderByClause;
     }
 }

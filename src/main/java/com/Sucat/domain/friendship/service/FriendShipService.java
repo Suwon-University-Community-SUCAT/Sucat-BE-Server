@@ -65,9 +65,9 @@ public class FriendShipService {
     }
 
     /* 친구 목록 조회 */
-    public List<FriendListResponse> getAcceptFriendList(HttpServletRequest request) {
+    public List<FriendListResponse> getAcceptFriendList(HttpServletRequest request, int page, int size, String sortKey) {
         User user = jwtUtil.getUserFromRequest(request);
-        return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail());
+        return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail(), page, size, sortKey);
     }
 
     /* 친구 요청 승인 */
