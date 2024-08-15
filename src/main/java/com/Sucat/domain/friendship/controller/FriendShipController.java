@@ -34,8 +34,12 @@ public class FriendShipController {
 
     /* 받은 친구 요청 조회 */
     @GetMapping("/received")
-    public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(HttpServletRequest request) {
-        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(request);
+    public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(
+            HttpServletRequest request,
+            @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey
+            ) {
+
+        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(request, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 

@@ -18,13 +18,19 @@ public class FriendShipQueryRepository {
     private final EntityManager em;
     private final JwtUtil jwtUtil;
 
-    public List<WaitingFriendDto> findPendingFriendShipsByEmail(String userEmail) {
-        return em.createQuery(
-                        "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageName) " +
-                                "from FriendShip f " +
-                                "join User u on f.friendEmail = u.email " +
-                                "LEFT join u.userImage ui on u.userImage.id = ui.id " +
-                                "where f.userEmail = :userEmail and f.isFrom = false and f.status = :status", WaitingFriendDto.class)
+    public List<WaitingFriendDto> findPendingFriendShipsByEmail(String userEmail, String sortKey) {
+
+        String queryStr = "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageName) " +
+                "from FriendShip f " +
+                "join User u on f.friendEmail = u.email " +
+                "LEFT join u.userImage ui on u.userImage.id = ui.id " +
+                "where f.userEmail = :userEmail and f.isFrom = false and f.status = :status";
+
+        String orderByClause = createOrderByClause(sortKey);
+
+        queryStr += orderByClause;
+
+        return em.createQuery(queryStr, WaitingFriendDto.class)
                 .setParameter("userEmail", userEmail)
                 .setParameter("status", FriendshipStatus.WAITING)
                 .getResultList();
@@ -40,7 +46,7 @@ public class FriendShipQueryRepository {
         String orderByClause = createOrderByClause(sortKey);
 
         queryStr += orderByClause;
-        
+
         return em.createQuery(queryStr, FriendListResponse.class)
                 .setParameter("userEmail", userEmail)
                 .setParameter("status", FriendshipStatus.ACCEPT)
@@ -70,9 +76,9 @@ public class FriendShipQueryRepository {
                 .getResultList();
     }
 
-    private static String createOrderByClause(String sortkey) {
+    private static String createOrderByClause(String sortKey) {
         String orderByClause;
-        switch (sortkey) {
+        switch (sortKey) {
             case "name": // 이름순 정렬
                 orderByClause = " order by u.nickname asc";
                 break;

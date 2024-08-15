@@ -55,14 +55,12 @@ public class FriendShipService {
     }
 
     /* 친구 요청 목록 조회 */
-    public WaitingFriendWithTotalCountResponse getWaitingFriendList(HttpServletRequest request) {
+    public WaitingFriendWithTotalCountResponse getWaitingFriendList(HttpServletRequest request, String sortKey) {
         User user = jwtUtil.getUserFromRequest(request);
-        List<WaitingFriendDto> pendingFriendShipsByEmail = friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
+        List<WaitingFriendDto> pendingFriendShipsByEmail = friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail(), sortKey);
         int totalCount = pendingFriendShipsByEmail.size();
 
-        WaitingFriendWithTotalCountResponse waitingFriendWithTotalCountResponse = WaitingFriendWithTotalCountResponse.of(pendingFriendShipsByEmail, totalCount);
-
-        return waitingFriendWithTotalCountResponse;
+        return WaitingFriendWithTotalCountResponse.of(pendingFriendShipsByEmail, totalCount);
     }
 
     /* 친구 목록 조회 */
