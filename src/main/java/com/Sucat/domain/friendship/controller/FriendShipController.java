@@ -1,13 +1,15 @@
 package com.Sucat.domain.friendship.controller;
 
-import com.Sucat.domain.friendship.dto.AcceptFriendDto;
-import com.Sucat.domain.friendship.dto.WaitingFriendDto;
+import com.Sucat.domain.friendship.dto.FriendListResponse;
+import com.Sucat.domain.friendship.dto.FriendShipDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +34,12 @@ public class FriendShipController {
 
     /* 받은 친구 요청 조회 */
     @GetMapping("/received")
-    public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(HttpServletRequest request) {
-        List<WaitingFriendDto> waitingFriendList = friendShipService.getWaitingFriendList(request);
+    public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(
+            HttpServletRequest request,
+            @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey
+            ) {
+
+        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(request, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 
@@ -62,8 +68,12 @@ public class FriendShipController {
 
     /* 친구 목록 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> getFriendList(HttpServletRequest request) {
-        List<AcceptFriendDto> acceptFriendList = friendShipService.getAcceptFriendList(request);
+    public ResponseEntity<ApiResponse<Object>> getFriendList(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
+        Page<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request, page, size, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 
@@ -75,4 +85,15 @@ public class FriendShipController {
         return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
     }
 
+    /* 친구 검색 */
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Object>> friendSearch(
+            @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword,
+            @RequestParam(name = "sortKey", defaultValue = "name") @Nullable final String sortKey,
+            HttpServletRequest request
+    ) {
+        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, sortKey, request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, friendSearchResponses);
+    }
 }

@@ -1,6 +1,6 @@
 package com.Sucat.domain.friendship.service;
 
-import com.Sucat.domain.friendship.dto.AcceptFriendDto;
+import com.Sucat.domain.friendship.dto.FriendListResponse;
 import com.Sucat.domain.friendship.dto.WaitingFriendDto;
 import com.Sucat.domain.friendship.exception.FriendShipException;
 import com.Sucat.domain.friendship.model.FriendShip;
@@ -15,12 +15,17 @@ import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.Sucat.domain.friendship.dto.FriendShipDto.WaitingFriendWithTotalCountResponse;
 import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
@@ -50,15 +55,21 @@ public class FriendShipService {
     }
 
     /* 친구 요청 목록 조회 */
-    public List<WaitingFriendDto> getWaitingFriendList(HttpServletRequest request) {
+    public WaitingFriendWithTotalCountResponse getWaitingFriendList(HttpServletRequest request, String sortKey) {
         User user = jwtUtil.getUserFromRequest(request);
-        return friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail());
+        List<WaitingFriendDto> pendingFriendShipsByEmail = friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail(), sortKey);
+        int totalCount = pendingFriendShipsByEmail.size();
+
+        return WaitingFriendWithTotalCountResponse.of(pendingFriendShipsByEmail, totalCount);
     }
 
     /* 친구 목록 조회 */
-    public List<AcceptFriendDto> getAcceptFriendList(HttpServletRequest request) {
+    public Page<FriendListResponse> getAcceptFriendList(HttpServletRequest request, int page, int size, String sortKey) {
         User user = jwtUtil.getUserFromRequest(request);
-        return friendShipQueryRepository.findAcceptFriendShipsByEmail(user.getEmail());
+
+        Pageable pageable = pagingCondition(page, size, sortKey);
+
+        return friendShipRepository.findAcceptFriendShipsByEmail(user.getEmail(), FriendshipStatus.ACCEPT, pageable);
     }
 
     /* 친구 요청 승인 */
@@ -115,6 +126,14 @@ public class FriendShipService {
 
         throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
     }
+
+    /* 친구 검색 메서드 */
+    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, HttpServletRequest request) {
+        List<FriendListResponse> searchFriendList = friendShipQueryRepository.getSearchFriend(keyword, sortKey, request);
+
+        return searchFriendList;
+    }
+
 
     /* Using Method */
     public FriendShip getFriendShipById(Long id) {
@@ -211,6 +230,22 @@ public class FriendShipService {
         } else {
             throw new FriendShipException(ErrorCode.Friendship_NOT_FOUND);
         }
+    }
+
+    private Pageable pagingCondition(int page, int size, String sortKey) {
+        Sort sort;
+        switch (sortKey) {
+            case "createdAsc":
+                sort = Sort.by(Sort.Direction.ASC, "createdAt");
+                break;
+            case "name":
+                sort = Sort.by(Sort.Direction.ASC, "name"); // 이름순 정렬 추가
+                break;
+            default: // 최신순
+                sort = Sort.by(Sort.Direction.DESC, "createdAt");
+                break;
+        }
+        return PageRequest.of(page, size, sort);
     }
 
 }
