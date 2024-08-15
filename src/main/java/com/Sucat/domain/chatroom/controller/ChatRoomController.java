@@ -6,6 +6,7 @@ import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,8 +69,10 @@ public class ChatRoomController {
 
     /* 채팅방 목록 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> getChats(HttpServletRequest request) {
-        List<ChatRoomListResponse> chats = chatRoomService.getChats(request);
+    public ResponseEntity<ApiResponse<Object>> getChats(
+            HttpServletRequest request,
+            @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
+        List<ChatRoomListResponse> chats = chatRoomService.getChats(request, sortKey);
 
         return ApiResponse.onSuccess(SuccessCode._OK, chats);
     }

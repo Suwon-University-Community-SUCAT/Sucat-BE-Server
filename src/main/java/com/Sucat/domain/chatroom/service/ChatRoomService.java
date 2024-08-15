@@ -10,6 +10,7 @@ import com.Sucat.global.common.code.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,9 +87,11 @@ public class ChatRoomService {
         return response;
     }
 
-    public List<ChatRoomListResponse> getChats(HttpServletRequest request) {
+    public List<ChatRoomListResponse> getChats(HttpServletRequest request, String sortKey) {
         User user = userService.getUserInfo(request);
-        List<ChatRoom> chatRooms = roomRepository.findAllBySenderOrReceiver(user, user);
+        Sort sort = createSort(sortKey);
+
+        List<ChatRoom> chatRooms = roomRepository.findAllBySenderOrReceiver(user, user, sort);
 
         List<ChatRoomListResponse> chatRoomListResponses =
                 chatRooms.stream().map(chatRoom -> {
@@ -107,5 +110,17 @@ public class ChatRoomService {
     public ChatRoom findByRoomId(String roomId) {
         return roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
+    }
+
+    private Sort createSort(String sortKey) {
+        // 정렬 기준에 따른 Sort 객체 생성
+        switch (sortKey) {
+            case "createdAtDesc":
+                return Sort.by(Sort.Direction.DESC, "createdAt");
+            case "createdAtAsc":
+                return Sort.by(Sort.Direction.ASC, "createdAt");
+            default:
+                throw new IllegalArgumentException("Invalid sort key: " + sortKey);
+        }
     }
 }
