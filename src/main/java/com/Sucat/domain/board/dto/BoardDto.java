@@ -111,4 +111,18 @@ public class BoardDto {
                     .build();
         }
     }
+
+    @Builder
+    public record BoardUpdateResponse(
+            String title,
+            String content
+            // 이미지
+    ) {
+        public static BoardUpdateResponse of(Board board) {
+            return BoardUpdateResponse.builder()
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .build();
+        }
+    }
 }

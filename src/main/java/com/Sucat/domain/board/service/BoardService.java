@@ -5,6 +5,7 @@ import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public void createBoard(Board board, HttpServletRequest request) {
@@ -30,16 +32,18 @@ public class BoardService {
         user.addBoard(board);
     }
 
+
+    public BoardUpdateResponse getUpdateBoard(Long id, HttpServletRequest request) {
+        Board board = findBoardById(id);
+        validateUserAuthorization(request, board);
+
+        return BoardUpdateResponse.of(board);
+    }
+
     @Transactional
     public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request) {
         Board board = findBoardById(id);
-
-        User user = userService.getUserInfo(request);
-
-        // 게시글 작성자만 수정 가능
-        if (!board.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized to update this board");
-        }
+        validateUserAuthorization(request, board);
 
         board.updateBoard(requestDTO.title(), requestDTO.content());
     }
@@ -48,12 +52,7 @@ public class BoardService {
     public void deleteBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
 
-        User user = userService.getUserInfo(request);
-
-        // 게시글 작성자만 삭제 가능
-        if (!board.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized to delete this board");
-        }
+        validateUserAuthorization(request, board);
 
         boardRepository.deleteById(id);
     }
@@ -97,5 +96,14 @@ public class BoardService {
     /* Using Method */
     public Board findBoardById(Long id) {
         return boardRepository.findById(id).orElseThrow(() -> new RuntimeException("No found"));
+    }
+
+    private void validateUserAuthorization(HttpServletRequest request, Board board) {
+        User user = userService.getUserInfo(request);
+
+        // 게시글 작성자만 수정 가능
+        if (!board.getUser().equals(user)) {
+            throw new RuntimeException("Unauthorized to delete this board");
+        }
     }
 }

@@ -40,10 +40,17 @@ public class BoardController {
         return ApiResponse.onSuccess(SuccessCode._OK, board);
     }
 
-    //TODO 게시글 수정 페이지 불러오기 기능 개발
+    /* 게시글 수정 */
+    @GetMapping("/edit/{id}")
+    public ResponseEntity<ApiResponse<Object>> getUpdateBoard(@PathVariable("id") Long id,
+                                                              HttpServletRequest request) {
+        BoardUpdateResponse updateBoard = boardService.getUpdateBoard(id, request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, updateBoard);
+    }
 
     /* 게시글 수정 */
-    @PutMapping("/{id}")
+    @PutMapping("/edit/{id}")
     public ResponseEntity<ApiResponse<Object>> updateBoard(@PathVariable Long id,
                                                             @RequestBody BoardUpdateRequest boardUpdateRequest,
                                                             HttpServletRequest request) {
