@@ -6,8 +6,9 @@ build/
 !**/src/test/**/build/
 
 # Ignore application properties file
-/src/main/resources/application.properties
 /src/main/resources/application.yml
+/src/main/resources/application-local.yml
+/src/main/resources/application-prod.yml
 /src/main/resources/application-admin.yml
 /src/main/resources/application-file.yml
 /src/main/resources/application-jwt.yml
