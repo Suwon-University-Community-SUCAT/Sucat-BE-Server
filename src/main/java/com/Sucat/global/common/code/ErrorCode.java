@@ -103,7 +103,13 @@ public enum ErrorCode implements BaseCode{
     /**
      * Notify
      */
-    NOTIFY_NOT_FOUND(NOT_FOUND, "NT001", "존재하지 않는 알림입니다.");
+    NOTIFY_NOT_FOUND(NOT_FOUND, "NT001", "존재하지 않는 알림입니다."),
+
+    /**
+     * Board
+     */
+    BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시물입니다."),
+    UNAUTHORIZED_USER(FORBIDDEN, "B002", "사용자가 게시글을 수정할 권한이 없습니다.");
 
 
     private final HttpStatus httpStatus;

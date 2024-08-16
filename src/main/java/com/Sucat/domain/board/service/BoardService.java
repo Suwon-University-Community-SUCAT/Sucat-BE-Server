@@ -1,5 +1,6 @@
 package com.Sucat.domain.board.service;
 
+import com.Sucat.domain.board.exception.BoardException;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
@@ -7,6 +8,7 @@ import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -98,7 +100,7 @@ public class BoardService {
         //핫포스트
         Board hotPost = boardRepository.findAll().stream()
                 .max((a, b) -> Integer.compare(a.getLikeCount(), b.getLikeCount()))
-                .orElseThrow(() -> new RuntimeException("No hotPost found"));
+                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
 
@@ -124,7 +126,8 @@ public class BoardService {
 
     /* Using Method */
     public Board findBoardById(Long id) {
-        return boardRepository.findById(id).orElseThrow(() -> new RuntimeException("No found"));
+        return boardRepository.findById(id).orElseThrow(
+                () -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
     }
 
     private void validateUserAuthorization(HttpServletRequest request, Board board) {
@@ -132,7 +135,7 @@ public class BoardService {
 
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized to delete this board");
+            throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
         }
     }
 }
