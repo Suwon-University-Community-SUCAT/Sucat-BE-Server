@@ -2,6 +2,7 @@ package com.Sucat.domain.board.dto;
 
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
+import com.Sucat.domain.image.model.Image;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
@@ -93,6 +94,7 @@ public class BoardDto {
             String title,
             String content,
             String userNickname,
+            List<String> imageNames,
             int likeCount,
             int scrapCount,
             int commentCount,
@@ -100,10 +102,14 @@ public class BoardDto {
             // List<CommentResponse> commentList
     ) {
         public static BoardDetailResponse of(Board board) {
+            List<String> imageNames = board.getImageList().stream()
+                    .map(Image::getImageName)
+                    .toList();
             return BoardDetailResponse.builder()
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
+                    .imageNames(imageNames)
                     .likeCount(board.getLikeCount())
                     .scrapCount(board.getScrapCount())
                     .commentCount(board.getCommentCount())
@@ -115,13 +121,17 @@ public class BoardDto {
     @Builder
     public record BoardUpdateResponse(
             String title,
-            String content
-            // 이미지
+            String content,
+            List<String> imageNames
     ) {
         public static BoardUpdateResponse of(Board board) {
+            List<String> imageNames = board.getImageList().stream()
+                    .map(Image::getImageName)
+                    .toList();
             return BoardUpdateResponse.builder()
                     .title(board.getTitle())
                     .content(board.getContent())
+                    .imageNames(imageNames)
                     .build();
         }
     }

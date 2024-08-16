@@ -3,6 +3,8 @@ package com.Sucat.domain.board.service;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
+import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.util.JwtUtil;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,11 +27,21 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserService userService;
+    private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void createBoard(Board board, HttpServletRequest request) {
+    public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
+
+        List<String> imageNames = imageService.storeFiles(images);
+
+        List<Image> imageList = imageNames.stream()
+                .map(image -> Image.ofBoard(board, image))
+                .toList();
+
+        board.addAllImage(imageList);
+
         board.addUser(user);
         user.addBoard(board);
     }
@@ -41,19 +54,35 @@ public class BoardService {
         return BoardUpdateResponse.of(board);
     }
 
+    /* 게시글 수정 메서드 */
     @Transactional
-    public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request) {
+    public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
         Board board = findBoardById(id);
         validateUserAuthorization(request, board);
 
-        board.updateBoard(requestDTO.title(), requestDTO.content());
+        if (images.isEmpty()) {
+            board.updateBoard(requestDTO.title(), requestDTO.content());
+        } else {
+            List<String> imageNames = imageService.storeFiles(images);
+
+            List<Image> imageList = imageNames.stream()
+                    .map(image -> Image.ofBoard(board, image))
+                    .toList();
+
+            board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
+        }
     }
 
     @Transactional
     public void deleteBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
-
         validateUserAuthorization(request, board);
+
+        List<String> imageNames = board.getImageList().stream()
+                .map(i -> i.getImageName())
+                .toList();
+
+        imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
 
         boardRepository.deleteById(id);
     }

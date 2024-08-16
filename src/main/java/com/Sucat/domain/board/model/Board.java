@@ -1,6 +1,7 @@
 package com.Sucat.domain.board.model;
 
 import com.Sucat.domain.comment.domain.Comment;
+import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.dao.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -53,6 +54,9 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> imageList = new ArrayList<>();
+
     @Builder
     public Board(String name, String title, String content, BoardCategory category) {
         this.name = name;
@@ -66,12 +70,28 @@ public class Board extends BaseEntity {
         //this.images = new ArrayList<>();
     }
 
+    /* 연관관계 메서드 */
     public void addUser(User user) {
         this.user = user;
+    }
+
+    public void addImage(Image image) {
+        this.imageList.add(image);
+    }
+
+    public void addAllImage(List<Image> images) {
+        this.imageList.addAll(images);
     }
 
     public void updateBoard(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void updateBoard(String title, String content, List<Image> imageList) {
+        this.title = title;
+        this.content = content;
+        this.imageList.clear();
+        this.imageList.addAll(imageList);
     }
 }

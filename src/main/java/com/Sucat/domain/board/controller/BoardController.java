@@ -11,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
 
@@ -23,8 +26,11 @@ public class BoardController {
 
     /* 게시글 작성 */
     @PostMapping
-    public ResponseEntity<ApiResponse<Object>> createBoard(@RequestBody BoardPostRequest boardPostRequestDTO, HttpServletRequest request) {
-        boardService.createBoard(boardPostRequestDTO.toEntity(), request);
+    public ResponseEntity<ApiResponse<Object>> createBoard(
+            @RequestPart(name = "request") BoardPostRequest boardPostRequestDTO,
+            @RequestPart(name = "images", required = false) List<MultipartFile> images,
+            HttpServletRequest request) {
+        boardService.createBoard(boardPostRequestDTO.toEntity(), request, images);
         return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
@@ -57,9 +63,10 @@ public class BoardController {
     /* 게시글 수정 */
     @PutMapping("/edit/{id}")
     public ResponseEntity<ApiResponse<Object>> updateBoard(@PathVariable Long id,
-                                                            @RequestBody BoardUpdateRequest boardUpdateRequest,
+                                                            @RequestPart(name = "request") BoardUpdateRequest boardUpdateRequest,
+                                                            @RequestPart(name = "images", required = false) List<MultipartFile> images,
                                                             HttpServletRequest request) {
-        boardService.updateBoard(id, boardUpdateRequest, request);
+        boardService.updateBoard(id, boardUpdateRequest, request, images);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
