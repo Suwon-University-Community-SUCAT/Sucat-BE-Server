@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/boards")
@@ -24,14 +22,14 @@ public class BoardController {
 
     /* 게시글 작성 */
     @PostMapping
-    public ResponseEntity<ApiResponse<Objects>> createBoard(@RequestBody BoardPostRequestDTO boardPostRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> createBoard(@RequestBody BoardPostRequestDTO boardPostRequestDTO, HttpServletRequest request) {
         boardService.createBoard(boardPostRequestDTO, request);
         return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
     /* (자유, 비밀, 중고장터) 카테고리의 게시글 목록 조회 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Objects>> getBoardsByCategory(@RequestParam BoardCategory category) {
+    public ResponseEntity<ApiResponse<Object>> getBoardsByCategory(@RequestParam BoardCategory category) {
         ResponseDTO allBoards = boardService.getAllBoards(category);
 
         return ApiResponse.onSuccess(SuccessCode._OK, allBoards);
@@ -39,13 +37,14 @@ public class BoardController {
 
     /* 게시글 단일 조회 */
     @GetMapping("/{id}")
-    public BoardResponse getBoard(@PathVariable Long id) {
-        return boardService.getBoard(id);
+    public ResponseEntity<ApiResponse<Object>> getBoard(@PathVariable Long id) {
+        BoardResponse board = boardService.getBoard(id);
+        return ApiResponse.onSuccess(SuccessCode._OK, board);
     }
 
     /* 게시글 수정 */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Objects>> updateBoard(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<Object>> updateBoard(@PathVariable Long id,
                                                             @RequestBody BoardUpdateRequestDTO boardUpdateRequestDTO,
                                                             HttpServletRequest request) {
         boardService.updateBoard(id, boardUpdateRequestDTO, request);
