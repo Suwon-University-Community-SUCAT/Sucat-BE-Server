@@ -1,24 +1,22 @@
 package com.Sucat.domain.board.service;
 
-import com.Sucat.domain.board.dto.BoardPostRequestDTO;
-import com.Sucat.domain.board.dto.BoardUpdateRequestDTO;
-import com.Sucat.domain.board.dto.ResponseDTO;
-import com.Sucat.domain.comment.dto.CommentPostResponse;
 import com.Sucat.domain.board.model.Board;
-import com.Sucat.domain.board.dto.BoardResponse;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.Sucat.domain.board.dto.BoardDto.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BoardService {
 
@@ -26,17 +24,15 @@ public class BoardService {
     private final UserService userService;
 
     @Transactional
-    public void createBoard(BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+    public void createBoard(Board board, HttpServletRequest request) {
         User user = userService.getUserInfo(request);
-        Board board = new Board(user.getName(), requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
         board.addUser(user);
         user.addBoard(board);
     }
 
     @Transactional
-    public void updateBoard(Long id, BoardUpdateRequestDTO requestDTO, HttpServletRequest request) {
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+    public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request) {
+        Board board = findBoardById(id);
 
         User user = userService.getUserInfo(request);
 
@@ -45,13 +41,12 @@ public class BoardService {
             throw new RuntimeException("Unauthorized to update this board");
         }
 
-        board.updateBoard(requestDTO.getTitle(), requestDTO.getContent());
+        board.updateBoard(requestDTO.title(), requestDTO.content());
     }
 
     @Transactional
     public void deleteBoard(Long id, HttpServletRequest request) {
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+        Board board = findBoardById(id);
 
         User user = userService.getUserInfo(request);
 
@@ -60,62 +55,47 @@ public class BoardService {
             throw new RuntimeException("Unauthorized to delete this board");
         }
 
-        boardRepository.delete(board);
+        boardRepository.deleteById(id);
     }
 
     //특정 카테고리의 게시글 목록 조회
-    public ResponseDTO getAllBoards(BoardCategory category) {
-        List<BoardResponse> posts = boardRepository.findByCategory(category).stream()
-                .map(board -> new BoardResponse(
-                        board.getMinute().toString(),
-                        //board.getImages().stream().map(image -> image.getUrl()).collect(Collectors.toList()),
-                        board.getTitle(),
-                        board.getContent(),
-                        board.getUser().getName(),
-                        board.getLikeCount(),
-                        board.getCommentCount(),
-                        board.getScrapCount()
-                        //board.getCategory()
-                ))
-                .collect(Collectors.toList());
+    public BoardListResponseWithHotPost getAllBoards(BoardCategory category) {
+
+        //TODO 페이징으로 수정
+        List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category).stream()
+                .map(BoardListResponse::of
+                ).toList();
+
         //TODO 쿼리 최적화 필요
         //핫포스트
         Board hotPost = boardRepository.findAll().stream()
                 .max((a, b) -> Integer.compare(a.getLikeCount(), b.getLikeCount()))
                 .orElseThrow(() -> new RuntimeException("No hotPost found"));
 
-        ResponseDTO.HotPostResponse hotPostResponse = new ResponseDTO.HotPostResponse(
-                hotPost.getTitle(), hotPost.getLikeCount()
-        );
+        HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
 
-        return new ResponseDTO(posts, hotPostResponse);
+        return BoardListResponseWithHotPost.of(boardListResponses, hotPostResponse);
     }
 
-    public BoardResponse getBoard(Long id) {
+    public BoardDetailResponse getBoard(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
-        List<CommentPostResponse> comments = board.getComments().stream()
-                .map(comment -> new CommentPostResponse(
-                        comment.getUser().getName(),
-                        comment.getContent(),
-                        comment.getMinute().toString(),
-                        comment.getLikeCount(),
-                        comment.getCommentCount(),
-                        comment.getScrapCount()
-                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
-                ))
-                .collect(Collectors.toList());
+//        List<CommentPostResponse> comments = board.getComments().stream()
+//                .map(comment -> new CommentPostResponse(
+//                        comment.getUser().getName(),
+//                        comment.getContent(),
+//                        comment.getMinute().toString(),
+//                        comment.getLikeCount(),
+//                        comment.getCommentCount(),
+//                        comment.getScrapCount()
+//                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
+//                ))
+//                .collect(Collectors.toList());
 
-        BoardResponse boardResponse = new BoardResponse(
-                board.getMinute().toString(),
-                board.getTitle(),
-                board.getContent(),
-                board.getUser().getName(),
-                board.getLikeCount(),
-                board.getCommentCount(),
-                board.getScrapCount()
-                //board.getCategory()
-        );
-        boardResponse.setComments(comments);
-        return boardResponse;
+        return BoardDetailResponse.of(board);
+    }
+
+    /* Using Method */
+    public Board findBoardById(Long id) {
+        return boardRepository.findById(id).orElseThrow(() -> new RuntimeException("No found"));
     }
 }

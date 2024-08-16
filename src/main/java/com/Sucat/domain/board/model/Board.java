@@ -2,10 +2,12 @@ package com.Sucat.domain.board.model;
 
 import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.dao.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,8 +20,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
-public class Board {
+public class Board extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "board_id")
@@ -52,6 +53,7 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder
     public Board(String name, String title, String content, BoardCategory category) {
         this.name = name;
         this.title = title;
@@ -68,9 +70,8 @@ public class Board {
         this.user = user;
     }
 
-    public void updateBoard(String title, String content/*, BoardCategory category*/) {
+    public void updateBoard(String title, String content) {
         this.title = title;
         this.content = content;
-        /*this.category = category;*/
     }
 }
