@@ -1,4 +1,4 @@
-package com.Sucat.domain.board.comment;
+package com.Sucat.domain.comment.domain;
 
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.user.model.User;

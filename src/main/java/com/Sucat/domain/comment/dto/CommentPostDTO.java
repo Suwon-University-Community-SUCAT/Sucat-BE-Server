@@ -1,14 +1,14 @@
-package com.Sucat.domain.board.comment;
+package com.Sucat.domain.comment.dto;
 
-public class CommentPostResponse {
+public class CommentPostDTO {
     private String name;
     private String commentContent;
     private String minute;
     private int likeCount;
     private int commentCount;
     private int scrapCount;
-
-    public CommentPostResponse(String name, String commentContent, String minute, int likeCount, int commentCount, int scrapCount) {
+    
+    public CommentPostDTO(String name, String commentContent, String minute, int likeCount, int commentCount, int scrapCount, String imageUrl) {
         this.name = name;
         this.commentContent = commentContent;
         this.minute = minute;
