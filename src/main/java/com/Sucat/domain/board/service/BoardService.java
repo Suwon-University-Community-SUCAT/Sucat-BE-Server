@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,10 +59,9 @@ public class BoardService {
     }
 
     //특정 카테고리의 게시글 목록 조회
-    public BoardListResponseWithHotPost getAllBoards(BoardCategory category) {
+    public BoardListResponseWithHotPost getAllBoards(BoardCategory category, Pageable pageable) {
 
-        //TODO 페이징으로 수정
-        List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category).stream()
+        List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category, pageable).stream()
                 .map(BoardListResponse::of
                 ).toList();
 

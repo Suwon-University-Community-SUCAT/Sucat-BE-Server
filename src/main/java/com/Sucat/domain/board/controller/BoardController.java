@@ -4,8 +4,11 @@ import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,10 @@ public class BoardController {
 
     /* (자유, 비밀, 중고장터) 카테고리의 게시글 목록 조회 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> getBoardsByCategory(@RequestParam BoardCategory category) {
-        BoardListResponseWithHotPost allBoards = boardService.getAllBoards(category);
+    public ResponseEntity<ApiResponse<Object>> getBoardsByCategory(
+            @RequestParam(name = "category", defaultValue = "FREE") BoardCategory category,
+            @PageableDefault(page = 0, size = 30) @Nullable final Pageable pageable) {
+        BoardListResponseWithHotPost allBoards = boardService.getAllBoards(category, pageable);
 
         return ApiResponse.onSuccess(SuccessCode._OK, allBoards);
     }
