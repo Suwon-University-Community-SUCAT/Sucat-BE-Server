@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
@@ -96,11 +97,13 @@ public class BoardService {
                 .map(BoardListResponse::of
                 ).toList();
 
-        //TODO 쿼리 최적화 필요
-        //핫포스트
-        Board hotPost = boardRepository.findAll().stream()
-                .max((a, b) -> Integer.compare(a.getLikeCount(), b.getLikeCount()))
-                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
+        // 3일 전 시간 계산
+        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
+
+
+        // 3일 이내에 작성된 게시물 중 가장 높은 likeCount를 가진 게시물을 찾는 쿼리
+        Board hotPost = boardRepository.findTopByCategoryAndCreatedAtAfterOrderByLikeCountDesc(category, threeDaysAgo)
+                .orElseThrow(() -> new RuntimeException("No hotPost found"));
 
         HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
 
