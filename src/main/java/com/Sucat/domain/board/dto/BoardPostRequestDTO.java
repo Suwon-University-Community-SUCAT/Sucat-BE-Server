@@ -1,4 +1,4 @@
-package com.Sucat.domain.board.DTO;
+package com.Sucat.domain.board.dto;
 
 import com.Sucat.domain.board.model.BoardCategory;
 import lombok.Data;

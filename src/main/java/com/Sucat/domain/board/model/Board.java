@@ -1,12 +1,9 @@
 package com.Sucat.domain.board.model;
 
-import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
-import com.Sucat.domain.board.comment.Comment;
+import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.Sucat.domain.board.DTO;
+package com.Sucat.domain.board.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

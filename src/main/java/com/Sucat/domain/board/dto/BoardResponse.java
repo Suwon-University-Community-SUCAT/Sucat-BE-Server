@@ -1,6 +1,6 @@
-package com.Sucat.domain.board.DTO;
+package com.Sucat.domain.board.dto;
 
-import com.Sucat.domain.board.comment.CommentPostResponse;
+import com.Sucat.domain.comment.dto.CommentPostResponse;
 import com.Sucat.domain.board.model.BoardCategory;
 
 import java.util.List;

@@ -1,11 +1,11 @@
 package com.Sucat.domain.board.service;
 
-import com.Sucat.domain.board.DTO.BoardPostRequestDTO;
-import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
-import com.Sucat.domain.board.DTO.ResponseDTO;
-import com.Sucat.domain.board.comment.CommentPostResponse;
+import com.Sucat.domain.board.dto.BoardPostRequestDTO;
+import com.Sucat.domain.board.dto.BoardUpdateRequestDTO;
+import com.Sucat.domain.board.dto.ResponseDTO;
+import com.Sucat.domain.comment.dto.CommentPostResponse;
 import com.Sucat.domain.board.model.Board;
-import com.Sucat.domain.board.DTO.BoardResponse;
+import com.Sucat.domain.board.dto.BoardResponse;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.user.model.User;
@@ -26,12 +26,11 @@ public class BoardService {
     private final UserService userService;
 
     @Transactional
-    public Board createBoard(BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+    public void createBoard(BoardPostRequestDTO requestDTO, HttpServletRequest request) {
         User user = userService.getUserInfo(request);
         Board board = new Board(user.getName(), requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
         board.addUser(user);
         user.addBoard(board);
-        return boardRepository.save(board);
     }
 
     @Transactional
