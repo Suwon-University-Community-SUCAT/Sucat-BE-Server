@@ -1,10 +1,11 @@
 package com.Sucat.domain.board.model.service;
 
-import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.board.model.dto.BoardRequestDto;
 import com.Sucat.domain.board.model.dto.BoardResponseDto;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.model.repository.BoardRepository;
+import com.Sucat.domain.image.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,31 +37,42 @@ public class BoardService {
         boardRepository.deleteById(id);
     }
 
-    public Board updateBoard(Long id, Board updatedBoard) {
-        BoardResponseDto dto = new BoardResponseDto();
+    public Board updateBoard(Long id, BoardRequestDto updatedBoardDto) {
         return boardRepository.findById(id).map(existingBoard -> {
-            dto.setName(updatedBoard.getName());
-            dto.setTitle(updatedBoard.getTitle());
-            dto.setContent(updatedBoard.getContent());
-            dto.setFavoriteCount(updatedBoard.getFavoriteCount());
-            //사진 수정 기능 추가해야함
+            if (updatedBoardDto.getTitle() != null) {
+                existingBoard.setTitle(updatedBoardDto.getTitle());
+            }
+            if (updatedBoardDto.getContent() != null) {
+                existingBoard.setContent(updatedBoardDto.getContent());
+            }
+            if (updatedBoardDto.getImageUrlList() != null && !updatedBoardDto.getImageUrlList().isEmpty()) {
+                existingBoard.setImages(
+                        updatedBoardDto.getImageUrlList().stream()
+                                .map(url -> Image.builder()
+                                        .imageName(url)
+                                        .board(existingBoard)
+                                        .build())
+                                .collect(Collectors.toList())
+                );
+            }
             return boardRepository.save(existingBoard);
         }).orElse(null);
     }
 
-    private BoardResponseDto convertToDto(Board board) {
+    public BoardResponseDto convertToDto(Board board) {
         BoardResponseDto dto = new BoardResponseDto();
-        dto.setCreatedAtBoard(board.getUser().getCreatedAtBoard());  // Assuming you have a createdDate field in Board
+        dto.setCreatedAtBoard(dto.getCreatedAtBoard());
         dto.setImageUrlList(board.getImages().stream()
-                .map(image -> image.getImageUrl())
+                .map(Image::getImageName)
                 .collect(Collectors.toList()));
         dto.setTitle(board.getTitle());
         dto.setContent(board.getContent());
-        dto.setName(board.getUser().getName());  // Assuming User entity has a getName() method
+        dto.setName(board.getUser().getName());
         dto.setFavoriteCount(board.getFavoriteCount());
-        dto.setCommentCount(0);  // Assuming you need to calculate or fetch this
-        dto.setScrapCount(0);    // Assuming you need to calculate or fetch this
+        dto.setCommentCount(dto.getCommentCount());
+        dto.setScrapCount(dto.getScrapCount());
         return dto;
     }
+
 }
 

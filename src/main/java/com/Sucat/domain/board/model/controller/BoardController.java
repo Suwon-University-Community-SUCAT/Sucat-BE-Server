@@ -2,15 +2,21 @@ package com.Sucat.domain.board.model.controller;
 
 
 
+import com.Sucat.domain.board.model.dto.BoardRequestDto;
 import com.Sucat.domain.board.model.dto.BoardResponseDto;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.model.service.BoardService;
+import com.Sucat.domain.image.model.Image;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/posts")
@@ -49,25 +55,37 @@ public class BoardController {
 
     // 게시판 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<Board> getBoardById(@PathVariable Long id) {
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable Long id) {
         Board board = boardService.getBoardById(id);
         if (board != null) {
-            return ResponseEntity.ok(board);
+            // Board를 DTO로 변환
+            BoardResponseDto responseDto = boardService.convertToDto(board);
+            return ResponseEntity.ok(responseDto);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
+
     // 게시판 수정
     @PutMapping("edit/{id}")
-    public ResponseEntity<Board> updateBoard(@PathVariable Long id, @RequestBody Board updatedBoard) {
-        Board board = boardService.updateBoard(id, updatedBoard);
-        if (board != null) {
-            return ResponseEntity.ok(board);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto updatedBoardDto) {
+        try {
+            Board updatedBoard = boardService.updateBoard(id, updatedBoardDto);
+            if (updatedBoard != null) {
+                // 업데이트된 Board를 DTO로 변환
+                BoardResponseDto responseDto = boardService.convertToDto(updatedBoard);
+                return ResponseEntity.ok(responseDto);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 
     // 게시판 삭제
     @DeleteMapping("/{id}")
