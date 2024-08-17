@@ -21,4 +21,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     /* 카테고리 내에서 title에 keyword를 포함하는 게시물을 조회하는 메서드 */
     Page<Board> findByCategoryAndTitleContaining(BoardCategory category, String keyword, Pageable pageable);
+
 }

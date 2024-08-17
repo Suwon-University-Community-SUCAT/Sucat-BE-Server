@@ -3,6 +3,7 @@ package com.Sucat.domain.board.service;
 import com.Sucat.domain.board.exception.BoardException;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
+import com.Sucat.domain.board.repository.BoardQueryRepository;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
 
@@ -30,6 +32,7 @@ import static com.Sucat.domain.board.dto.BoardDto.*;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardQueryRepository boardQueryRepository;
     private final UserService userService;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
@@ -112,10 +115,11 @@ public class BoardService {
 
 
         // 3일 이내에 작성된 게시물 중 가장 높은 likeCount를 가진 게시물을 찾는 쿼리
-        Board hotPost = boardRepository.findTopByCategoryAndCreatedAtAfterOrderByLikeCountDesc(category, threeDaysAgo)
-                .orElseThrow(() -> new RuntimeException("No hotPost found"));
+        Optional<Board> optionalHotPost = boardQueryRepository.findTopHotPost(category, threeDaysAgo);
 
-        HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
+        HotPostResponse hotPostResponse = optionalHotPost
+                .map(HotPostResponse::of)
+                .orElse(null);  // hotPost가 없으면 null로 설정
 
         return BoardListResponseWithHotPost.of(boardListResponses, hotPostResponse);
     }
