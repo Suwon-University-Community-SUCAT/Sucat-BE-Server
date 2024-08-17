@@ -74,6 +74,7 @@ public class UserDto {
             @NotNull
             String nickname,
             String intro,
+            String department,
             String imageName
     ) {
         public static UserProfileResponse of(User user) {
@@ -83,6 +84,7 @@ public class UserDto {
             return UserProfileResponse.builder()
                     .nickname(user.getNickname())
                     .intro(user.getIntro())
+                    .department(user.getDepartment())
                     .imageName(imageName)
                     .build();
         }

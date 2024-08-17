@@ -57,4 +57,13 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    @GetMapping("/myProfile")
+    public ResponseEntity<ApiResponse<Object>> myProfile(
+            HttpServletRequest request
+    ) {
+        UserProfileResponse userProfile = userService.getUserProfile(request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
+    }
+
 }
