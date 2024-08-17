@@ -46,7 +46,7 @@ public class BoardDto {
     public record BoardListResponse(
             String title,
             String content,
-            String name,
+            String userNickname,
             int likeCount,
             int commentCount,
             int scrapCount,
@@ -56,7 +56,7 @@ public class BoardDto {
             return BoardListResponse.builder()
                     .title(board.getTitle())
                     .content(board.getContent())
-                    .name(board.getName())
+                    .userNickname(board.getUser().getNickname())
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())

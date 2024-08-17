@@ -27,8 +27,7 @@ public class Board extends BaseEntity {
     @Column(name = "board_id")
     private Long id;
 
-    @NotNull
-    private String name;
+    private String userNickname;
 
     private String title;
 
@@ -58,8 +57,8 @@ public class Board extends BaseEntity {
     private List<Image> imageList = new ArrayList<>();
 
     @Builder
-    public Board(String name, String title, String content, BoardCategory category) {
-        this.name = name;
+    public Board(String userNickname, String title, String content, BoardCategory category) {
+        this.userNickname = userNickname;
         this.title = title;
         this.content = content;
         this.likeCount = 0; //초기 좋아요 수
@@ -73,6 +72,7 @@ public class Board extends BaseEntity {
     /* 연관관계 메서드 */
     public void addUser(User user) {
         this.user = user;
+        this.userNickname = user.getNickname();
     }
 
     public void addImage(Image image) {

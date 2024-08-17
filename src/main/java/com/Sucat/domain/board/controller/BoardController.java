@@ -6,9 +6,11 @@ import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +29,7 @@ public class BoardController {
     /* 게시글 작성 */
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> createBoard(
-            @RequestPart(name = "request") BoardPostRequest boardPostRequestDTO,
+            @RequestPart(name = "request") @Valid BoardPostRequest boardPostRequestDTO,
             @RequestPart(name = "images", required = false) List<MultipartFile> images,
             HttpServletRequest request) {
         boardService.createBoard(boardPostRequestDTO.toEntity(), request, images);
@@ -38,7 +40,12 @@ public class BoardController {
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getBoardsByCategory(
             @RequestParam(name = "category", defaultValue = "FREE") BoardCategory category,
-            @PageableDefault(page = 0, size = 30) @Nullable final Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size
+            ) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         BoardListResponseWithHotPost allBoards = boardService.getAllBoards(category, pageable);
 
         return ApiResponse.onSuccess(SuccessCode._OK, allBoards);
@@ -63,7 +70,7 @@ public class BoardController {
     /* 게시글 수정 */
     @PutMapping("/edit/{id}")
     public ResponseEntity<ApiResponse<Object>> updateBoard(@PathVariable Long id,
-                                                            @RequestPart(name = "request") BoardUpdateRequest boardUpdateRequest,
+                                                            @RequestPart(name = "request") @Valid BoardUpdateRequest boardUpdateRequest,
                                                             @RequestPart(name = "images", required = false) List<MultipartFile> images,
                                                             HttpServletRequest request) {
         boardService.updateBoard(id, boardUpdateRequest, request, images);
@@ -75,5 +82,21 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Object>> deleteBoard(@PathVariable Long id, HttpServletRequest request) {
         boardService.deleteBoard(id, request);
         return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    /* 게시글 검색 */
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Object>> searchBoard(
+            @RequestParam(name = "category", defaultValue = "FREE") BoardCategory category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size,
+            @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword
+    ) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        List<BoardListResponse> searchBoard = boardService.getSearchBoard(category, keyword, pageable);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, searchBoard);
     }
 }

@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +45,8 @@ public class BoardService {
                 .toList();
 
         board.addAllImage(imageList);
+
+        boardRepository.save(board);
 
         board.addUser(user);
         user.addBoard(board);
@@ -125,6 +128,16 @@ public class BoardService {
 //                .collect(Collectors.toList());
 
         return BoardDetailResponse.of(board);
+    }
+
+    /* 게시물 검색 */
+    public List<BoardListResponse> getSearchBoard(BoardCategory category, String keyword, Pageable pageable) {
+        Page<Board> boardPage = boardRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
+        List<BoardListResponse> boardListResponses = boardPage.stream()
+                .map(BoardListResponse::of)
+                .toList();
+
+        return boardListResponses;
     }
 
     /* Using Method */
