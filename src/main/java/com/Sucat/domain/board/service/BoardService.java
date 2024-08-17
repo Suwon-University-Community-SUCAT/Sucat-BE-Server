@@ -55,6 +55,7 @@ public class BoardService {
     }
 
 
+    /* 게시글 수정 메서드 - Get */
     public BoardUpdateResponse getUpdateBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
         validateUserAuthorization(request, board);
@@ -62,7 +63,7 @@ public class BoardService {
         return BoardUpdateResponse.of(board);
     }
 
-    /* 게시물 수정 메서드 */
+    /* 게시물 수정 메서드 - Post*/
     @Transactional
     public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
         Board board = findBoardById(id);
@@ -70,7 +71,7 @@ public class BoardService {
 
         if (images.isEmpty()) {
             board.updateBoard(requestDTO.title(), requestDTO.content());
-            log.info("게시글 수정 완료, 이미지 x");
+            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
         } else {
             List<String> imageNames = imageService.storeFiles(images);
 
@@ -79,7 +80,7 @@ public class BoardService {
                     .toList();
 
             board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
-            log.info("게시글 수정 완료, 이미지 o");
+            log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
         }
     }
 
@@ -96,6 +97,7 @@ public class BoardService {
         imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
 
         boardRepository.deleteById(id);
+        log.info("식별자: {}, 게시물 삭제 완료", id);
     }
 
     /* 특정 카테고리 게시판 게시물 조회 메서드 */
@@ -133,6 +135,7 @@ public class BoardService {
 //                ))
 //                .collect(Collectors.toList());
 
+        log.info("식별자: {}, 게시물 단일 조회 성공", id);
         return BoardDetailResponse.of(board);
     }
 
@@ -142,7 +145,7 @@ public class BoardService {
         List<BoardListResponse> boardListResponses = boardPage.stream()
                 .map(BoardListResponse::of)
                 .toList();
-
+        log.info("검색어: {}, 게시물 검색 성공", keyword);
         return boardListResponses;
     }
 
@@ -152,7 +155,6 @@ public class BoardService {
         return user.getBoardList().stream()
                 .map(MyBoardResponse::of)
                 .toList();
-
     }
 
     /* Using Method */
@@ -166,6 +168,7 @@ public class BoardService {
 
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
+            log.info("error: 게시글 작성자가 아닌 사용자의 접근");
             throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
         }
     }
