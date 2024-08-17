@@ -51,7 +51,7 @@ public class BoardDto {
             int likeCount,
             int commentCount,
             int scrapCount,
-            LocalDateTime createAt
+            LocalDateTime createdAt
     ) {
         public static BoardListResponse of(Board board) {
             List<String> imageNames = board.getImageList().stream()
@@ -65,7 +65,7 @@ public class BoardDto {
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())
-                    .createAt(board.getCreatedAt())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }
@@ -103,7 +103,8 @@ public class BoardDto {
             int likeCount,
             int scrapCount,
             int commentCount,
-            LocalDateTime createAt
+//            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+            LocalDateTime createdAt
             // List<CommentResponse> commentList
     ) {
         public static BoardDetailResponse of(Board board) {
@@ -118,7 +119,7 @@ public class BoardDto {
                     .likeCount(board.getLikeCount())
                     .scrapCount(board.getScrapCount())
                     .commentCount(board.getCommentCount())
-                    .createAt(board.getCreatedAt())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }
@@ -150,7 +151,7 @@ public class BoardDto {
             int likeCount,
             int commentCount,
             int scrapCount,
-            LocalDateTime createAt
+            LocalDateTime createdAt
     ) {
         public static MyBoardResponse of(Board board) {
             List<String> imageNames = board.getImageList().stream()
@@ -164,7 +165,7 @@ public class BoardDto {
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())
-                    .createAt(board.getCreatedAt())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }
