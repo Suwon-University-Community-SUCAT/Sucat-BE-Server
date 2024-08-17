@@ -5,14 +5,11 @@ import com.Sucat.global.common.code.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +49,6 @@ public class ImageService {
             }
         }
         return fileNames;
-
     }
 
     public String storeFile(MultipartFile multipartFile) {
@@ -73,20 +69,7 @@ public class ImageService {
         return fileName;
     }
 
-    public Resource loadFileAsResource(String fileName) {
-        try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new ImageException(ErrorCode.IMAGE_NOT_FOUND);
-            }
-        } catch (MalformedURLException ex) {
-            throw new ImageException(ErrorCode.IMAGE_NOT_FOUND);
-        }
-    }
-
+    /* 모든 파일 삭제 메서드 */
     public void deleteAllFiles() {
         try {
             Files.walk(fileStorageLocation)
@@ -96,6 +79,19 @@ public class ImageService {
             throw new ImageException(ErrorCode.IMAGE_STORAGE_ERROR);
         }
     }
+
+    /* 특정 파일 삭제 메서드 */
+    public void deleteFiles(List<String> fileNames) {
+        for (String fileName : fileNames) {
+            try {
+                Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+                Files.delete(filePath);
+            } catch (IOException ex) {
+                throw new ImageException(ErrorCode.IMAGE_STORAGE_ERROR);
+            }
+        }
+    }
+
 
     // 서버 내부에서 관리하는 파일명은 유일한 이름을 생성하는 UUID를 사용해서 충돌하지 않도록 한다.
     private String createServerFileName(String originalFilename) {

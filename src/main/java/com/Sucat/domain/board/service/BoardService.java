@@ -1,122 +1,157 @@
 package com.Sucat.domain.board.service;
 
-import com.Sucat.domain.board.DTO.BoardPostRequestDTO;
-import com.Sucat.domain.board.DTO.BoardUpdateRequestDTO;
-import com.Sucat.domain.board.DTO.ResponseDTO;
-import com.Sucat.domain.board.comment.CommentPostResponse;
+import com.Sucat.domain.board.exception.BoardException;
 import com.Sucat.domain.board.model.Board;
-import com.Sucat.domain.board.DTO.BoardResponse;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardRepository;
+import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.common.code.ErrorCode;
+import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.Sucat.domain.board.dto.BoardDto.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserService userService;
+    private final ImageService imageService;
+    private final JwtUtil jwtUtil;
 
     @Transactional
-    public Board createBoard(BoardPostRequestDTO requestDTO, HttpServletRequest request) {
+    public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
-        Board board = new Board(user.getName(), requestDTO.getTitle(), requestDTO.getContent(), requestDTO.getCategory());
+
+        List<String> imageNames = imageService.storeFiles(images);
+
+        List<Image> imageList = imageNames.stream()
+                .map(image -> Image.ofBoard(board, image))
+                .toList();
+
+        board.addAllImage(imageList);
+
+        boardRepository.save(board);
+
         board.addUser(user);
         user.addBoard(board);
-        return boardRepository.save(board);
     }
 
+
+    public BoardUpdateResponse getUpdateBoard(Long id, HttpServletRequest request) {
+        Board board = findBoardById(id);
+        validateUserAuthorization(request, board);
+
+        return BoardUpdateResponse.of(board);
+    }
+
+    /* 게시글 수정 메서드 */
     @Transactional
-    public void updateBoard(Long id, BoardUpdateRequestDTO requestDTO, HttpServletRequest request) {
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+    public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
+        Board board = findBoardById(id);
+        validateUserAuthorization(request, board);
 
-        User user = userService.getUserInfo(request);
+        if (images.isEmpty()) {
+            board.updateBoard(requestDTO.title(), requestDTO.content());
+        } else {
+            List<String> imageNames = imageService.storeFiles(images);
 
-        // 게시글 작성자만 수정 가능
-        if (!board.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized to update this board");
+            List<Image> imageList = imageNames.stream()
+                    .map(image -> Image.ofBoard(board, image))
+                    .toList();
+
+            board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
         }
-
-        board.updateBoard(requestDTO.getTitle(), requestDTO.getContent());
     }
 
     @Transactional
     public void deleteBoard(Long id, HttpServletRequest request) {
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+        Board board = findBoardById(id);
+        validateUserAuthorization(request, board);
 
-        User user = userService.getUserInfo(request);
+        List<String> imageNames = board.getImageList().stream()
+                .map(i -> i.getImageName())
+                .toList();
 
-        // 게시글 작성자만 삭제 가능
-        if (!board.getUser().equals(user)) {
-            throw new RuntimeException("Unauthorized to delete this board");
-        }
+        imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
 
-        boardRepository.delete(board);
+        boardRepository.deleteById(id);
     }
 
     //특정 카테고리의 게시글 목록 조회
-    public ResponseDTO getAllBoards(BoardCategory category) {
-        List<BoardResponse> posts = boardRepository.findByCategory(category).stream()
-                .map(board -> new BoardResponse(
-                        board.getMinute().toString(),
-                        //board.getImages().stream().map(image -> image.getUrl()).collect(Collectors.toList()),
-                        board.getTitle(),
-                        board.getContent(),
-                        board.getUser().getName(),
-                        board.getLikeCount(),
-                        board.getCommentCount(),
-                        board.getScrapCount()
-                        //board.getCategory()
-                ))
-                .collect(Collectors.toList());
-        //TODO 쿼리 최적화 필요
-        //핫포스트
-        Board hotPost = boardRepository.findAll().stream()
-                .max((a, b) -> Integer.compare(a.getLikeCount(), b.getLikeCount()))
+    public BoardListResponseWithHotPost getAllBoards(BoardCategory category, Pageable pageable) {
+
+        List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category, pageable).stream()
+                .map(BoardListResponse::of
+                ).toList();
+
+        // 3일 전 시간 계산
+        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
+
+
+        // 3일 이내에 작성된 게시물 중 가장 높은 likeCount를 가진 게시물을 찾는 쿼리
+        Board hotPost = boardRepository.findTopByCategoryAndCreatedAtAfterOrderByLikeCountDesc(category, threeDaysAgo)
                 .orElseThrow(() -> new RuntimeException("No hotPost found"));
 
-        ResponseDTO.HotPostResponse hotPostResponse = new ResponseDTO.HotPostResponse(
-                hotPost.getTitle(), hotPost.getLikeCount()
-        );
+        HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
 
-        return new ResponseDTO(posts, hotPostResponse);
+        return BoardListResponseWithHotPost.of(boardListResponses, hotPostResponse);
     }
 
-    public BoardResponse getBoard(Long id) {
+    public BoardDetailResponse getBoard(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
-        List<CommentPostResponse> comments = board.getComments().stream()
-                .map(comment -> new CommentPostResponse(
-                        comment.getUser().getName(),
-                        comment.getContent(),
-                        comment.getMinute().toString(),
-                        comment.getLikeCount(),
-                        comment.getCommentCount(),
-                        comment.getScrapCount()
-                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
-                ))
-                .collect(Collectors.toList());
+//        List<CommentPostResponse> comments = board.getComments().stream()
+//                .map(comment -> new CommentPostResponse(
+//                        comment.getUser().getName(),
+//                        comment.getContent(),
+//                        comment.getMinute().toString(),
+//                        comment.getLikeCount(),
+//                        comment.getCommentCount(),
+//                        comment.getScrapCount()
+//                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
+//                ))
+//                .collect(Collectors.toList());
 
-        BoardResponse boardResponse = new BoardResponse(
-                board.getMinute().toString(),
-                board.getTitle(),
-                board.getContent(),
-                board.getUser().getName(),
-                board.getLikeCount(),
-                board.getCommentCount(),
-                board.getScrapCount()
-                //board.getCategory()
-        );
-        boardResponse.setComments(comments);
-        return boardResponse;
+        return BoardDetailResponse.of(board);
+    }
+
+    /* 게시물 검색 */
+    public List<BoardListResponse> getSearchBoard(BoardCategory category, String keyword, Pageable pageable) {
+        Page<Board> boardPage = boardRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
+        List<BoardListResponse> boardListResponses = boardPage.stream()
+                .map(BoardListResponse::of)
+                .toList();
+
+        return boardListResponses;
+    }
+
+    /* Using Method */
+    public Board findBoardById(Long id) {
+        return boardRepository.findById(id).orElseThrow(
+                () -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
+    }
+
+    private void validateUserAuthorization(HttpServletRequest request, Board board) {
+        User user = userService.getUserInfo(request);
+
+        // 게시글 작성자만 수정 가능
+        if (!board.getUser().equals(user)) {
+            throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
+        }
     }
 }
