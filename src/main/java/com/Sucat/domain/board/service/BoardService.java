@@ -3,6 +3,7 @@ package com.Sucat.domain.board.service;
 import com.Sucat.domain.board.exception.BoardException;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
+import com.Sucat.domain.board.repository.BoardQueryRepository;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
 
@@ -30,10 +32,12 @@ import static com.Sucat.domain.board.dto.BoardDto.*;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardQueryRepository boardQueryRepository;
     private final UserService userService;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
+    /* 게시물 생성 조회 메서드 */
     @Transactional
     public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
@@ -50,9 +54,11 @@ public class BoardService {
 
         board.addUser(user);
         user.addBoard(board);
+        log.info("게시글 생성, 연관관계 설정 완료");
     }
 
 
+    /* 게시글 수정 메서드 - Get */
     public BoardUpdateResponse getUpdateBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
         validateUserAuthorization(request, board);
@@ -60,7 +66,7 @@ public class BoardService {
         return BoardUpdateResponse.of(board);
     }
 
-    /* 게시글 수정 메서드 */
+    /* 게시물 수정 메서드 - Post*/
     @Transactional
     public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
         Board board = findBoardById(id);
@@ -68,6 +74,7 @@ public class BoardService {
 
         if (images.isEmpty()) {
             board.updateBoard(requestDTO.title(), requestDTO.content());
+            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
         } else {
             List<String> imageNames = imageService.storeFiles(images);
 
@@ -76,9 +83,11 @@ public class BoardService {
                     .toList();
 
             board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
+            log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
         }
     }
 
+    /* 게시물 삭제 메서드 */
     @Transactional
     public void deleteBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
@@ -91,9 +100,10 @@ public class BoardService {
         imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
 
         boardRepository.deleteById(id);
+        log.info("식별자: {}, 게시물 삭제 완료", id);
     }
 
-    //특정 카테고리의 게시글 목록 조회
+    /* 특정 카테고리 게시판 게시물 조회 메서드 */
     public BoardListResponseWithHotPost getAllBoards(BoardCategory category, Pageable pageable) {
 
         List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category, pageable).stream()
@@ -105,14 +115,16 @@ public class BoardService {
 
 
         // 3일 이내에 작성된 게시물 중 가장 높은 likeCount를 가진 게시물을 찾는 쿼리
-        Board hotPost = boardRepository.findTopByCategoryAndCreatedAtAfterOrderByLikeCountDesc(category, threeDaysAgo)
-                .orElseThrow(() -> new RuntimeException("No hotPost found"));
+        Optional<Board> optionalHotPost = boardQueryRepository.findTopHotPost(category, threeDaysAgo);
 
-        HotPostResponse hotPostResponse = HotPostResponse.of(hotPost);
+        HotPostResponse hotPostResponse = optionalHotPost
+                .map(HotPostResponse::of)
+                .orElse(null);  // hotPost가 없으면 null로 설정
 
         return BoardListResponseWithHotPost.of(boardListResponses, hotPostResponse);
     }
 
+    /* 게시물 단일 조회 메서드 */
     public BoardDetailResponse getBoard(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
 //        List<CommentPostResponse> comments = board.getComments().stream()
@@ -127,17 +139,26 @@ public class BoardService {
 //                ))
 //                .collect(Collectors.toList());
 
+        log.info("식별자: {}, 게시물 단일 조회 성공", id);
         return BoardDetailResponse.of(board);
     }
 
-    /* 게시물 검색 */
+    /* 게시물 검색 메서드 */
     public List<BoardListResponse> getSearchBoard(BoardCategory category, String keyword, Pageable pageable) {
         Page<Board> boardPage = boardRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
         List<BoardListResponse> boardListResponses = boardPage.stream()
                 .map(BoardListResponse::of)
                 .toList();
-
+        log.info("검색어: {}, 게시물 검색 성공", keyword);
         return boardListResponses;
+    }
+
+    /* 내가 쓴 게시물 조회 메서드 */
+    public List<MyBoardResponse> myPost(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        return user.getBoardList().stream()
+                .map(MyBoardResponse::of)
+                .toList();
     }
 
     /* Using Method */
@@ -151,6 +172,7 @@ public class BoardService {
 
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
+            log.info("error: 게시글 작성자가 아닌 사용자의 접근");
             throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
         }
     }

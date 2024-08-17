@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +38,6 @@ public class Board extends BaseEntity {
 
     private int scrapCount;
 
-    private LocalDateTime minute;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     private BoardCategory category;
@@ -64,7 +61,6 @@ public class Board extends BaseEntity {
         this.likeCount = 0; //초기 좋아요 수
         this.commentCount = 0;  //초기 댓글 수
         this.scrapCount = 0;    //초기 스크랩 수
-        this.minute = LocalDateTime.now();  //현재 시간을 게시 시간으로 설정
         this.category = category;
         //this.images = new ArrayList<>();
     }

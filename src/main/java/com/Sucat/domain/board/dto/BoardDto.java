@@ -47,20 +47,25 @@ public class BoardDto {
             String title,
             String content,
             String userNickname,
+            List<String> imageNames,
             int likeCount,
             int commentCount,
             int scrapCount,
-            LocalDateTime createAt
+            LocalDateTime createdAt
     ) {
         public static BoardListResponse of(Board board) {
+            List<String> imageNames = board.getImageList().stream()
+                    .map(Image::getImageName)
+                    .toList();
             return BoardListResponse.builder()
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
+                    .imageNames(imageNames)
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())
-                    .createAt(board.getCreatedAt())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }
@@ -98,7 +103,8 @@ public class BoardDto {
             int likeCount,
             int scrapCount,
             int commentCount,
-            LocalDateTime createAt
+//            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+            LocalDateTime createdAt
             // List<CommentResponse> commentList
     ) {
         public static BoardDetailResponse of(Board board) {
@@ -113,7 +119,7 @@ public class BoardDto {
                     .likeCount(board.getLikeCount())
                     .scrapCount(board.getScrapCount())
                     .commentCount(board.getCommentCount())
-                    .createAt(board.getCreatedAt())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }
@@ -132,6 +138,34 @@ public class BoardDto {
                     .title(board.getTitle())
                     .content(board.getContent())
                     .imageNames(imageNames)
+                    .build();
+        }
+    }
+
+    @Builder
+    public record MyBoardResponse(
+            String title,
+            String content,
+            String userNickname,
+            List<String> imageNames,
+            int likeCount,
+            int commentCount,
+            int scrapCount,
+            LocalDateTime createdAt
+    ) {
+        public static MyBoardResponse of(Board board) {
+            List<String> imageNames = board.getImageList().stream()
+                    .map(Image::getImageName)
+                    .toList();
+            return MyBoardResponse.builder()
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .userNickname(board.getUser().getNickname())
+                    .imageNames(imageNames)
+                    .likeCount(board.getLikeCount())
+                    .commentCount(board.getCommentCount())
+                    .scrapCount(board.getScrapCount())
+                    .createdAt(board.getCreatedAt())
                     .build();
         }
     }

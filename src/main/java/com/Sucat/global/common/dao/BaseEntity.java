@@ -1,5 +1,6 @@
 package com.Sucat.global.common.dao;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.EntityListeners;
@@ -20,10 +21,12 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false)
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Seoul")
     protected LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
-    protected LocalDateTime updateAt;
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Seoul")
+    protected LocalDateTime updatedAt;
 }

@@ -27,14 +27,14 @@ public class NotifyDto {
             String name,
             String content,
             String type,
-            String createAt
+            String createdAt
     ) {
         public static CreateNotifyResponse of(Notify notify) {
             return CreateNotifyResponse.builder()
                     .content(notify.getContent())
                     .id(notify.getId())
                     .name(notify.getUser().getName())
-                    .createAt(notify.getCreatedAt().toString())
+                    .createdAt(notify.getCreatedAt().toString())
                     .build();
         }
     }
@@ -46,7 +46,7 @@ public class NotifyDto {
             String url,
             boolean isRead,
             NotifyType notifyType,
-            LocalDateTime createAt
+            LocalDateTime createdAt
     ) {
         public static FindNotifyResponse of(Notify notify) {
             return FindNotifyResponse.builder()
@@ -55,7 +55,7 @@ public class NotifyDto {
                     .url(notify.getUrl())
                     .isRead(notify.getIsRead())
                     .notifyType(notify.getNotifyType())
-                    .createAt(notify.getCreatedAt())
+                    .createdAt(notify.getCreatedAt())
                     .build();
         }
     }

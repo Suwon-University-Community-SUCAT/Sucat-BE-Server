@@ -99,4 +99,14 @@ public class BoardController {
 
         return ApiResponse.onSuccess(SuccessCode._OK, searchBoard);
     }
+
+    /* 내가 작성한 게시글 조회 */
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<Object>> myPost(
+            HttpServletRequest request
+    ) {
+        List<MyBoardResponse> myBoardResponses = boardService.myPost(request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, myBoardResponses);
+    }
 }

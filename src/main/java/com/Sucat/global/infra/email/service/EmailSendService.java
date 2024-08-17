@@ -67,7 +67,7 @@ public class EmailSendService {
         return VerificationCode.builder()
                 .code(code)
                 .email(to)
-                .createAt(sentAt)
+                .createdAt(sentAt)
                 .expirationTimeInMinutes(EXPIRATION_TIME_IN_MINUTES)
                 .build();
     }
