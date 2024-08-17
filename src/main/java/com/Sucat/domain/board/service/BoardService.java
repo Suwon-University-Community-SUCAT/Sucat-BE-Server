@@ -34,6 +34,7 @@ public class BoardService {
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
 
+    /* 게시물 생성 조회 메서드 */
     @Transactional
     public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
@@ -50,6 +51,7 @@ public class BoardService {
 
         board.addUser(user);
         user.addBoard(board);
+        log.info("게시글 생성, 연관관계 설정 완료");
     }
 
 
@@ -60,7 +62,7 @@ public class BoardService {
         return BoardUpdateResponse.of(board);
     }
 
-    /* 게시글 수정 메서드 */
+    /* 게시물 수정 메서드 */
     @Transactional
     public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
         Board board = findBoardById(id);
@@ -68,6 +70,7 @@ public class BoardService {
 
         if (images.isEmpty()) {
             board.updateBoard(requestDTO.title(), requestDTO.content());
+            log.info("게시글 수정 완료, 이미지 x");
         } else {
             List<String> imageNames = imageService.storeFiles(images);
 
@@ -76,9 +79,11 @@ public class BoardService {
                     .toList();
 
             board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
+            log.info("게시글 수정 완료, 이미지 o");
         }
     }
 
+    /* 게시물 삭제 메서드 */
     @Transactional
     public void deleteBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
@@ -93,7 +98,7 @@ public class BoardService {
         boardRepository.deleteById(id);
     }
 
-    //특정 카테고리의 게시글 목록 조회
+    /* 특정 카테고리 게시판 게시물 조회 메서드 */
     public BoardListResponseWithHotPost getAllBoards(BoardCategory category, Pageable pageable) {
 
         List<BoardListResponse> boardListResponses = boardRepository.findByCategory(category, pageable).stream()
@@ -113,6 +118,7 @@ public class BoardService {
         return BoardListResponseWithHotPost.of(boardListResponses, hotPostResponse);
     }
 
+    /* 게시물 단일 조회 메서드 */
     public BoardDetailResponse getBoard(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
 //        List<CommentPostResponse> comments = board.getComments().stream()
@@ -130,7 +136,7 @@ public class BoardService {
         return BoardDetailResponse.of(board);
     }
 
-    /* 게시물 검색 */
+    /* 게시물 검색 메서드 */
     public List<BoardListResponse> getSearchBoard(BoardCategory category, String keyword, Pageable pageable) {
         Page<Board> boardPage = boardRepository.findByCategoryAndTitleContaining(category, keyword, pageable);
         List<BoardListResponse> boardListResponses = boardPage.stream()
@@ -138,6 +144,15 @@ public class BoardService {
                 .toList();
 
         return boardListResponses;
+    }
+
+    /* 내가 쓴 게시물 조회 메서드 */
+    public List<MyBoardResponse> myPost(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        return user.getBoardList().stream()
+                .map(MyBoardResponse::of)
+                .toList();
+
     }
 
     /* Using Method */

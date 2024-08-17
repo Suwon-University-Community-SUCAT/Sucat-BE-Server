@@ -141,4 +141,31 @@ public class BoardDto {
         }
     }
 
+    @Builder
+    public record MyBoardResponse(
+            String title,
+            String content,
+            String userNickname,
+            List<String> imageNames,
+            int likeCount,
+            int commentCount,
+            int scrapCount,
+            LocalDateTime createAt
+    ) {
+        public static MyBoardResponse of(Board board) {
+            List<String> imageNames = board.getImageList().stream()
+                    .map(Image::getImageName)
+                    .toList();
+            return MyBoardResponse.builder()
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .userNickname(board.getUser().getNickname())
+                    .imageNames(imageNames)
+                    .likeCount(board.getLikeCount())
+                    .commentCount(board.getCommentCount())
+                    .scrapCount(board.getScrapCount())
+                    .createAt(board.getCreatedAt())
+                    .build();
+        }
+    }
 }
