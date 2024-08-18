@@ -2,6 +2,7 @@ package com.Sucat.domain.board.model;
 
 import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.scrap.model.Scrap;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.dao.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -53,6 +54,15 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imageList = new ArrayList<>();
 
+    // Scrap과의 양방향 관계 설정, Board 삭제 -> 자동으로 Scrap 삭제 -> Board를 스크랩한 사용자들의 ScrapList에서 정보 삭제
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Scrap> scrapList = new ArrayList<>();
+
+    // 필요하다면 Scrap 리스트에 추가하는 메서드
+    public void addScrap(Scrap scrap) {
+        scrapList.add(scrap);
+    }
+
     @Builder
     public Board(String userNickname, String title, String content, BoardCategory category) {
         this.userNickname = userNickname;
@@ -77,6 +87,16 @@ public class Board extends BaseEntity {
 
     public void addAllImage(List<Image> images) {
         this.imageList.addAll(images);
+    }
+
+    public void incrementScrapCount() {
+        this.scrapCount++;
+    }
+
+    public void decrementScrapCount() {
+        if (this.scrapCount > 0) {
+            this.scrapCount--;
+        }
     }
 
     public void updateBoard(String title, String content) {

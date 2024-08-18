@@ -4,6 +4,7 @@ import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.notify.model.Notify;
+import com.Sucat.domain.scrap.model.Scrap;
 import com.Sucat.global.common.dao.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -60,9 +61,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Board> boardList = new ArrayList<>();
 
-//    @ManyToOne(fetch = LAZY)
-//    @JoinColumn(name = "users")
-//    private ChatRoom chatRoom;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Scrap> scrapList = new ArrayList<>();
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
@@ -79,6 +79,11 @@ public class User extends BaseEntity {
 
     public void addBoard(Board board) {
         this.boardList.add(board);
+    }
+
+    public  void addScrap(Board board) {
+        Scrap scrap = Scrap.builder().user(this).board(board).build();
+        this.scrapList.add(scrap);
     }
 
 //    public void addChatRoom(ChatRoom chatRoom) {
