@@ -31,7 +31,7 @@ public class ScrapController {
     }
 
     /* 내가 스크랩한 게시물 불러오기 */
-    @GetMapping
+    @GetMapping("/my")
     public ResponseEntity<ApiResponse<Object>> myScrap(
             HttpServletRequest request
     ) {
