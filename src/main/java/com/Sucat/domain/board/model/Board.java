@@ -61,6 +61,16 @@ public class Board extends BaseEntity {
     // 필요하다면 Scrap 리스트에 추가하는 메서드
     public void addScrap(Scrap scrap) {
         scrapList.add(scrap);
+        this.scrapCount++;
+    }
+
+    // 필요하다면 Scrap 리스트에서 제거하는 메서드
+    public void removeScrap(Scrap scrap) {
+        scrapList.remove(scrap);
+
+        if (scrapCount>0){
+            scrapCount--;
+        }
     }
 
     @Builder
@@ -87,16 +97,6 @@ public class Board extends BaseEntity {
 
     public void addAllImage(List<Image> images) {
         this.imageList.addAll(images);
-    }
-
-    public void incrementScrapCount() {
-        this.scrapCount++;
-    }
-
-    public void decrementScrapCount() {
-        if (this.scrapCount > 0) {
-            this.scrapCount--;
-        }
     }
 
     public void updateBoard(String title, String content) {
