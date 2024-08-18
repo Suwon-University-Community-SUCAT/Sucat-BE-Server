@@ -44,6 +44,7 @@ public class BoardDto {
      */
     @Builder
     public record BoardListResponse(
+            Long boardId,
             String title,
             String content,
             String userNickname,
@@ -58,6 +59,7 @@ public class BoardDto {
                     .map(Image::getImageName)
                     .toList();
             return BoardListResponse.builder()
+                    .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
@@ -72,12 +74,14 @@ public class BoardDto {
 
     @Builder
     public record HotPostResponse(
+            Long boardId,
             @NotNull
             String title,
             int likeCount
     ) {
         public static HotPostResponse of(Board board) {
             return HotPostResponse.builder()
+                    .boardId(board.getId())
                     .title(board.getTitle())
                     .likeCount(board.getLikeCount())
                     .build();
@@ -96,6 +100,7 @@ public class BoardDto {
     // TODO 댓글 기능 개발 후 추가
     @Builder
     public record BoardDetailResponse(
+            Long boardId,
             String title,
             String content,
             String userNickname,
@@ -112,6 +117,7 @@ public class BoardDto {
                     .map(Image::getImageName)
                     .toList();
             return BoardDetailResponse.builder()
+                    .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
@@ -144,6 +150,7 @@ public class BoardDto {
 
     @Builder
     public record MyBoardResponse(
+            Long boardId,
             String title,
             String content,
             String userNickname,
@@ -158,6 +165,7 @@ public class BoardDto {
                     .map(Image::getImageName)
                     .toList();
             return MyBoardResponse.builder()
+                    .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
