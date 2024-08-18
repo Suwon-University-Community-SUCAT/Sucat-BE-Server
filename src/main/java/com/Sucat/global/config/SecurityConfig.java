@@ -144,7 +144,9 @@ public class SecurityConfig {
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
             config.setAllowCredentials(true);
-            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh")); // 헤더 노출 설정 추가
+            config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+            /* 응답 헤더 설정 추가*/
+            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
             return config;
         };
     }
