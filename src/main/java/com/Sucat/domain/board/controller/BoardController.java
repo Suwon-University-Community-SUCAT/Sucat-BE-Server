@@ -109,4 +109,18 @@ public class BoardController {
 
         return ApiResponse.onSuccess(SuccessCode._OK, myBoardResponses);
     }
+
+    /*게시글 좋아요*/
+    @PostMapping("/{id}/like")
+    public ResponseEntity<ApiResponse<Object>> likeBoard(@PathVariable Long id, HttpServletRequest request) {
+        boolean liked = boardService.likeBoard(id, request);
+        return ApiResponse.onSuccess(SuccessCode._OK, liked ? "Liked" : "Unliked");
+    }
+
+    @GetMapping("/{id}/liked")
+    public ResponseEntity<ApiResponse<Object>> isLikedByUser(@PathVariable Long id, HttpServletRequest request) {
+        boolean isLiked = boardService.isLikedByUser(id, request);
+        return ApiResponse.onSuccess(SuccessCode._OK, isLiked);
+    }
+
 }

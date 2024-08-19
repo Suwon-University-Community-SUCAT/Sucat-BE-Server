@@ -9,6 +9,8 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.Sucat.domain.comment.dto.CommentDto.CommentResponseWithBoard;
+
 public class BoardDto {
     /**
      * Request
@@ -109,10 +111,10 @@ public class BoardDto {
             int scrapCount,
             int commentCount,
 //            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-            LocalDateTime createdAt
-            // List<CommentResponse> commentList
+            LocalDateTime createdAt,
+             List<CommentResponseWithBoard> commentList
     ) {
-        public static BoardDetailResponse of(Board board) {
+        public static BoardDetailResponse of(Board board, List<CommentResponseWithBoard> commentList) {
             List<String> imageNames = board.getImageList().stream()
                     .map(Image::getImageName)
                     .toList();
@@ -126,6 +128,7 @@ public class BoardDto {
                     .scrapCount(board.getScrapCount())
                     .commentCount(board.getCommentCount())
                     .createdAt(board.getCreatedAt())
+                    .commentList(commentList)
                     .build();
         }
     }

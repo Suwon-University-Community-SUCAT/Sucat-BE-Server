@@ -24,6 +24,7 @@ public enum ErrorCode implements BaseCode{
     _INVALID_INPUT_VALUE(BAD_REQUEST, "400", "입력 값이 잘못된 요청입니다."),
     _UNAUTHORIZED(UNAUTHORIZED,"401", "인증이 필요합니다."),
     _FORBIDDEN(FORBIDDEN, "403", "금지된 요청입니다."),
+    _UNAUTHORIZED_USER(FORBIDDEN, "403", "사용자가 수정할 권한이 없습니다."),
 
     /**
      * Auth
@@ -109,7 +110,12 @@ public enum ErrorCode implements BaseCode{
      * Board
      */
     BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시물입니다."),
-    UNAUTHORIZED_USER(FORBIDDEN, "B002", "사용자가 게시글을 수정할 권한이 없습니다.");
+
+    /**
+     * Notification
+     */
+    COMMENT_NOT_FOUND(NOT_FOUND, "C001", "존재하지 않는 댓글입니다.");
+
 
 
     private final HttpStatus httpStatus;

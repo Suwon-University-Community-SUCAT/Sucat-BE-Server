@@ -35,6 +35,12 @@ public class Board extends BaseEntity {
 
     private int likeCount;
 
+    @ManyToMany
+    @JoinTable(name = "board_likes",
+            joinColumns = @JoinColumn(name = "board_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> likedUsers = new ArrayList<>();
+
     private int commentCount;
 
     private int scrapCount;
@@ -49,29 +55,14 @@ public class Board extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imageList = new ArrayList<>();
 
     // Scrap과의 양방향 관계 설정, Board 삭제 -> 자동으로 Scrap 삭제 -> Board를 스크랩한 사용자들의 ScrapList에서 정보 삭제
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scrapList = new ArrayList<>();
 
-    // 필요하다면 Scrap 리스트에 추가하는 메서드
-    public void addScrap(Scrap scrap) {
-        scrapList.add(scrap);
-        this.scrapCount++;
-    }
-
-    // 필요하다면 Scrap 리스트에서 제거하는 메서드
-    public void removeScrap(Scrap scrap) {
-        scrapList.remove(scrap);
-
-        if (scrapCount>0){
-            scrapCount--;
-        }
-    }
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
 
     @Builder
     public Board(String userNickname, String title, String content, BoardCategory category) {
@@ -109,5 +100,34 @@ public class Board extends BaseEntity {
         this.content = content;
         this.imageList.clear();
         this.imageList.addAll(imageList);
+    }
+
+    // 필요하다면 Scrap 리스트에 추가하는 메서드
+    public void addScrap(Scrap scrap) {
+        scrapList.add(scrap);
+        this.scrapCount++;
+    }
+
+    public void decrementScrapCount() {
+        this.scrapCount--;
+    }
+
+    public void addComment(Comment comment) {
+        this.commentList.add(comment);
+        this.commentCount++;
+    }
+
+    public void decrementCommentCount() {
+        this.commentCount--;
+    }
+
+    public void addLike(User user) {
+        this.likedUsers.add(user);
+        this.likeCount++;
+    }
+
+    public void removeLike(User user) {
+        this.likedUsers.remove(user);
+        this.likeCount--;
     }
 }
