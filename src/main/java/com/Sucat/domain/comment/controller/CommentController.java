@@ -15,7 +15,7 @@ import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/comments")
+@RequestMapping("/api/v1/comments")
 public class CommentController {
 
     private final CommentService commentService;
