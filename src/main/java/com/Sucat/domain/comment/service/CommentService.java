@@ -1,59 +1,42 @@
 package com.Sucat.domain.comment.service;
 
 import com.Sucat.domain.board.model.Board;
-import com.Sucat.domain.board.repository.BoardRepository;
+import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.domain.comment.domain.Comment;
-import com.Sucat.domain.comment.dto.CommentPostDTO;
-import com.Sucat.domain.comment.dto.CommentPostResponse;
 import com.Sucat.domain.comment.repository.CommentRepository;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.repository.UserRepository;
+import com.Sucat.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
+
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
+    private final BoardService boardService;
+    private final UserService userService;
 
-    public CommentService(CommentRepository commentRepository, BoardRepository boardRepository, UserRepository userRepository) {
-        this.commentRepository = commentRepository;
-        this.boardRepository = boardRepository;
-        this.userRepository = userRepository;
+    /* 댓글 작성 메서드 */
+    public void write(Long boardId, HttpServletRequest request, CommentPostRequest commentPostDTO) {
+        Board board = boardService.findBoardById(boardId);
+        User user = userService.getUserInfo(request);
+
+
+        Comment comment = Comment.builder()
+                .content(commentPostDTO.content())
+                .board(board)
+                .user(user)
+                .build();
+
+        board.addComment(comment);
+        user.addComment(comment);
     }
 
-    public CommentPostResponse createComment(Long boardId, Long userId, CommentPostDTO commentPostDTO) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid board id: " + boardId));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user id: " + userId));
-
-        Comment comment = new Comment(board, user, commentPostDTO.getCommentContent());
-        Comment savedComment = commentRepository.save(comment);
-
-        return new CommentPostResponse(
-                user.getName(),
-                savedComment.getContent(),
-                savedComment.getMinute().toString(),
-                savedComment.getLikeCount(),
-                savedComment.getCommentCount()
-                //savedComment.getScrapCount()
-        );
-    }
-
-    public CommentPostResponse getCommentById(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid comment id: " + commentId));
-        User user = comment.getUser();
-
-        return new CommentPostResponse(
-                user.getName(),
-                comment.getContent(),
-                comment.getMinute().toString(),
-                comment.getLikeCount(),
-                comment.getCommentCount()
-                //comment.getScrapCount()
-        );
-    }
+    /* 댓글 삭제 메서드 */
 }

@@ -1,11 +1,13 @@
 package com.Sucat.domain.comment.controller;
 
-import com.Sucat.domain.comment.dto.CommentPostDTO;
-import com.Sucat.domain.comment.dto.CommentPostResponse;
 import com.Sucat.domain.comment.service.CommentService;
-import org.springframework.http.HttpStatus;
+import com.Sucat.global.common.code.SuccessCode;
+import com.Sucat.global.common.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
 
 @RestController
 @RequestMapping("/comments")
@@ -18,15 +20,16 @@ public class CommentController {
     }
 
     /* 댓글 생성 */
-    @PostMapping("/{boardId}/{userId}")
-    public ResponseEntity<CommentPostResponse> createComment(
+    @PostMapping("/{boardId}")
+    public ResponseEntity<ApiResponse<Object>> createComment(
             @PathVariable Long boardId,
-            @PathVariable Long userId,
-            @RequestBody CommentPostDTO commentPostDTO) {
+            HttpServletRequest request,
+            @RequestBody CommentPostRequest commentPostDTO) {
 
         /* 댓글 생성 로직 */
-        CommentPostResponse response = commentService.createComment(boardId, userId, commentPostDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        commentService.write(boardId, request, commentPostDTO);
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 댓글 삭제 */
 }

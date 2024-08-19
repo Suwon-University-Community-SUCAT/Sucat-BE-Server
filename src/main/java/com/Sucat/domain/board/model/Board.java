@@ -58,20 +58,8 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scrapList = new ArrayList<>();
 
-    // 필요하다면 Scrap 리스트에 추가하는 메서드
-    public void addScrap(Scrap scrap) {
-        scrapList.add(scrap);
-        this.scrapCount++;
-    }
-
-    // 필요하다면 Scrap 리스트에서 제거하는 메서드
-    public void removeScrap(Scrap scrap) {
-        scrapList.remove(scrap);
-
-        if (scrapCount>0){
-            scrapCount--;
-        }
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
 
     @Builder
     public Board(String userNickname, String title, String content, BoardCategory category) {
@@ -109,5 +97,25 @@ public class Board extends BaseEntity {
         this.content = content;
         this.imageList.clear();
         this.imageList.addAll(imageList);
+    }
+
+    // 필요하다면 Scrap 리스트에 추가하는 메서드
+    public void addScrap(Scrap scrap) {
+        scrapList.add(scrap);
+        this.scrapCount++;
+    }
+
+    // 필요하다면 Scrap 리스트에서 제거하는 메서드
+    public void removeScrap(Scrap scrap) {
+        scrapList.remove(scrap);
+
+        if (scrapCount>0){
+            scrapCount--;
+        }
+    }
+
+    public void addComment(Comment comment) {
+        this.commentList.add(comment);
+        commentCount++;
     }
 }
