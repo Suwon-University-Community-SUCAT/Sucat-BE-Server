@@ -173,7 +173,7 @@ public class BoardService {
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
             log.info("error: 게시글 작성자가 아닌 사용자의 접근");
-            throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
+            throw new BoardException(ErrorCode._UNAUTHORIZED_USER);
         }
     }
 }

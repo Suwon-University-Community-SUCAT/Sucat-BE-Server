@@ -118,4 +118,12 @@ public class Board extends BaseEntity {
         this.commentList.add(comment);
         commentCount++;
     }
+
+    public void removeComment(Comment comment) {
+        commentList.remove(comment);
+
+        if (commentCount>0){
+            commentCount--;
+        }
+    }
 }

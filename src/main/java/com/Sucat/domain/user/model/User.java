@@ -98,6 +98,10 @@ public class User extends BaseEntity {
         this.commentList.add(comment);
     }
 
+    public void removeComment(Comment comment) {
+        commentList.remove(comment);
+    }
+
     /* Using Method */
     // 비밀번호 변경 메서드
     public void resetPassword(String newPassword) {
