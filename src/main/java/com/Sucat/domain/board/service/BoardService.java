@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,13 +44,19 @@ public class BoardService {
     public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
 
-        List<String> imageNames = imageService.storeFiles(images);
+        if (images == null) {
+            images = Collections.emptyList();
+        }
 
-        List<Image> imageList = imageNames.stream()
-                .map(image -> Image.ofBoard(board, image))
-                .toList();
+        if (!images.isEmpty()) {
+            List<String> imageNames = imageService.storeFiles(images);
 
-        board.addAllImage(imageList);
+            List<Image> imageList = imageNames.stream()
+                    .map(imageName -> Image.ofBoard(board, imageName))
+                    .toList();
+
+            board.addAllImage(imageList);
+        }
 
         boardRepository.save(board);
 
