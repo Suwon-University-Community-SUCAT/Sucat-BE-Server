@@ -21,10 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
+import static com.Sucat.domain.comment.dto.CommentDto.CommentResponseWithBoard;
 
 @Service
 @Slf4j
@@ -42,13 +44,19 @@ public class BoardService {
     public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
         User user = userService.getUserInfo(request);
 
-        List<String> imageNames = imageService.storeFiles(images);
+        if (images == null) {
+            images = Collections.emptyList();
+        }
 
-        List<Image> imageList = imageNames.stream()
-                .map(image -> Image.ofBoard(board, image))
-                .toList();
+        if (!images.isEmpty()) {
+            List<String> imageNames = imageService.storeFiles(images);
 
-        board.addAllImage(imageList);
+            List<Image> imageList = imageNames.stream()
+                    .map(imageName -> Image.ofBoard(board, imageName))
+                    .toList();
+
+            board.addAllImage(imageList);
+        }
 
         boardRepository.save(board);
 
@@ -126,21 +134,13 @@ public class BoardService {
 
     /* 게시물 단일 조회 메서드 */
     public BoardDetailResponse getBoard(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
-//        List<CommentPostResponse> comments = board.getComments().stream()
-//                .map(comment -> new CommentPostResponse(
-//                        comment.getUser().getName(),
-//                        comment.getContent(),
-//                        comment.getMinute().toString(),
-//                        comment.getLikeCount(),
-//                        comment.getCommentCount(),
-//                        comment.getScrapCount()
-//                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
-//                ))
-//                .collect(Collectors.toList());
+        Board board = findBoardById(id);
+        List<CommentResponseWithBoard> commentList = board.getCommentList().stream()
+                .map(CommentResponseWithBoard::of)
+                .toList();
 
         log.info("식별자: {}, 게시물 단일 조회 성공", id);
-        return BoardDetailResponse.of(board);
+        return BoardDetailResponse.of(board, commentList);
     }
 
     /* 게시물 검색 메서드 */
@@ -173,7 +173,7 @@ public class BoardService {
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
             log.info("error: 게시글 작성자가 아닌 사용자의 접근");
-            throw new BoardException(ErrorCode.UNAUTHORIZED_USER);
+            throw new BoardException(ErrorCode._UNAUTHORIZED_USER);
         }
     }
 }

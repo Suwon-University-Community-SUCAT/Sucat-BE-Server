@@ -1,6 +1,7 @@
 package com.Sucat.domain.user.model;
 
 import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.notify.model.Notify;
@@ -64,6 +65,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scrapList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
+
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
         this.userImage = image;
@@ -90,9 +94,13 @@ public class User extends BaseEntity {
         scrapList.remove(scrap);
     }
 
-//    public void addChatRoom(ChatRoom chatRoom) {
-//        this.chatRoomList.add(chatRoom);
-//    }
+    public void addComment(Comment comment) {
+        this.commentList.add(comment);
+    }
+
+    public void removeComment(Comment comment) {
+        commentList.remove(comment);
+    }
 
     /* Using Method */
     // 비밀번호 변경 메서드
