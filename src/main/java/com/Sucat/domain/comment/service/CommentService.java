@@ -48,6 +48,7 @@ public class CommentService {
         board.addComment(comment);
         user.addComment(comment);
 
+        log.info("게시물 작성자에게 알림이 전송됩니다. 게시글 식별자: {}", boardId);
         notifyService.send(board.getUser(), NotifyType.POST_COMMENT, "새로운 댓글이 달렸습니다: " + content, "/api/v1/boards/"+boardId); // 알림 클릭시 댓글이 달린 게시물로 이동
     }
 
@@ -63,6 +64,7 @@ public class CommentService {
     /* 나의 댓글 작성한 게시글 조회 메서드 */
     public List<MyBoardResponse> myComment(HttpServletRequest request) {
         User user = userService.getUserInfo(request);
+        log.info("식별자: {}, 해당 유저가 작성한 게시글을 조회합니다.", user.getId());
         return user.getCommentList().stream()
                 .map(comment -> MyBoardResponse.of(comment.getBoard()))
                 .toList();

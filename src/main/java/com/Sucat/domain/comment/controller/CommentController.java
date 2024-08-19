@@ -4,6 +4,7 @@ import com.Sucat.domain.comment.service.CommentService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +14,11 @@ import static com.Sucat.domain.board.dto.BoardDto.MyBoardResponse;
 import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
-
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     /* 댓글 생성 */
     @PostMapping("/{boardId}")
