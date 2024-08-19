@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+import static com.Sucat.domain.board.dto.BoardDto.MyBoardResponse;
 import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
 
 @Slf4j
@@ -49,6 +52,14 @@ public class CommentService {
 
         commentRepository.deleteById(commentId);
         log.info("식별자: {}, 댓글 삭제 완료", commentId);
+    }
+
+    /* 나의 댓글 작성한 게시글 조회 메서드 */
+    public List<MyBoardResponse> myComment(HttpServletRequest request) {
+        User user = userService.getUserInfo(request);
+        return user.getCommentList().stream()
+                .map(comment -> MyBoardResponse.of(comment.getBoard()))
+                .toList();
     }
 
     /* Using Method */

@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+import static com.Sucat.domain.board.dto.BoardDto.MyBoardResponse;
 import static com.Sucat.domain.comment.dto.CommentDto.CommentPostRequest;
 
 @RestController
@@ -39,4 +42,13 @@ public class CommentController {
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
+
+    /* 내가 쓴 댓글 작성한 게시글 조회 */
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<Object>> myComment(HttpServletRequest request) {
+        List<MyBoardResponse> myBoardResponses = commentService.myComment(request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, myBoardResponses);
+    }
+
 }
