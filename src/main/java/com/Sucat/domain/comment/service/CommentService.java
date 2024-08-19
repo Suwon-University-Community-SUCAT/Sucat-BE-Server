@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class CommentService {
     private final NotifyService notifyService;
 
     /* 댓글 작성 메서드 */
+    @Transactional
     public void write(Long boardId, HttpServletRequest request, CommentPostRequest commentPostDTO) {
         Board board = boardService.findBoardById(boardId);
         User user = userService.getUserInfo(request);
@@ -53,10 +55,12 @@ public class CommentService {
     }
 
     /* 댓글 삭제 메서드 */
+    @Transactional
     public void delete(Long commentId, HttpServletRequest request) {
         Comment comment = findById(commentId);
         validateUserAuthorization(request, comment);
 
+        comment.getBoard().decrementCommentCount();
         commentRepository.deleteById(commentId);
         log.info("식별자: {}, 댓글 삭제 완료", commentId);
     }

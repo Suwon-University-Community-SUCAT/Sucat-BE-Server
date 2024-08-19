@@ -49,16 +49,13 @@ public class Board extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imageList = new ArrayList<>();
 
     // Scrap과의 양방향 관계 설정, Board 삭제 -> 자동으로 Scrap 삭제 -> Board를 스크랩한 사용자들의 ScrapList에서 정보 삭제
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scrapList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
     @Builder
@@ -105,25 +102,16 @@ public class Board extends BaseEntity {
         this.scrapCount++;
     }
 
-    // 필요하다면 Scrap 리스트에서 제거하는 메서드
-    public void removeScrap(Scrap scrap) {
-        scrapList.remove(scrap);
-
-        if (scrapCount>0){
-            scrapCount--;
-        }
+    public void decrementScrapCount() {
+        this.scrapCount--;
     }
 
     public void addComment(Comment comment) {
         this.commentList.add(comment);
-        commentCount++;
+        this.commentCount++;
     }
 
-    public void removeComment(Comment comment) {
-        commentList.remove(comment);
-
-        if (commentCount>0){
-            commentCount--;
-        }
+    public void decrementCommentCount() {
+        this.commentCount--;
     }
 }

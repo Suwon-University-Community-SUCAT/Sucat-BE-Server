@@ -31,7 +31,7 @@ public class CommentController {
     }
 
     /* 댓글 삭제 */
-    @DeleteMapping("/commentId")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Object>> delete(
             @PathVariable Long commentId,
             HttpServletRequest request
@@ -41,7 +41,7 @@ public class CommentController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
-    /* 내가 쓴 댓글 작성한 게시글 조회 */
+    /* 내가 댓글 작성한 게시글 조회 */
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<Object>> myComment(HttpServletRequest request) {
         List<MyBoardResponse> myBoardResponses = commentService.myComment(request);
