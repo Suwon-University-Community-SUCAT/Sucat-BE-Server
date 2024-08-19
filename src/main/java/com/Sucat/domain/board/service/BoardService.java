@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
+import static com.Sucat.domain.comment.dto.CommentDto.CommentResponseWithBoard;
 
 @Service
 @Slf4j
@@ -126,21 +127,13 @@ public class BoardService {
 
     /* 게시물 단일 조회 메서드 */
     public BoardDetailResponse getBoard(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("Board not found"));
-//        List<CommentPostResponse> comments = board.getComments().stream()
-//                .map(comment -> new CommentPostResponse(
-//                        comment.getUser().getName(),
-//                        comment.getContent(),
-//                        comment.getMinute().toString(),
-//                        comment.getLikeCount(),
-//                        comment.getCommentCount(),
-//                        comment.getScrapCount()
-//                        //comment.getUser().getImageUrl() // Assuming User has an imageUrl field
-//                ))
-//                .collect(Collectors.toList());
+        Board board = findBoardById(id);
+        List<CommentResponseWithBoard> commentList = board.getCommentList().stream()
+                .map(CommentResponseWithBoard::of)
+                .toList();
 
         log.info("식별자: {}, 게시물 단일 조회 성공", id);
-        return BoardDetailResponse.of(board);
+        return BoardDetailResponse.of(board, commentList);
     }
 
     /* 게시물 검색 메서드 */

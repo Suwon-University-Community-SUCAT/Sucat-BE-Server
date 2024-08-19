@@ -50,5 +50,4 @@ public class CommentController {
 
         return ApiResponse.onSuccess(SuccessCode._OK, myBoardResponses);
     }
-
 }
