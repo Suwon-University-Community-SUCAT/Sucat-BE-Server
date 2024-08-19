@@ -32,7 +32,7 @@ public class Comment {
     private LocalDateTime minute;
     private int likeCount;
     private int commentCount;
-    private int scrapCount;
+    //private int scrapCount;
 
     public Comment(Board board, User user, String content) {
         this.board = board;
@@ -41,6 +41,6 @@ public class Comment {
         this.minute = LocalDateTime.now();
         this.likeCount = 0;
         this.commentCount = 0;
-        this.scrapCount = 0;
+        //this.scrapCount = 0;
     }
 }
