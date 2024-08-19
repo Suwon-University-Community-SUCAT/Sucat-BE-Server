@@ -6,6 +6,8 @@ import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.comment.exception.CommentException;
 import com.Sucat.domain.comment.repository.CommentRepository;
+import com.Sucat.domain.notify.model.NotifyType;
+import com.Sucat.domain.notify.service.NotifyService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
@@ -27,14 +29,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardService boardService;
     private final UserService userService;
+    private final NotifyService notifyService;
 
     /* 댓글 작성 메서드 */
     public void write(Long boardId, HttpServletRequest request, CommentPostRequest commentPostDTO) {
         Board board = boardService.findBoardById(boardId);
         User user = userService.getUserInfo(request);
+        String content = commentPostDTO.content();
 
         Comment comment = Comment.builder()
-                .content(commentPostDTO.content())
+                .content(content)
                 .board(board)
                 .user(user)
                 .build();
@@ -43,6 +47,8 @@ public class CommentService {
         log.info("식별자: {}, 댓글 작성", comment.getId());
         board.addComment(comment);
         user.addComment(comment);
+
+        notifyService.send(board.getUser(), NotifyType.POST_COMMENT, "새로운 댓글이 달렸습니다: " + content, "/api/v1/boards/"+boardId); // 알림 클릭시 댓글이 달린 게시물로 이동
     }
 
     /* 댓글 삭제 메서드 */
