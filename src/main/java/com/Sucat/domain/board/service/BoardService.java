@@ -135,6 +135,7 @@ public class BoardService {
     /* 게시물 단일 조회 메서드 */
     public BoardDetailResponse getBoard(Long id) {
         Board board = findBoardById(id);
+        Long userId = board.getUser().getId();
         List<CommentResponseWithBoard> commentList = board.getCommentList().stream()
                 .map(CommentResponseWithBoard::of)
                 .toList();

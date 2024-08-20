@@ -33,7 +33,8 @@ public class CommentDto {
             String content,
             int likeCount,
             int commentCount,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            boolean checkWriter
     ) {
         public static CommentResponseWithBoard of(Comment comment) {
             User user = comment.getUser();
@@ -47,6 +48,7 @@ public class CommentDto {
                     .likeCount(comment.getLikeCount())
                     .commentCount(comment.getCommentCount())
                     .createAt(comment.getCreatedAt())
+                    .checkWriter(comment.isCheckWriter())
                     .build();
         }
     }

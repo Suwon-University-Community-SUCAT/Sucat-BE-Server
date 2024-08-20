@@ -31,13 +31,15 @@ public class Comment extends BaseEntity {
     private String content;
     private int likeCount;
     private int commentCount;
+    private boolean checkWriter;
 
     @Builder
-    public Comment(Board board, User user, String content) {
+    public Comment(Board board, User user, String content, boolean checkWriter) {
         this.board = board;
         this.user = user;
         this.content = content;
         this.likeCount = 0;
         this.commentCount = 0;
+        this.checkWriter = checkWriter;
     }
 }
