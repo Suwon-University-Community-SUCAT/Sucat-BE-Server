@@ -13,16 +13,16 @@ import java.time.format.DateTimeFormatter;
 public class VerificationCode {
     private String code;
     private String email;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     private Integer expirationTimeInMinutes;
 
     public boolean isExpired(LocalDateTime verifiedAt) {
-        LocalDateTime expireAt = createAt.plusMinutes(expirationTimeInMinutes);
+        LocalDateTime expireAt = createdAt.plusMinutes(expirationTimeInMinutes);
         return verifiedAt.isAfter(expireAt);
     }
 
     public String generateCodeMessage() {
-        String formattedExpiredAt = createAt
+        String formattedExpiredAt = createdAt
                 .plusMinutes(expirationTimeInMinutes)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 

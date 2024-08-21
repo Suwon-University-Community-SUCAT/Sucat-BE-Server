@@ -1,8 +1,13 @@
 package com.Sucat.domain.user.model;
 
+import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.friendship.model.FriendShip;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.notify.model.Notify;
+import com.Sucat.domain.scrap.model.Scrap;
 import com.Sucat.global.common.dao.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -47,11 +52,21 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<FriendShip> friendShipList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<Notify> notifyList = new ArrayList<>(); // 회원의 알림 리스트
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
     private Image userImage;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<ChatMessage> chatMessages = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Board> boardList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Scrap> scrapList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
 
     /* 연관관계 메서드 */
     public void updateUserImage(Image image) {
@@ -63,7 +78,28 @@ public class User extends BaseEntity {
     }
 
     public void addFriendShip(FriendShip friendShipTo) {
-        friendShipList.add(friendShipTo);
+        this.friendShipList.add(friendShipTo);
+    }
+
+    public void addBoard(Board board) {
+        this.boardList.add(board);
+    }
+
+    public void addScrap(Scrap scrap) {
+        this.scrapList.add(scrap);
+    }
+
+    // 필요하다면 Scrap 리스트에서 제거하는 메서드
+    public void removeScrap(Scrap scrap) {
+        scrapList.remove(scrap);
+    }
+
+    public void addComment(Comment comment) {
+        this.commentList.add(comment);
+    }
+
+    public void removeComment(Comment comment) {
+        commentList.remove(comment);
     }
 
     /* Using Method */

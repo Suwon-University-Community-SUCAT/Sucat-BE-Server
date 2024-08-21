@@ -24,6 +24,7 @@ public enum ErrorCode implements BaseCode{
     _INVALID_INPUT_VALUE(BAD_REQUEST, "400", "입력 값이 잘못된 요청입니다."),
     _UNAUTHORIZED(UNAUTHORIZED,"401", "인증이 필요합니다."),
     _FORBIDDEN(FORBIDDEN, "403", "금지된 요청입니다."),
+    _UNAUTHORIZED_USER(FORBIDDEN, "403", "사용자가 수정할 권한이 없습니다."),
 
     /**
      * Auth
@@ -78,16 +79,42 @@ public enum ErrorCode implements BaseCode{
      * FriendShip
      */
     Friendship_NOT_FOUND(NOT_FOUND, "F001", "존재하지 않는 친구 정보입니다."),
-    FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F002", "기존에 보낸적 있는 친구 요청입니다."),
-    REVERSE_FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F003", "이미 친구인 사용자입니다."),
-    SELF_FRIENDSHIP_REQUEST(CONFLICT, "F004", "자기 자신에게 친구 요청을 보낼 수 없습니다."),
-    FRIENDSHIP_ACCEPT_NOT_ALLOWED(FORBIDDEN, "F005", "친구 요청 수락은 요청을 받은 사람만 할 수 있습니다."),
-    FRIENDSHIP_DECLINE_NOT_ALLOWED(FORBIDDEN, "F006", "친구 요청 거절은 요청을 받은 사람만 할 수 있습니다."),
+    INVALID_FRIENDSHIP_REQUEST_USER(FORBIDDEN, "F002", "친구 요청에 해당하는 사용자가 아닙니다."),
+    FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F003", "기존에 보낸적 있는 친구 요청입니다."),
+    REVERSE_FRIENDSHIP_ALREADY_EXISTS(CONFLICT, "F004", "이미 친구인 사용자입니다."),
+    SELF_FRIENDSHIP_REQUEST(CONFLICT, "F005", "자기 자신에게 친구 요청을 보낼 수 없습니다."),
+    FRIENDSHIP_ACCEPT_NOT_ALLOWED(FORBIDDEN, "F006", "친구 요청 수락은 요청을 받은 사람만 할 수 있습니다."),
+    FRIENDSHIP_DECLINE_NOT_ALLOWED(FORBIDDEN, "F007", "친구 요청 거절은 요청을 받은 사람만 할 수 있습니다."),
 
     /**
      * ChatRoom
      */
-    ROOM_NOT_FOUND(NOT_FOUND, "R001", "존재하지 않는 채팅 방입니다.");
+    ROOM_NOT_FOUND(NOT_FOUND, "R001", "존재하지 않는 채팅 방입니다."),
+
+    /**
+     * Image
+     */
+    IMAGE_NOT_UPLOADED(BAD_REQUEST, "F001", "이미지가 업로드되지 않았습니다."),
+    IMAGE_EMPTY(BAD_REQUEST, "F002", "빈 이미지입니다."),
+    IMAGE_UPLOAD_FAILED(INTERNAL_SERVER_ERROR, "F003", "이미지 업로드에 실패했습니다."),
+    IMAGE_NOT_FOUND(NOT_FOUND, "F004", "이미지를 찾을 수 없습니다."),
+    INVALID_FILE_IMAGE(UNAUTHORIZED, "F005", "이미지 형식이 맞지 않습니다."),
+    IMAGE_STORAGE_ERROR(INSUFFICIENT_STORAGE, "F005", "이미지 저장에 실패했습니다"),
+
+    /**
+     * Notify
+     */
+    NOTIFY_NOT_FOUND(NOT_FOUND, "NT001", "존재하지 않는 알림입니다."),
+
+    /**
+     * Board
+     */
+    BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시물입니다."),
+
+    /**
+     * Notification
+     */
+    COMMENT_NOT_FOUND(NOT_FOUND, "C001", "존재하지 않는 댓글입니다.");
 
 
 

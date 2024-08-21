@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AcceptFriendDto {
+public class FriendListResponse {
+    private Long friendshipId;
     private String friendEmail;
     private String friendNickname;
     private String department;
-    private String info;
+    private String intro;
+    private String profileImageName;
 }

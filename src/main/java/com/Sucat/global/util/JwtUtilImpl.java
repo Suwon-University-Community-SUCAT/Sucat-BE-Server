@@ -195,4 +195,13 @@ public class JwtUtilImpl implements JwtUtil {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
+
+    @Override
+    // Request 에서 유저를 반환하는 메서드
+    public String getEmailFromRequest(HttpServletRequest request) {
+        String accessToken = extractAccessToken(request).orElseThrow(() -> new TokenException(ErrorCode.INVALID_ACCESS_TOKEN));
+        String email = extractEmail(accessToken);
+
+        return email;
+    }
 }

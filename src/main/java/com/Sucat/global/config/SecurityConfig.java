@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @EnableWebSecurity
@@ -58,7 +59,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error", "/redis/**", "/stomp", "/stomp/**").permitAll() // 정적 자원 설정
-                        .requestMatchers("/api/v1/users/signup/**", "/api/v1/users/logout", "/login").permitAll()
+                        .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
                         .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
@@ -143,6 +144,9 @@ public class SecurityConfig {
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
             config.setAllowCredentials(true);
+            config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+            /* 응답 헤더 설정 추가*/
+            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
             return config;
         };
     }

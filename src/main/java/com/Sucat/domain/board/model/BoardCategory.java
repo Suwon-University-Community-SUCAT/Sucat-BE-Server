@@ -1,6 +1,9 @@
 package com.Sucat.domain.board.model;
 
-public enum BoardCategory {
-    FREE, PRIVATE, MARKET
+import jakarta.persistence.Entity;
 
+public enum BoardCategory {
+    FREE,
+    PRIVATE,
+    MARKET
 }

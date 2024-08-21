@@ -5,6 +5,7 @@ import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,15 +25,9 @@ public class UserController {
     private final UserDetailsService userDetailsService;
 
     @GetMapping("/nickname/duplication")
-    public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestBody @Valid UserNicknameRequest userNicknameRequest) {
-        userService.nicknameDuplicateVerification(userNicknameRequest.nickname());
+    public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestParam("nickname") @NotNull String nickname) {
+        userService.nicknameDuplicateVerification(nickname);
         return ApiResponse.onSuccess(SuccessCode._OK);
-    }
-
-    @GetMapping("/password")
-    public ResponseEntity<ApiResponse<Object>> getCurrentUserEmail(HttpServletRequest request) {
-        String email = userService.getUserInfo(request).getEmail();
-        return ApiResponse.onSuccess(SuccessCode._OK, email);
     }
 
     @PostMapping("/password")
@@ -60,6 +55,15 @@ public class UserController {
     public ResponseEntity<ApiResponse<Object>> changeProfile(HttpServletRequest request, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
         userService.changePassword(request, userPasswordUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
+    }
+
+    @GetMapping("/myProfile")
+    public ResponseEntity<ApiResponse<Object>> myProfile(
+            HttpServletRequest request
+    ) {
+        UserProfileResponse userProfile = userService.getUserProfile(request);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
 
 }

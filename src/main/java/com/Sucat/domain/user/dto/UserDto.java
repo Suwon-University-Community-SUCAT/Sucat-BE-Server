@@ -7,23 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-import java.util.List;
-
 public class UserDto {
 
     /**
      * Request
      */
-    public record UserNicknameRequest(
-            @NotNull
-            String nickname
-    ) {
-    }
 
-    public record UserTermAgree(
-            @NotNull
-            List<Boolean> agreements
-    ) {}
 
     @Builder
     public record JoinUserRequest(
@@ -85,16 +74,41 @@ public class UserDto {
             @NotNull
             String nickname,
             String intro,
-            String imageUrl
+            String department,
+            String imageName
     ) {
         public static UserProfileResponse of(User user) {
             Image userImage = user.getUserImage();
-            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
+            String imageName = (userImage != null) ? userImage.getImageName() : null;
 
             return UserProfileResponse.builder()
                     .nickname(user.getNickname())
                     .intro(user.getIntro())
-                    .imageUrl(imageUrl)
+                    .department(user.getDepartment())
+                    .imageName(imageName)
+                    .build();
+        }
+    }
+
+    @Builder
+    public record FriendProfileResponse(
+            String email,
+            @NotNull
+            String nickname,
+            String department,
+            String intro,
+            String imageName
+    ) {
+        public static FriendProfileResponse of(User user) {
+            Image userImage = user.getUserImage();
+            String imageName = (userImage != null) ? userImage.getImageName() : null;
+
+            return FriendProfileResponse.builder()
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .department(user.getDepartment())
+                    .intro(user.getIntro())
+                    .imageName(imageName)
                     .build();
         }
     }

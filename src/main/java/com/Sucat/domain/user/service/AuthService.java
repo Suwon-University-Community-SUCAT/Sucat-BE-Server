@@ -18,9 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-
-import static com.Sucat.domain.user.dto.UserDto.UserTermAgree;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +41,8 @@ public class AuthService {
         user.updatePassword(passwordEncoder.encode(user.getPassword()));
 
         if (image != null && !image.isEmpty()) {
-            String imageUrl = imageService.storeFile(image);
-            Image userImage = Image.ofUser(user, imageUrl);
+            String imageName = imageService.storeFile(image);
+            Image userImage = Image.ofUser(user, imageName);
             user.updateUserImage(userImage);
         }
     }
@@ -67,13 +64,12 @@ public class AuthService {
     }
 
     // 모든 약관이 동의되었는지 확인하는 메서드
-    public void AllAgreementsAccepted(UserTermAgree userTermAgree) {
-        List<Boolean> agreements = userTermAgree.agreements();
-        for (Boolean agreement : agreements) {
-            if (!agreement) {
-                throw new UserException(ErrorCode.TERMS_NOT_ACCEPTED);
-            }
+    public void AllAgreementsAccepted(int term1, int term2, int term3, int term4) {
+        // 하나라도 0이면 예외를 던집니다.
+        if (term1 == 0 || term2 == 0 || term3 == 0 || term4 == 0) {
+            throw new UserException(ErrorCode.TERMS_NOT_ACCEPTED);
         }
     }
+
 
 }

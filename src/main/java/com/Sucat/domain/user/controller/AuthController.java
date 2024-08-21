@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 import static com.Sucat.domain.user.dto.UserDto.JoinUserRequest;
-import static com.Sucat.domain.user.dto.UserDto.UserTermAgree;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,8 +46,13 @@ public class AuthController {
      * 모든 약관 동의 확인 정보가 없을 시 에러 발생 -> 약관 동의를 해주세요
      */
     @GetMapping("/signup/next")
-    public ResponseEntity<ApiResponse<Object>> next(@RequestBody UserTermAgree userTermAgree) {
-        authService.AllAgreementsAccepted(userTermAgree);
+    public ResponseEntity<ApiResponse<Object>> next(
+            @RequestParam("term1") int term1,
+            @RequestParam("term2") int term2,
+            @RequestParam("term3") int term3,
+            @RequestParam("term4") int term4
+            ) {
+        authService.AllAgreementsAccepted(term1, term2, term3, term4);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 }
