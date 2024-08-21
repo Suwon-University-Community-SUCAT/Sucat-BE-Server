@@ -33,11 +33,16 @@ public class CommentDto {
             String content,
             int likeCount,
             int commentCount,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            boolean checkWriter, // 게시글 작성자가 단 댓글인지
+            boolean isLikedByUser // 현재 로그인된 회원이 좋아요를 누른 댓글인지
     ) {
-        public static CommentResponseWithBoard of(Comment comment) {
+        public static CommentResponseWithBoard of(Comment comment, Long currentUserId) {
             User user = comment.getUser();
             Image userImage = user.getUserImage();
+
+            boolean isLikedByUser = comment.getLikeList().stream()
+                    .anyMatch(like -> like.getUser().getId().equals(currentUserId));
 
             return CommentResponseWithBoard.builder()
                     .commentId(comment.getId())
@@ -47,6 +52,8 @@ public class CommentDto {
                     .likeCount(comment.getLikeCount())
                     .commentCount(comment.getCommentCount())
                     .createAt(comment.getCreatedAt())
+                    .checkWriter(comment.isCheckWriter())
+                    .isLikedByUser(isLikedByUser)
                     .build();
         }
     }

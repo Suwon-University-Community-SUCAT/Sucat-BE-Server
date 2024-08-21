@@ -53,8 +53,8 @@ public class BoardController {
 
     /* 게시글 단일 조회 */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> getBoard(@PathVariable Long id) {
-        BoardDetailResponse board = boardService.getBoard(id);
+    public ResponseEntity<ApiResponse<Object>> getBoard(@PathVariable Long id, HttpServletRequest request) {
+        BoardDetailResponse board = boardService.getBoard(id, request);
         return ApiResponse.onSuccess(SuccessCode._OK, board);
     }
 

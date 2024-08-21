@@ -2,6 +2,7 @@ package com.Sucat.domain.board.model;
 
 import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.like.model.BoardLike;
 import com.Sucat.domain.scrap.model.Scrap;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.dao.BaseEntity;
@@ -55,8 +56,11 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Scrap> scrapList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<BoardLike> likeList = new ArrayList<>();
 
     @Builder
     public Board(String userNickname, String title, String content, BoardCategory category) {
@@ -102,8 +106,18 @@ public class Board extends BaseEntity {
         this.scrapCount++;
     }
 
+    public void addLike(BoardLike boardLike) {
+        likeList.add(boardLike);
+        this.likeCount++;
+    }
+
+
     public void decrementScrapCount() {
         this.scrapCount--;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
     }
 
     public void addComment(Comment comment) {

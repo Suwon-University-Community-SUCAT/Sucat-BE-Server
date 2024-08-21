@@ -88,7 +88,6 @@ public class User extends BaseEntity {
     public void addScrap(Scrap scrap) {
         this.scrapList.add(scrap);
     }
-
     // 필요하다면 Scrap 리스트에서 제거하는 메서드
     public void removeScrap(Scrap scrap) {
         scrapList.remove(scrap);

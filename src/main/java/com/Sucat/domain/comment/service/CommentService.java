@@ -37,12 +37,17 @@ public class CommentService {
     public void write(Long boardId, HttpServletRequest request, CommentPostRequest commentPostDTO) {
         Board board = boardService.findBoardById(boardId);
         User user = userService.getUserInfo(request);
+        boolean checkWriter = false;
+        if (board.getUser().equals(user)) {
+            checkWriter = true;
+        }
         String content = commentPostDTO.content();
 
         Comment comment = Comment.builder()
                 .content(content)
                 .board(board)
                 .user(user)
+                .checkWriter(checkWriter)
                 .build();
 
         commentRepository.save(comment);

@@ -1,8 +1,8 @@
-package com.Sucat.domain.favorite.model;
+package com.Sucat.domain.like.model;
 
-import com.Sucat.global.common.dao.BaseEntity;
-import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.comment.domain.Comment;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,10 +15,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Favorite extends BaseEntity {
+public class CommentLike extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "favorite_id")
+    @Column(name = "comment_like_id")
     private Long id;
 
     @ManyToOne(fetch = LAZY)
@@ -26,13 +26,13 @@ public class Favorite extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "comment_id") // Board 삭제 -> Comment 자동 삭제 -> CommentLike 삭제, 사용자
+    private Comment comment;
 
     /*연관관계 메서드*/
     @Builder
-    public Favorite(User user, Board board) {
+    public CommentLike(User user, Comment comment) {
         this.user = user;
-        this.board = board;
+        this.comment = comment;
     }
 }
