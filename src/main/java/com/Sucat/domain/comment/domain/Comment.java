@@ -1,6 +1,7 @@
 package com.Sucat.domain.comment.domain;
 
 import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.like.model.CommentLike;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
@@ -8,6 +9,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -28,10 +32,13 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CommentLike> likeList = new ArrayList<>();
+
     private String content;
     private int likeCount;
     private int commentCount;
-    private boolean checkWriter;
+    private boolean checkWriter; // 게시글 작성자가 작성한 댓글인지
 
     @Builder
     public Comment(Board board, User user, String content, boolean checkWriter) {
@@ -41,5 +48,15 @@ public class Comment extends BaseEntity {
         this.likeCount = 0;
         this.commentCount = 0;
         this.checkWriter = checkWriter;
+    }
+
+    /* Using Method */
+    public void addLike(CommentLike commentLike) {
+        likeList.add(commentLike);
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
     }
 }

@@ -4,7 +4,6 @@ import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.domain.like.model.BoardLike;
 import com.Sucat.domain.like.repository.BoardLikeRepository;
-import com.Sucat.domain.scrap.model.Scrap;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +36,6 @@ public class BoardLikeService {
         } else {
             // 좋아요 누르지 않은 경우: 좋아요 추가
             log.info("식별자(boardId): {}, 게시글에 좋아요를 누릅니다.", boardId);
-            Scrap scrap = Scrap.builder()
-                    .user(user)
-                    .board(board)
-                    .build();
-
             BoardLike boardLike = BoardLike.builder()
                     .user(user)
                     .board(board)
