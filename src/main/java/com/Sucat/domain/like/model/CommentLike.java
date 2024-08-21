@@ -26,7 +26,7 @@ public class CommentLike extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "board_id") // Board 삭제 -> Comment 자동 삭제 -> CommentLike 삭제, 사용자
+    @JoinColumn(name = "comment_id") // Board 삭제 -> Comment 자동 삭제 -> CommentLike 삭제, 사용자
     private Comment comment;
 
     /*연관관계 메서드*/
