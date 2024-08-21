@@ -133,15 +133,23 @@ public class BoardService {
     }
 
     /* 게시물 단일 조회 메서드 */
-    public BoardDetailResponse getBoard(Long id) {
+    public BoardDetailResponse getBoard(Long id, HttpServletRequest request) {
         Board board = findBoardById(id);
-        Long userId = board.getUser().getId();
+        Long currentUserId = userService.getUserInfo(request).getId();
+
+        //현재 사용자가 해당 게시글에 좋아요를 눌렀는지 확인
+        boolean isLikedByUser = board.getLikeList().stream()
+                .anyMatch(like -> like.getUser().getId().equals(currentUserId));
+        boolean isScrapByUser = board.getScrapList().stream()
+                .anyMatch(scrap -> scrap.getUser().getId().equals(currentUserId));
+
+        // 댓글 리스트 정리
         List<CommentResponseWithBoard> commentList = board.getCommentList().stream()
-                .map(CommentResponseWithBoard::of)
+                .map(comment -> CommentResponseWithBoard.of(comment, currentUserId))
                 .toList();
 
         log.info("식별자: {}, 게시물 단일 조회 성공", id);
-        return BoardDetailResponse.of(board, commentList);
+        return BoardDetailResponse.of(board, commentList, isLikedByUser, isScrapByUser);
     }
 
     /* 게시물 검색 메서드 */

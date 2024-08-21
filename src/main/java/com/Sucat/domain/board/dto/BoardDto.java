@@ -112,9 +112,11 @@ public class BoardDto {
             int commentCount,
 //            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
             LocalDateTime createdAt,
-             List<CommentResponseWithBoard> commentList
+             List<CommentResponseWithBoard> commentList,
+            boolean isLikedByUser, // 현재 사용자가 좋아요를 누른 게시글인지 체크,
+            boolean isScrapByUser // 현재 사용자가 스크랩한 게시글인지 체크
     ) {
-        public static BoardDetailResponse of(Board board, List<CommentResponseWithBoard> commentList) {
+        public static BoardDetailResponse of(Board board, List<CommentResponseWithBoard> commentList, Boolean isLikedByUser, boolean isScrapByUser) {
             List<String> imageNames = board.getImageList().stream()
                     .map(Image::getImageName)
                     .toList();
@@ -129,6 +131,8 @@ public class BoardDto {
                     .commentCount(board.getCommentCount())
                     .createdAt(board.getCreatedAt())
                     .commentList(commentList)
+                    .isLikedByUser(isLikedByUser)
+                    .isScrapByUser(isScrapByUser)
                     .build();
         }
     }
