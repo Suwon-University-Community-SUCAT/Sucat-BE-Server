@@ -5,6 +5,7 @@ import com.Sucat.domain.board.model.dto.BoardResponseDto;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.model.repository.BoardRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,15 @@ public class BoardService {
         }).orElse(null);
     }
 
-    private BoardResponseDto convertToDto(Board board) {
+    public Board likeBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
+
+        board.setFavoriteCount(board.getFavoriteCount() + 1);  // 좋아요 수 증가
+        return boardRepository.save(board);    // 변경된 Board 엔티티 저장
+    }
+
+    public BoardResponseDto convertToDto(Board board) {
         BoardResponseDto dto = new BoardResponseDto();
         dto.setCreatedAtBoard(board.getUser().getCreatedAtBoard());  // Assuming you have a createdDate field in Board
         dto.setImageUrlList(board.getImages().stream()

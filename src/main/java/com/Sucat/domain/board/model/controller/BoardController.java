@@ -6,7 +6,9 @@ import com.Sucat.domain.board.model.dto.BoardResponseDto;
 import com.Sucat.domain.board.model.Board;
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.model.service.BoardService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,6 +68,19 @@ public class BoardController {
             return ResponseEntity.ok(board);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+    // 게시판 좋아요 기능 추가
+    @PostMapping("/{id}/like")
+    public ResponseEntity<BoardResponseDto> likeBoard(@PathVariable Long id) {
+        try {
+            Board likedBoard = boardService.likeBoard(id);
+            BoardResponseDto responseDto = boardService.convertToDto(likedBoard);
+            return ResponseEntity.ok(responseDto);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
