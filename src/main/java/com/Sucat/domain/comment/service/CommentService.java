@@ -45,8 +45,6 @@ public class CommentService {
 
         Comment comment = Comment.builder()
                 .content(content)
-                .board(board)
-                .user(user)
                 .checkWriter(checkWriter)
                 .build();
 
