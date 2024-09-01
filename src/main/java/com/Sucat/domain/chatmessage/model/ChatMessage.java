@@ -26,7 +26,7 @@ public class ChatMessage extends BaseEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private MessageType messageType;
+    private ChatMessageType chatMessageType;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "sender_id")
@@ -35,14 +35,6 @@ public class ChatMessage extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
-
-    public void setMember(User sender) {
-        this.sender = sender;
-    }
-
-    public void setChatRoom(ChatRoom chatRoom) {
-        this.chatRoom = chatRoom;
-    }
 
     @Builder
     public ChatMessage(String content, User sender, ChatRoom chatRoom) {

@@ -1,15 +1,18 @@
 package com.Sucat.domain.chatmessage.controller;
 
-import com.Sucat.domain.chatmessage.dto.MessageDto;
-import com.Sucat.domain.chatmessage.dto.MessageResponse;
+import com.Sucat.domain.chatmessage.dto.ChatMessageDto;
+import com.Sucat.domain.chatmessage.dto.ChatMessageResponse;
 import com.Sucat.domain.chatmessage.model.ChatMessage;
-import com.Sucat.domain.chatmessage.service.ChatService;
+import com.Sucat.domain.chatmessage.service.ChatMessageService;
+import com.Sucat.domain.chatroom.model.ChatRoom;
+import com.Sucat.domain.chatroom.service.ChatRoomService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import com.Sucat.global.common.response.PageInfo;
 import com.Sucat.global.redis.PublishMessage;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,27 +29,35 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
-public class MessageController {
+public class ChatMessageController {
 
-    private final ChatService chatService;
+    private final ChatMessageService chatMessageService;
+    private final UserService userService;
+    private final ChatRoomService chatRoomService;
     private final ChannelTopic topic;
 
     @Resource(name = "chatRedisTemplate")
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    @MessageMapping("/chats/messages/{room-id}") // '/pub/chats/messages/{room-id}' 경로로 보낸 메시지를 처리
-    public void message(@DestinationVariable("room-id") String roomId, MessageDto messageDto) {
+    @MessageMapping("/chats/messages/{roomId}") // '/pub/chats/messages/{room-id}' 경로로 보낸 메시지를 처리
+    public void message(@DestinationVariable("roomId") String roomId, ChatMessageDto chatMessageDto) {
+        Long senderId = chatMessageDto.getSenderId();
+        String content = chatMessageDto.getContent();
+
         PublishMessage publishMessage =
-                new PublishMessage(messageDto.getRoomId(), messageDto.getSenderId(), messageDto.getContent(), LocalDateTime.now());
+                new PublishMessage(roomId, senderId, content, LocalDateTime.now());
         log.info("publishMessage: {}", publishMessage.getContent());
 
         //Redis를 통해 메시지 전송
         redisTemplate.convertAndSend(topic.getTopic(), publishMessage);
 
-        chatService.saveMessage(messageDto, roomId);
+        User user = userService.findById(senderId);
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
+
+        chatMessageService.saveMessage(content, user, chatRoom);
     }
 
 
@@ -54,17 +65,18 @@ public class MessageController {
     @GetMapping("/api/v1/chats/messages/{room-id}")
     public ResponseEntity<ApiResponse<Object>> getMessages(@PathVariable("room-id") String roomId,
                                                            @RequestParam(defaultValue = "1") int page,
-                                                           @RequestParam(defaultValue = "10") int size,
-                                                           HttpServletRequest request) {
+                                                           @RequestParam(defaultValue = "10") int size) {
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
+
         Page<ChatMessage> messages =
-                chatService.getChatRoomMessages(roomId, page, size);
+                chatMessageService.getChatRoomMessages(chatRoom, page, size);
         PageInfo pageInfo = new PageInfo(page, size, (int)messages.getTotalElements(), messages.getTotalPages());
 
-        List<MessageResponse.ChatRoomMessageResponse> chatRoomMessageResponses = messages.getContent().stream().map(
-                MessageResponse.ChatRoomMessageResponse::of
+        List<ChatMessageResponse.ChatRoomMessageResponse> chatRoomMessageResponses = messages.getContent().stream().map(
+                ChatMessageResponse.ChatRoomMessageResponse::of
         ).toList();
 
-        MessageResponse.ChatRoomMessageWithPageInfoResponse chatRoomMessageWithPageInfoResponse = MessageResponse.ChatRoomMessageWithPageInfoResponse.of(chatRoomMessageResponses, pageInfo);
+        ChatMessageResponse.ChatRoomMessageWithPageInfoResponse chatRoomMessageWithPageInfoResponse = ChatMessageResponse.ChatRoomMessageWithPageInfoResponse.of(chatRoomMessageResponses, pageInfo);
 
         return ApiResponse.onSuccess(SuccessCode._OK, chatRoomMessageWithPageInfoResponse);
     }
