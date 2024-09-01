@@ -42,8 +42,6 @@ public class Comment extends BaseEntity {
 
     @Builder
     public Comment(Board board, User user, String content, boolean checkWriter) {
-        this.board = board;
-        this.user = user;
         this.content = content;
         this.likeCount = 0;
         this.commentCount = 0;
@@ -54,6 +52,14 @@ public class Comment extends BaseEntity {
     public void addLike(CommentLike commentLike) {
         likeList.add(commentLike);
         this.likeCount++;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void decrementLikeCount() {
