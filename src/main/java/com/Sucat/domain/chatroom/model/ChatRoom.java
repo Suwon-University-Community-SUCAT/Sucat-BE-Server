@@ -31,9 +31,10 @@ public class ChatRoom extends BaseEntity {
     private String roomId; // 각 채팅방을 식별하기 위한 식별자 추가
 
     @Builder
-    public ChatRoom(User sender, User receiver) {
+    public ChatRoom(User sender, User receiver, String roomId) {
         this.sender = sender;
         this.receiver = receiver;
+        this.roomId = roomId;
     }
 
     public void setRoomId(String roomId) {

@@ -1,11 +1,14 @@
 package com.Sucat.domain.chatroom.controller;
 
+import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
+import com.Sucat.domain.friendship.service.FriendShipService;
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +29,19 @@ import static com.Sucat.domain.chatroom.dto.ChatRoomDto.RoomResponse;
 public class ChatRoomController {
     private final UserService userService;
     private final ChatRoomService chatRoomService;
+    private final FriendShipService friendShipService;
 
     // 채팅방 주소 생성/가져오기
     @PostMapping("/{email}")
-    public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, HttpServletRequest request) {
-        Map<String, Object> roomCreationResult = chatRoomService.createRoom(email, request);
-        int status = (int) roomCreationResult.get("status");
+    public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, @CurrentUser User sender) {
+        User receiver = userService.findByEmail(email);
+        friendShipService.validateFriendship(sender.getEmail(), receiver.getEmail()); // 친구 관계인지 검증
+
+        Map<String, Object> roomCreationResult = chatRoomService.createRoom(sender, receiver);
 
         URI location = buildChatRoomUri((String) roomCreationResult.get("roomId"));
 
-        if (status == 0) { // 채팅방 생성
+        if ((int) roomCreationResult.get("status") == 0) { // 채팅방 생성
             return ApiResponse.onSuccess(SuccessCode._CREATED, location);
         } else { // 이미 채팅방 존재. 채팅방 주소 반환
             return ApiResponse.onSuccess(SuccessCode._OK, location);
@@ -45,22 +51,20 @@ public class ChatRoomController {
     //  채팅방 열기
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("roomId") String roomId,
-                                      HttpServletRequest request) {
+                                                           @CurrentUser User user) {
 
-
-        RoomResponse roomResponse = chatRoomService.openChatRoom(roomId, request);
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
+        RoomResponse roomResponse = chatRoomService.openChatRoom(chatRoom, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
-
-        // 채팅방을 열고 이전 채팅방 가져오기에서 응답 코드가 201이라면 이 메서드에서 끝이고, 200이라면 채팅방 메시지 가져오기 메서드 실행
     }
 
     /* 채팅방 목록 */
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getChats(
-            HttpServletRequest request,
+            @CurrentUser User user,
             @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
-        List<ChatRoomListResponse> chatRoomListResponses = chatRoomService.getChatRoomList(request, sortKey);
+        List<ChatRoomListResponse> chatRoomListResponses = chatRoomService.getChatRoomList(user, sortKey);
 
         return ApiResponse.onSuccess(SuccessCode._OK, chatRoomListResponses);
     }
