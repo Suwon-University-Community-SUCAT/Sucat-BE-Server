@@ -36,15 +36,13 @@ public class Comment extends BaseEntity {
     private List<CommentLike> likeList = new ArrayList<>();
 
     private String content;
-    private int likeCount;
-    private int commentCount;
+    private int likeCount = 0;
+    private int commentCount = 0;
     private boolean checkWriter; // 게시글 작성자가 작성한 댓글인지
 
     @Builder
-    public Comment(Board board, User user, String content, boolean checkWriter) {
+    public Comment(String content, boolean checkWriter) {
         this.content = content;
-        this.likeCount = 0;
-        this.commentCount = 0;
         this.checkWriter = checkWriter;
     }
 

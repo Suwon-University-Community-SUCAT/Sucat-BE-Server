@@ -129,7 +129,8 @@ public class Board extends BaseEntity {
         this.commentCount++;
     }
 
-    public void decrementCommentCount() {
+    public void removeComment(Comment comment) {
+        this.commentList.remove(comment);
         this.commentCount--;
     }
 }
