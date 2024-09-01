@@ -10,11 +10,9 @@ import com.Sucat.domain.friendship.repository.FriendShipRepository;
 import com.Sucat.domain.notify.model.NotifyType;
 import com.Sucat.domain.notify.service.NotifyService;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
-import com.Sucat.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,37 +24,29 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.Sucat.domain.friendship.dto.FriendShipDto.WaitingFriendWithTotalCountResponse;
-import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_USER;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FriendShipService {
     private final FriendShipRepository friendShipRepository;
     private final FriendShipQueryRepository friendShipQueryRepository;
-    private final UserService userService;
     private final NotifyService notifyService;
-    private final JwtUtil jwtUtil;
 
     /* 친구 요청 */
     @Transactional
-    public void createFriendShip(HttpServletRequest request, String toEmail) {
-        User fromUser = jwtUtil.getUserFromRequest(request);
-        String fromEmail = fromUser.getEmail();
+    public void createFriendShip(User fromUser, User toUser) {
+        validateSelfRequest(fromUser, toUser);
 
-
-        validateSelfRequest(toEmail, fromEmail);
-
-        if (!checkReverseFriendship(fromEmail, toEmail, fromUser.getNickname())) {
-            User toUser = userService.findByEmail(toEmail);
+        if (!checkReverseFriendship(fromUser.getEmail(), toUser.getEmail(), fromUser.getNickname())) {
             saveFriendShipRequest(fromUser, toUser);
-            notifyService.send(toUser, NotifyType.FRIEND_REQUEST, fromUser.getNickname() + "님이 친구 요청을 보냈습니다.", "/api/v1/friends/received"); // 알림 클릭시 '받은 친구 요청 조회 페이지'로 이동
         }
     }
 
     /* 친구 요청 목록 조회 */
-    public WaitingFriendWithTotalCountResponse getWaitingFriendList(HttpServletRequest request, String sortKey) {
-        User user = jwtUtil.getUserFromRequest(request);
+    public WaitingFriendWithTotalCountResponse getWaitingFriendList(User user, String sortKey) {
         List<WaitingFriendDto> pendingFriendShipsByEmail = friendShipQueryRepository.findPendingFriendShipsByEmail(user.getEmail(), sortKey);
         int totalCount = pendingFriendShipsByEmail.size();
 
@@ -64,9 +54,7 @@ public class FriendShipService {
     }
 
     /* 친구 목록 조회 */
-    public Page<FriendListResponse> getAcceptFriendList(HttpServletRequest request, int page, int size, String sortKey) {
-        User user = jwtUtil.getUserFromRequest(request);
-
+    public Page<FriendListResponse> getAcceptFriendList(User user, int page, int size, String sortKey) {
         Pageable pageable = pagingCondition(page, size, sortKey);
 
         return friendShipRepository.findAcceptFriendShipsByEmail(user.getEmail(), FriendshipStatus.ACCEPT, pageable);
@@ -74,8 +62,7 @@ public class FriendShipService {
 
     /* 친구 요청 승인 */
     @Transactional
-    public void approveFriendshipRequest(Long friendshipId, HttpServletRequest request) {
-        User user = jwtUtil.getUserFromRequest(request);
+    public void approveFriendshipRequest(Long friendshipId, User user) {
         FriendShip friendShip = getFriendShipById(friendshipId);
 
         if (!user.getEmail().equals(friendShip.getUserEmail()) || friendShip.isFrom()) {
@@ -87,8 +74,7 @@ public class FriendShipService {
 
     /* 친구 요청 거절 */
     @Transactional
-    public void refuseFriendshipRequest(Long friendshipId, HttpServletRequest request) {
-        User user = jwtUtil.getUserFromRequest(request);
+    public void refuseFriendshipRequest(Long friendshipId, User user) {
         FriendShip friendShip = getFriendShipById(friendshipId);
 
         if (user.getEmail().equals(friendShip.getFriendEmail())) {
@@ -101,8 +87,8 @@ public class FriendShipService {
 
     /* 친구 삭제 */
     @Transactional
-    public void unfriend(HttpServletRequest request, Long fromFriendshipId) {
-        String userEmail = userService.getUserInfo(request).getEmail();
+    public void unfriend(User currentUser, Long fromFriendshipId) {
+        String userEmail = currentUser.getEmail();
         FriendShip fromFriendShip = getFriendShipById(fromFriendshipId);
 
         validateUnfriendRequest(userEmail, fromFriendShip);
@@ -113,14 +99,14 @@ public class FriendShipService {
     }
 
     /* 친구 프로필 확인 */
-    public FriendProfileResponse getFriendProfile(HttpServletRequest request, String friendEmail) {
-        String userEmail = userService.getUserInfo(request).getEmail();
+    public String getFriendProfile(User currentUser, String friendEmail) {
+        String userEmail = currentUser.getEmail();
 
         Optional<FriendShip> friendShipOpt = friendShipRepository.findByUserEmailAndFriendEmail(userEmail, friendEmail);
         if (friendShipOpt.isPresent()) {
             FriendShip friendShip = friendShipOpt.get();
             if (friendShip.getStatus().equals(FriendshipStatus.ACCEPT)) {
-                return userService.getFriendProfile(friendEmail);
+                return friendEmail;
             }
         }
 
@@ -128,10 +114,9 @@ public class FriendShipService {
     }
 
     /* 친구 검색 메서드 */
-    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, HttpServletRequest request) {
-        List<FriendListResponse> searchFriendList = friendShipQueryRepository.getSearchFriend(keyword, sortKey, request);
+    public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, User currentUser) {
 
-        return searchFriendList;
+        return friendShipQueryRepository.getSearchFriend(keyword, sortKey, currentUser);
     }
 
 
@@ -141,8 +126,8 @@ public class FriendShipService {
                 .orElseThrow(() -> new FriendShipException(ErrorCode.Friendship_NOT_FOUND));
     }
 
-    private void validateSelfRequest(String toEmail, String fromEmail) {
-        if (toEmail.equals(fromEmail)) {
+    private void validateSelfRequest(User fromUser, User toUser) {
+        if (toUser.equals(fromUser)) {
             throw new FriendShipException(ErrorCode.SELF_FRIENDSHIP_REQUEST);
         }
     }
