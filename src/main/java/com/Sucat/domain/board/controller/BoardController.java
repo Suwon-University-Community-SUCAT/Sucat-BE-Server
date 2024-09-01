@@ -2,10 +2,10 @@ package com.Sucat.domain.board.controller;
 
 import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.service.BoardService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,8 +31,9 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Object>> createBoard(
             @RequestPart(name = "request") @Valid BoardPostRequest boardPostRequestDTO,
             @RequestPart(name = "images", required = false) List<MultipartFile> images,
-            HttpServletRequest request) {
-        boardService.createBoard(boardPostRequestDTO.toEntity(), request, images);
+            @CurrentUser User user) {
+
+        boardService.createBoard(boardPostRequestDTO.toEntity(), user, images);
         return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
@@ -53,16 +54,16 @@ public class BoardController {
 
     /* 게시글 단일 조회 */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> getBoard(@PathVariable Long id, HttpServletRequest request) {
-        BoardDetailResponse board = boardService.getBoard(id, request);
+    public ResponseEntity<ApiResponse<Object>> getBoard(@PathVariable Long id, @CurrentUser User user) {
+        BoardDetailResponse board = boardService.getBoard(id, user);
         return ApiResponse.onSuccess(SuccessCode._OK, board);
     }
 
     /* 게시글 수정 */
     @GetMapping("/edit/{id}")
     public ResponseEntity<ApiResponse<Object>> getUpdateBoard(@PathVariable("id") Long id,
-                                                              HttpServletRequest request) {
-        BoardUpdateResponse updateBoard = boardService.getUpdateBoard(id, request);
+                                                              @CurrentUser User user) {
+        BoardUpdateResponse updateBoard = boardService.getUpdateBoard(id, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, updateBoard);
     }
@@ -72,15 +73,15 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Object>> updateBoard(@PathVariable Long id,
                                                             @RequestPart(name = "request") @Valid BoardUpdateRequest boardUpdateRequest,
                                                             @RequestPart(name = "images", required = false) List<MultipartFile> images,
-                                                            HttpServletRequest request) {
-        boardService.updateBoard(id, boardUpdateRequest, request, images);
+                                                           @CurrentUser User user) {
+        boardService.updateBoard(id, boardUpdateRequest, user, images);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /* 게시글 삭제 */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> deleteBoard(@PathVariable Long id, HttpServletRequest request) {
-        boardService.deleteBoard(id, request);
+    public ResponseEntity<ApiResponse<Object>> deleteBoard(@PathVariable Long id, @CurrentUser User user) {
+        boardService.deleteBoard(id, user);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
@@ -90,7 +91,7 @@ public class BoardController {
             @RequestParam(name = "category", defaultValue = "FREE") BoardCategory category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "30") int size,
-            @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword
+            @RequestParam(name = "keyword", defaultValue = "", required = false) String keyword
     ) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -103,9 +104,9 @@ public class BoardController {
     /* 내가 작성한 게시글 조회 */
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<Object>> myPost(
-            HttpServletRequest request
+            @CurrentUser User user
     ) {
-        List<MyBoardResponse> myBoardResponses = boardService.myPost(request);
+        List<MyBoardResponse> myBoardResponses = boardService.myPost(user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, myBoardResponses);
     }
