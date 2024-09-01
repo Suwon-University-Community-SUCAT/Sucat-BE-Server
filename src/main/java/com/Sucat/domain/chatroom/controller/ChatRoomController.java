@@ -1,8 +1,6 @@
 package com.Sucat.domain.chatroom.controller;
 
-import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
-import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -39,28 +37,18 @@ public class ChatRoomController {
 
         if (status == 0) { // 채팅방 생성
             return ApiResponse.onSuccess(SuccessCode._CREATED, location);
-        } else {
+        } else { // 이미 채팅방 존재. 채팅방 주소 반환
             return ApiResponse.onSuccess(SuccessCode._OK, location);
         }
     }
 
     //  채팅방 열기
-    @GetMapping("/{room-id}")
-    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("room-id") String roomId,
+    @GetMapping("/{roomId}")
+    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("roomId") String roomId,
                                       HttpServletRequest request) {
 
-        User sender = userService.getUserInfo(request);
-        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
-        Long receiverId = null;
-        if (chatRoom.getSender().getId().equals(sender.getId())) {
-            receiverId = chatRoom.getReceiver().getId();
-        } else {
-            receiverId = chatRoom.getSender().getId();
-        }
 
-        User receiver = userService.findById(receiverId);
-
-        RoomResponse roomResponse = RoomResponse.of(chatRoom.getId(), sender, receiver);
+        RoomResponse roomResponse = chatRoomService.openChatRoom(roomId, request);
 
         return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
 
@@ -72,9 +60,9 @@ public class ChatRoomController {
     public ResponseEntity<ApiResponse<Object>> getChats(
             HttpServletRequest request,
             @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
-        List<ChatRoomListResponse> chats = chatRoomService.getChats(request, sortKey);
+        List<ChatRoomListResponse> chatRoomListResponses = chatRoomService.getChatRoomList(request, sortKey);
 
-        return ApiResponse.onSuccess(SuccessCode._OK, chats);
+        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomListResponses);
     }
 
     private URI buildChatRoomUri(String roomId) {

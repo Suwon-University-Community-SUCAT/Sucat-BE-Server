@@ -1,5 +1,6 @@
 package com.Sucat.domain.chatroom.service;
 
+import com.Sucat.domain.chatroom.dto.ChatRoomDto;
 import com.Sucat.domain.chatroom.exception.ChatRoomException;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.repository.RoomRepository;
@@ -26,6 +27,7 @@ public class ChatRoomService {
     private final RoomRepository roomRepository;
     private final FriendShipService friendShipService;
 
+    /* 채팅방 생성 메서드 */
     @Transactional
     public Map<String, Object> createRoom(String email, HttpServletRequest request) {
         User sender = userService.getUserInfo(request);
@@ -87,7 +89,8 @@ public class ChatRoomService {
         return response;
     }
 
-    public List<ChatRoomListResponse> getChats(HttpServletRequest request, String sortKey) {
+    /* 채팅방 목록 가져오기 메서드 */
+    public List<ChatRoomListResponse> getChatRoomList(HttpServletRequest request, String sortKey) {
         User user = userService.getUserInfo(request);
         Sort sort = createSort(sortKey);
 
@@ -102,6 +105,24 @@ public class ChatRoomService {
         return chatRoomListResponses;
     }
 
+    /* 채팅방 열기 메서드 */
+    public ChatRoomDto.RoomResponse openChatRoom(String roomId, HttpServletRequest request) {
+        User sender = userService.getUserInfo(request);
+        ChatRoom chatRoom = findByRoomId(roomId);
+        Long receiverId = null;
+
+        if (chatRoom.getSender().getId().equals(sender.getId())) {
+            receiverId = chatRoom.getReceiver().getId();
+        } else {
+            receiverId = chatRoom.getSender().getId();
+        }
+
+        User receiver = userService.findById(receiverId);
+
+        return ChatRoomDto.RoomResponse.of(chatRoom.getId(), sender, receiver);
+    }
+
+    /* Using Method */
     public ChatRoom findById(Long id) {
         return roomRepository.findById(id)
                 .orElseThrow(() -> new ChatRoomException(ErrorCode.ROOM_NOT_FOUND));
