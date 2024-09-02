@@ -1,16 +1,14 @@
 package com.Sucat.domain.user.controller;
 
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.AuthService;
-import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,15 +20,12 @@ import static com.Sucat.domain.user.dto.UserDto.JoinUserRequest;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class AuthController {
-    private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
     private final AuthService authService;
-    private final UserDetailsService userDetailsService;
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Object>> logout(HttpServletRequest request, HttpServletResponse response) {
-        authService.logout(request, response);
-        return ApiResponse.onSuccess(SuccessCode._OK, "Successfully logged out.");
+    public ResponseEntity<ApiResponse<Object>> logout(@CurrentUser User user, HttpServletResponse response) {
+        authService.logout(user, response);
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @PostMapping("/signup")
@@ -38,7 +33,7 @@ public class AuthController {
             @RequestPart(name = "request") @Valid JoinUserRequest userRequest,
             @RequestPart(name = "profileImage", required = false) MultipartFile profileImage) throws IOException {
         authService.signup(userRequest.toEntity(), profileImage);
-        return ApiResponse.onSuccess(SuccessCode._OK);
+        return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
     /**

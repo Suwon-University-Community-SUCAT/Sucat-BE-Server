@@ -3,6 +3,8 @@ package com.Sucat.domain.scrap.controller;
 
 import com.Sucat.domain.board.dto.BoardDto;
 import com.Sucat.domain.scrap.service.ScrapService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,9 +35,9 @@ public class ScrapController {
     /* 내가 스크랩한 게시물 불러오기 */
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<Object>> myScrap(
-            HttpServletRequest request
-    ) {
-        List<BoardDto.BoardListResponse> myScrap = scrapService.getMyScrap(request);
+            @CurrentUser User user
+            ) {
+        List<BoardDto.BoardListResponse> myScrap = scrapService.getMyScrap(user);
         return ApiResponse.onSuccess(SuccessCode._OK, myScrap);
     }
 }

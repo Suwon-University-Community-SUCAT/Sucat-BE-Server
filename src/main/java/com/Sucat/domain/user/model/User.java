@@ -16,8 +16,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.FetchType.LAZY;
-
 @Getter
 @Entity
 @Table(name = "tblUser")// User는 예약어이기에 사용 불가
@@ -56,7 +54,7 @@ public class User extends BaseEntity {
     @JsonManagedReference
     private List<Notify> notifyList = new ArrayList<>(); // 회원의 알림 리스트
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Image userImage;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -95,6 +93,7 @@ public class User extends BaseEntity {
 
     public void addComment(Comment comment) {
         this.commentList.add(comment);
+        comment.setUser(this);
     }
 
     public void removeComment(Comment comment) {

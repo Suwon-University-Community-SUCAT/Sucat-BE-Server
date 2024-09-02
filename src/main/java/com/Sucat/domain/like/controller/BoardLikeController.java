@@ -1,9 +1,10 @@
 package com.Sucat.domain.like.controller;
 
 import com.Sucat.domain.like.service.BoardLikeService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,9 @@ public class BoardLikeController {
     @PostMapping("/{boardId}")
     public ResponseEntity<ApiResponse<Object>> like(
             @PathVariable Long boardId,
-            HttpServletRequest request
+            @CurrentUser User user
     ) {
-        boardLikeService.like(boardId, request);
+        boardLikeService.like(boardId, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }

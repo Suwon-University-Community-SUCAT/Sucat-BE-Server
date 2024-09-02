@@ -71,10 +71,11 @@ public class Board extends BaseEntity {
         this.commentCount = 0;  //초기 댓글 수
         this.scrapCount = 0;    //초기 스크랩 수
         this.category = category;
-        //this.images = new ArrayList<>();
     }
 
-    /* 연관관계 메서드 */
+    /* 연관관계 메서드
+    * 양방향 연관 관계의 정리: 주체가 되는 쪽에서 반대쪽 엔티티의 연관 관계도 설정해주는 것이 좋다.
+    *  */
     public void addUser(User user) {
         this.user = user;
         this.userNickname = user.getNickname();
@@ -82,22 +83,11 @@ public class Board extends BaseEntity {
 
     public void addImage(Image image) {
         this.imageList.add(image);
+
     }
 
     public void addAllImage(List<Image> images) {
         this.imageList.addAll(images);
-    }
-
-    public void updateBoard(String title, String content) {
-        this.title = title;
-        this.content = content;
-    }
-
-    public void updateBoard(String title, String content, List<Image> imageList) {
-        this.title = title;
-        this.content = content;
-        this.imageList.clear();
-        this.imageList.addAll(imageList);
     }
 
     // 필요하다면 Scrap 리스트에 추가하는 메서드
@@ -112,6 +102,19 @@ public class Board extends BaseEntity {
     }
 
 
+    /* Using Method */
+    public void updateBoard(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public void updateBoard(String title, String content, List<Image> imageList) {
+        this.title = title;
+        this.content = content;
+        this.imageList.clear();
+        this.imageList.addAll(imageList);
+    }
+
     public void decrementScrapCount() {
         this.scrapCount--;
     }
@@ -122,10 +125,12 @@ public class Board extends BaseEntity {
 
     public void addComment(Comment comment) {
         this.commentList.add(comment);
+        comment.setBoard(this);
         this.commentCount++;
     }
 
-    public void decrementCommentCount() {
+    public void removeComment(Comment comment) {
+        this.commentList.remove(comment);
         this.commentCount--;
     }
 }

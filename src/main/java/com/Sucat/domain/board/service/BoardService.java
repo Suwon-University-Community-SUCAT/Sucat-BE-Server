@@ -8,105 +8,90 @@ import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
-import com.Sucat.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
 import static com.Sucat.domain.comment.dto.CommentDto.CommentResponseWithBoard;
 
-@Service
 @Slf4j
+@Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardQueryRepository boardQueryRepository;
-    private final UserService userService;
     private final ImageService imageService;
-    private final JwtUtil jwtUtil;
 
-    /* 게시물 생성 조회 메서드 */
+    /* 게시물 생성 메서드 */
     @Transactional
-    public void createBoard(Board board, HttpServletRequest request, List<MultipartFile> images) {
-        User user = userService.getUserInfo(request);
+    public void createBoard(Board board, User user, List<MultipartFile> images) {
+        if (images != null && !images.isEmpty()) {
+            List<String> imageFileNames = imageService.storeFiles(images);
 
-        if (images == null) {
-            images = Collections.emptyList();
-        }
-
-        if (!images.isEmpty()) {
-            List<String> imageNames = imageService.storeFiles(images);
-
-            List<Image> imageList = imageNames.stream()
+            List<Image> storedImages = imageFileNames.stream()
                     .map(imageName -> Image.ofBoard(board, imageName))
                     .toList();
 
-            board.addAllImage(imageList);
+            board.addAllImage(storedImages);
         }
 
-        boardRepository.save(board);
-
         board.addUser(user);
+        boardRepository.save(board);
         user.addBoard(board);
         log.info("게시글 생성, 연관관계 설정 완료");
     }
 
 
     /* 게시글 수정 메서드 - Get */
-    public BoardUpdateResponse getUpdateBoard(Long id, HttpServletRequest request) {
+    public BoardUpdateResponse getUpdateBoard(Long id, User user) {
         Board board = findBoardById(id);
-        validateUserAuthorization(request, board);
+        validateUserAuthorization(user, board);
 
         return BoardUpdateResponse.of(board);
     }
-
-    /* 게시물 수정 메서드 - Post*/
+    /* 게시물 수정 메서드 */
     @Transactional
-    public void updateBoard(Long id, BoardUpdateRequest requestDTO, HttpServletRequest request, List<MultipartFile> images) {
+    public void updateBoard(Long id, BoardUpdateRequest requestDTO, User user, List<MultipartFile> images) {
         Board board = findBoardById(id);
-        validateUserAuthorization(request, board);
+        validateUserAuthorization(user, board);
 
-        if (images.isEmpty()) {
-            board.updateBoard(requestDTO.title(), requestDTO.content());
-            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
-        } else {
+
+        if (images != null && !images.isEmpty()) {
             List<String> imageNames = imageService.storeFiles(images);
-
             List<Image> imageList = imageNames.stream()
-                    .map(image -> Image.ofBoard(board, image))
+                    .map(imageName -> Image.ofBoard(board, imageName))
                     .toList();
-
             board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
             log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
+        } else {
+            board.updateBoard(requestDTO.title(), requestDTO.content());
+            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
         }
     }
 
     /* 게시물 삭제 메서드 */
     @Transactional
-    public void deleteBoard(Long id, HttpServletRequest request) {
+    public void deleteBoard(Long id, User user) {
         Board board = findBoardById(id);
-        validateUserAuthorization(request, board);
+        validateUserAuthorization(user, board);
 
         List<String> imageNames = board.getImageList().stream()
                 .map(i -> i.getImageName())
                 .toList();
 
         imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
-
         boardRepository.deleteById(id);
         log.info("식별자: {}, 게시물 삭제 완료", id);
     }
@@ -133,9 +118,9 @@ public class BoardService {
     }
 
     /* 게시물 단일 조회 메서드 */
-    public BoardDetailResponse getBoard(Long id, HttpServletRequest request) {
+    public BoardDetailResponse getBoard(Long id, User user) {
         Board board = findBoardById(id);
-        Long currentUserId = userService.getUserInfo(request).getId();
+        Long currentUserId = user.getId();
 
         //현재 사용자가 해당 게시글에 좋아요를 눌렀는지 확인
         boolean isLikedByUser = board.getLikeList().stream()
@@ -163,8 +148,7 @@ public class BoardService {
     }
 
     /* 내가 쓴 게시물 조회 메서드 */
-    public List<MyBoardResponse> myPost(HttpServletRequest request) {
-        User user = userService.getUserInfo(request);
+    public List<MyBoardResponse> myPost(User user) {
         return user.getBoardList().stream()
                 .map(MyBoardResponse::of)
                 .toList();
@@ -176,12 +160,10 @@ public class BoardService {
                 () -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
     }
 
-    private void validateUserAuthorization(HttpServletRequest request, Board board) {
-        User user = userService.getUserInfo(request);
-
+    private void validateUserAuthorization(User user, Board board) {
         // 게시글 작성자만 수정 가능
         if (!board.getUser().equals(user)) {
-            log.info("error: 게시글 작성자가 아닌 사용자의 접근");
+            log.info("error: 게시글 ID {}의 작성자가 아닌 사용자 ID {}의 접근 시도", board.getId(), user.getId());
             throw new BoardException(ErrorCode._UNAUTHORIZED_USER);
         }
     }

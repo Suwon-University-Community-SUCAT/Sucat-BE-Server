@@ -3,11 +3,10 @@ package com.Sucat.domain.chatroom.controller;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,65 +15,50 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
-import static com.Sucat.domain.chatroom.dto.ChatRoomDto.ChatRoomListResponse;
-import static com.Sucat.domain.chatroom.dto.ChatRoomDto.RoomResponse;
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.*;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chats")
 public class ChatRoomController {
-    private final UserService userService;
     private final ChatRoomService chatRoomService;
 
     // 채팅방 주소 생성/가져오기
     @PostMapping("/{email}")
-    public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, HttpServletRequest request) {
-        Map<String, Object> roomCreationResult = chatRoomService.createRoom(email, request);
-        int status = (int) roomCreationResult.get("status");
+    public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, @CurrentUser User sender) {
 
-        URI location = buildChatRoomUri((String) roomCreationResult.get("roomId"));
+        ChatRoomCreationResponse creationResponse = chatRoomService.getOrCreateRoom(sender, email);
 
-        if (status == 0) { // 채팅방 생성
+        URI location = buildChatRoomUri(creationResponse.roomId());
+
+        if (creationResponse.status() == 0) { // 채팅방 생성
             return ApiResponse.onSuccess(SuccessCode._CREATED, location);
-        } else {
+        } else { // 이미 채팅방 존재. 채팅방 주소 반환
             return ApiResponse.onSuccess(SuccessCode._OK, location);
         }
     }
 
     //  채팅방 열기
-    @GetMapping("/{room-id}")
-    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("room-id") String roomId,
-                                      HttpServletRequest request) {
+    @GetMapping("/{roomId}")
+    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("roomId") String roomId,
+                                                           @CurrentUser User user) {
 
-        User sender = userService.getUserInfo(request);
         ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
-        Long receiverId = null;
-        if (chatRoom.getSender().getId().equals(sender.getId())) {
-            receiverId = chatRoom.getReceiver().getId();
-        } else {
-            receiverId = chatRoom.getSender().getId();
-        }
-
-        User receiver = userService.findById(receiverId);
-
-        RoomResponse roomResponse = RoomResponse.of(chatRoom.getId(), sender, receiver);
+        RoomResponse roomResponse = chatRoomService.openChatRoom(chatRoom, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
-
-        // 채팅방을 열고 이전 채팅방 가져오기에서 응답 코드가 201이라면 이 메서드에서 끝이고, 200이라면 채팅방 메시지 가져오기 메서드 실행
     }
 
     /* 채팅방 목록 */
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getChats(
-            HttpServletRequest request,
+            @CurrentUser User user,
             @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
-        List<ChatRoomListResponse> chats = chatRoomService.getChats(request, sortKey);
+        List<ChatRoomListResponse> chatRoomListResponses = chatRoomService.getChatRoomList(user, sortKey);
 
-        return ApiResponse.onSuccess(SuccessCode._OK, chats);
+        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomListResponses);
     }
 
     private URI buildChatRoomUri(String roomId) {

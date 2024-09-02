@@ -8,7 +8,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class MessageResponse {
+public class ChatMessageResponse {
     /**
      * Response
      */

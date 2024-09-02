@@ -2,7 +2,6 @@ package com.Sucat.domain.user.service;
 
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
-import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserQueryRepository;
@@ -23,6 +22,7 @@ import static com.Sucat.global.common.code.ErrorCode.*;
 import static com.Sucat.global.common.constant.ConstraintConstants.*;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -35,8 +35,7 @@ public class UserService {
 
     /* 회원 프로필 업데이트 메서드 */
     @Transactional
-    public void updateProfile(HttpServletRequest request, UserProfileUpdateRequest userProfileUpdateRequest, MultipartFile image) throws IOException {
-        User user = jwtUtil.getUserFromRequest(request);
+    public void updateProfile(User user, UserProfileUpdateRequest userProfileUpdateRequest, MultipartFile image) throws IOException {
 
         // 닉네임 중복 검사
         nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
@@ -58,10 +57,9 @@ public class UserService {
 
     /* 비밀번호 변경 메서드 */
     @Transactional
-    public void changePassword(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        User currentUser = jwtUtil.getUserFromRequest(request);
+    public void changePassword(User user, UserPasswordUpdateRequest userPasswordUpdateRequest) {
 
-        String encodedPassword = currentUser.getPassword(); // 이미 인코딩된 비밀번호
+        String encodedPassword = user.getPassword(); // 이미 인코딩된 비밀번호
         String currentPassword = userPasswordUpdateRequest.currentPassword();
         String newPassword = userPasswordUpdateRequest.newPassword();
 
@@ -74,13 +72,11 @@ public class UserService {
         validatePassword(newPassword);
 
         // 새 비밀번호로 업데이트
-        currentUser.updatePassword(passwordEncoder.encode(newPassword));
+        user.updatePassword(passwordEncoder.encode(newPassword));
     }
 
     /* 회원 프로필 불러오기 메서드 */
-    public UserProfileResponse getUserProfile(HttpServletRequest request) {
-        String email = getEmailByRequest(request);
-        User user = userQueryRepository.findUserProfileByEmail(email);
+    public UserProfileResponse getUserProfile(User user) {
         return UserProfileResponse.of(user);
     }
 
@@ -91,7 +87,6 @@ public class UserService {
     }
 
     /* Using Method */
-
     private void updateUserImage(MultipartFile image, User user) throws IOException {
         if (image != null && !image.isEmpty()) {
             String imageName = imageService.storeFile(image);
@@ -109,12 +104,6 @@ public class UserService {
         }
     }
 
-    private String getEmailByRequest(HttpServletRequest request) {
-        String accessToken = jwtUtil.extractAccessToken(request)
-                .orElseThrow(() -> new TokenException(INVALID_REFRESH_TOKEN));
-        return jwtUtil.extractEmail(accessToken);
-    }
-
     // 비밀번호 유효성 검사 메서드
     public void validatePassword(String password) {
         // 비밀번호 만료 날짜 설정, 이전 비밀번호와의 비교 등 정책 추가 고민
@@ -127,6 +116,10 @@ public class UserService {
         if (!password.matches(PASSWORD_PATTERN)) {
             throw new UserException(PASSWORD_COMPLEXITY_REQUIRED);
         }
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
     }
 
     public User findById(Long id) {

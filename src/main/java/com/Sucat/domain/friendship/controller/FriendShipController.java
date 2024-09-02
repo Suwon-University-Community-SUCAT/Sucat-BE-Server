@@ -3,10 +3,11 @@ package com.Sucat.domain.friendship.controller;
 import com.Sucat.domain.friendship.dto.FriendListResponse;
 import com.Sucat.domain.friendship.dto.FriendShipDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
 import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,8 +27,8 @@ public class FriendShipController {
 
     /* 친구 요청 전송 */
     @PostMapping("/{email}")
-    public ResponseEntity<ApiResponse<Object>> sendFriendShipRequest(@PathVariable(name = "email") String email, HttpServletRequest request) {
-        friendShipService.createFriendShip(request, email);
+    public ResponseEntity<ApiResponse<Object>> sendFriendShipRequest(@PathVariable(name = "email") String email, @CurrentUser User fromUser) {
+        friendShipService.createFriendShip(fromUser, email);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
@@ -35,33 +36,36 @@ public class FriendShipController {
     /* 받은 친구 요청 조회 */
     @GetMapping("/received")
     public ResponseEntity<ApiResponse<Object>> getWaitingFriendInfo(
-            HttpServletRequest request,
+            @CurrentUser User user,
             @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey
             ) {
 
-        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(request, sortKey);
+        FriendShipDto.WaitingFriendWithTotalCountResponse waitingFriendList = friendShipService.getWaitingFriendList(user, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, waitingFriendList);
     }
 
     /* 친구 수락 */
     @PostMapping("/approve/{friendshipId}")
-    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
-        friendShipService.approveFriendshipRequest(friendshipId, request);
+    public ResponseEntity<ApiResponse<Object>> approveFriendShip(@PathVariable(name = "friendshipId") Long friendshipId,
+                                                                 @CurrentUser User user) {
+        friendShipService.approveFriendshipRequest(friendshipId, user);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /* 친구 요청 취소, 거절 */
     @PostMapping("/refuse/{friendshipId}")
-    public ResponseEntity<ApiResponse<Object>> refuseFriendShip(@PathVariable(name = "friendshipId") Long friendshipId, HttpServletRequest request) {
-        friendShipService.refuseFriendshipRequest(friendshipId, request);
+    public ResponseEntity<ApiResponse<Object>> refuseFriendShip(@PathVariable(name = "friendshipId") Long friendshipId,
+                                                                @CurrentUser User user) {
+        friendShipService.refuseFriendshipRequest(friendshipId, user);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     /* 친구 삭제 */
     @DeleteMapping("/{friendshipId}")
-    public ResponseEntity<ApiResponse<Object>> unfriend(@PathVariable("friendshipId") Long friendshipId,HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> unfriend(@PathVariable("friendshipId") Long friendshipId,
+                                                        @CurrentUser User user) {
 
-        friendShipService.unfriend(request, friendshipId);
+        friendShipService.unfriend(user, friendshipId);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
@@ -69,18 +73,19 @@ public class FriendShipController {
     /* 친구 목록 */
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getFriendList(
-            HttpServletRequest request,
+            @CurrentUser User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(name = "sortKey", defaultValue = "createdAtDesc") @Nullable final String sortKey) {
-        Page<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(request, page, size, sortKey);
+        Page<FriendListResponse> acceptFriendList = friendShipService.getAcceptFriendList(user, page, size, sortKey);
         return ApiResponse.onSuccess(SuccessCode._OK, acceptFriendList);
     }
 
     /* 친구 프로필 확인 */
     @GetMapping("/profile/{email}")
-    public ResponseEntity<ApiResponse<Object>> getFriendProfile(HttpServletRequest request, @PathVariable("email") String email) {
-        FriendProfileResponse friendProfile = friendShipService.getFriendProfile(request, email);
+    public ResponseEntity<ApiResponse<Object>> getFriendProfile(@CurrentUser User user, @PathVariable("email") String email) {
+
+        FriendProfileResponse friendProfile = friendShipService.getFriendProfile(user, email);
 
         return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
     }
@@ -90,9 +95,9 @@ public class FriendShipController {
     public ResponseEntity<ApiResponse<Object>> friendSearch(
             @RequestParam(name = "keyword", defaultValue = "") @Nullable String keyword,
             @RequestParam(name = "sortKey", defaultValue = "name") @Nullable final String sortKey,
-            HttpServletRequest request
+            @CurrentUser User user
     ) {
-        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, sortKey, request);
+        List<FriendListResponse> friendSearchResponses = friendShipService.getSearchFriend(keyword, sortKey, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, friendSearchResponses);
     }

@@ -1,5 +1,5 @@
 package com.Sucat.domain.chatmessage.model;
 
-public enum MessageType {
+public enum ChatMessageType {
     ENTER, TALK
 }
