@@ -2,9 +2,7 @@ package com.Sucat.domain.chatroom.controller;
 
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
-import com.Sucat.domain.friendship.service.FriendShipService;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -17,31 +15,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
-import static com.Sucat.domain.chatroom.dto.ChatRoomDto.ChatRoomListResponse;
-import static com.Sucat.domain.chatroom.dto.ChatRoomDto.RoomResponse;
+import static com.Sucat.domain.chatroom.dto.ChatRoomDto.*;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/chats")
 public class ChatRoomController {
-    private final UserService userService;
     private final ChatRoomService chatRoomService;
-    private final FriendShipService friendShipService;
 
     // 채팅방 주소 생성/가져오기
     @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, @CurrentUser User sender) {
-        User receiver = userService.findByEmail(email);
-        friendShipService.validateFriendship(sender.getEmail(), receiver.getEmail()); // 친구 관계인지 검증
 
-        Map<String, Object> roomCreationResult = chatRoomService.createRoom(sender, receiver);
+        ChatRoomCreationResponse creationResponse = chatRoomService.getOrCreateRoom(sender, email);
 
-        URI location = buildChatRoomUri((String) roomCreationResult.get("roomId"));
+        URI location = buildChatRoomUri(creationResponse.roomId());
 
-        if ((int) roomCreationResult.get("status") == 0) { // 채팅방 생성
+        if (creationResponse.status() == 0) { // 채팅방 생성
             return ApiResponse.onSuccess(SuccessCode._CREATED, location);
         } else { // 이미 채팅방 존재. 채팅방 주소 반환
             return ApiResponse.onSuccess(SuccessCode._OK, location);

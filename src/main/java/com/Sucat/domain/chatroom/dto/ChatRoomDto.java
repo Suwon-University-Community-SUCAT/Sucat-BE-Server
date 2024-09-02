@@ -44,4 +44,12 @@ public class ChatRoomDto {
                     .build();
         }
     }
+
+    @Builder
+    public record ChatRoomCreationResponse(
+            int status,
+            String roomId
+    ) {
+
+    }
 }
