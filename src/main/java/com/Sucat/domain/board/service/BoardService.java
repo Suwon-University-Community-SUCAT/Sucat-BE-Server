@@ -61,25 +61,23 @@ public class BoardService {
 
         return BoardUpdateResponse.of(board);
     }
-
-    /* 게시물 수정 메서드 - Post*/
+    /* 게시물 수정 메서드 */
     @Transactional
     public void updateBoard(Long id, BoardUpdateRequest requestDTO, User user, List<MultipartFile> images) {
         Board board = findBoardById(id);
         validateUserAuthorization(user, board);
 
+
         if (images != null && !images.isEmpty()) {
-            board.updateBoard(requestDTO.title(), requestDTO.content());
-            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
-        } else {
             List<String> imageNames = imageService.storeFiles(images);
-
             List<Image> imageList = imageNames.stream()
-                    .map(image -> Image.ofBoard(board, image))
+                    .map(imageName -> Image.ofBoard(board, imageName))
                     .toList();
-
             board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
             log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
+        } else {
+            board.updateBoard(requestDTO.title(), requestDTO.content());
+            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
         }
     }
 
@@ -94,7 +92,6 @@ public class BoardService {
                 .toList();
 
         imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
-        log.info("식별자: {}, 게시물의 이미지 삭제", id);
         boardRepository.deleteById(id);
         log.info("식별자: {}, 게시물 삭제 완료", id);
     }
