@@ -9,7 +9,9 @@ import com.Sucat.domain.friendship.repository.FriendShipQueryRepository;
 import com.Sucat.domain.friendship.repository.FriendShipRepository;
 import com.Sucat.domain.notify.model.NotifyType;
 import com.Sucat.domain.notify.service.NotifyService;
+import com.Sucat.domain.user.dto.UserDto;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,15 +35,19 @@ import static com.Sucat.global.common.code.ErrorCode.INVALID_FRIENDSHIP_REQUEST_
 public class FriendShipService {
     private final FriendShipRepository friendShipRepository;
     private final FriendShipQueryRepository friendShipQueryRepository;
+    private final UserService userService;
     private final NotifyService notifyService;
 
     /* 친구 요청 */
     @Transactional
-    public void createFriendShip(User fromUser, User toUser) {
+    public void createFriendShip(User fromUser, String toEmail) {
+        User toUser = userService.findByEmail(toEmail);
         validateSelfRequest(fromUser, toUser);
 
         if (!checkReverseFriendship(fromUser.getEmail(), toUser.getEmail(), fromUser.getNickname())) {
             saveFriendShipRequest(fromUser, toUser);
+            // 알림 처리
+            notifyService.send(toUser, NotifyType.FRIEND_REQUEST, fromUser.getNickname() + "님이 친구 요청을 보냈습니다.", "/api/v1/friends/received");
         }
     }
 
@@ -99,14 +105,14 @@ public class FriendShipService {
     }
 
     /* 친구 프로필 확인 */
-    public String getFriendProfile(User currentUser, String friendEmail) {
+    public UserDto.FriendProfileResponse getFriendProfile(User currentUser, String friendEmail) {
         String userEmail = currentUser.getEmail();
 
         Optional<FriendShip> friendShipOpt = friendShipRepository.findByUserEmailAndFriendEmail(userEmail, friendEmail);
         if (friendShipOpt.isPresent()) {
             FriendShip friendShip = friendShipOpt.get();
             if (friendShip.getStatus().equals(FriendshipStatus.ACCEPT)) {
-                return friendEmail;
+                return userService.getFriendProfile(friendEmail);
             }
         }
 

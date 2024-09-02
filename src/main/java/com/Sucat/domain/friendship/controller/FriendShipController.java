@@ -3,10 +3,7 @@ package com.Sucat.domain.friendship.controller;
 import com.Sucat.domain.friendship.dto.FriendListResponse;
 import com.Sucat.domain.friendship.dto.FriendShipDto;
 import com.Sucat.domain.friendship.service.FriendShipService;
-import com.Sucat.domain.notify.model.NotifyType;
-import com.Sucat.domain.notify.service.NotifyService;
 import com.Sucat.domain.user.model.User;
-import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
@@ -27,20 +24,11 @@ import static com.Sucat.domain.user.dto.UserDto.FriendProfileResponse;
 @RequestMapping("/api/v1/friends")
 public class FriendShipController {
     private final FriendShipService friendShipService;
-    private final UserService userService;
-    private final NotifyService notifyService;
 
     /* 친구 요청 전송 */
     @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> sendFriendShipRequest(@PathVariable(name = "email") String email, @CurrentUser User fromUser) {
-        User toUser = userService.findByEmail(email);
-        friendShipService.createFriendShip(fromUser, toUser);
-
-        notifyService.send(
-                toUser,
-                NotifyType.FRIEND_REQUEST,
-                fromUser.getNickname() + "님이 친구 요청을 보냈습니다.",
-                "/api/v1/friends/received");
+        friendShipService.createFriendShip(fromUser, email);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
@@ -97,8 +85,7 @@ public class FriendShipController {
     @GetMapping("/profile/{email}")
     public ResponseEntity<ApiResponse<Object>> getFriendProfile(@CurrentUser User user, @PathVariable("email") String email) {
 
-        String friendEmail = friendShipService.getFriendProfile(user, email);
-        FriendProfileResponse friendProfile = userService.getFriendProfile(friendEmail);
+        FriendProfileResponse friendProfile = friendShipService.getFriendProfile(user, email);
 
         return ApiResponse.onSuccess(SuccessCode._OK, friendProfile);
     }
