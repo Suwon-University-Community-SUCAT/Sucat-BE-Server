@@ -1,9 +1,10 @@
 package com.Sucat.domain.user.controller;
 
+import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.UserService;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -37,31 +38,31 @@ public class UserController {
     }
 
     @GetMapping("/change/profile")
-    public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(HttpServletRequest request) {
-        UserProfileResponse userProfile = userService.getUserProfile(request);
+    public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(@CurrentUser User user) {
+        UserProfileResponse userProfile = userService.getUserProfile(user);
         return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
 
     @PostMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> updateProfile(
-            HttpServletRequest request,
+            @CurrentUser User user,
             @RequestPart(name = "userProfileUpdateRequest") @Valid UserProfileUpdateRequest userProfileUpdateRequest,
             @RequestPart(name = "image", required = false) MultipartFile image) throws IOException {
-        userService.updateProfile(request, userProfileUpdateRequest, image);
+        userService.updateProfile(user, userProfileUpdateRequest, image);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @PostMapping("/change/password")
-    public ResponseEntity<ApiResponse<Object>> changeProfile(HttpServletRequest request, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        userService.changePassword(request, userPasswordUpdateRequest);
+    public ResponseEntity<ApiResponse<Object>> changeProfile(@CurrentUser User user, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
+        userService.changePassword(user, userPasswordUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @GetMapping("/myProfile")
     public ResponseEntity<ApiResponse<Object>> myProfile(
-            HttpServletRequest request
+            @CurrentUser User user
     ) {
-        UserProfileResponse userProfile = userService.getUserProfile(request);
+        UserProfileResponse userProfile = userService.getUserProfile(user);
 
         return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
