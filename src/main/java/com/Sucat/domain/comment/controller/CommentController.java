@@ -31,7 +31,7 @@ public class CommentController {
             @RequestBody CommentPostRequest commentPostRequest)
     {
         commentService.write(boardId, user, commentPostRequest);
-        return ApiResponse.onSuccess(SuccessCode._OK);
+        return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
     /* 댓글 삭제 */

@@ -30,7 +30,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Object>> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
-        return ApiResponse.onSuccess(SuccessCode._OK, "Successfully logged out.");
+        return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
     @PostMapping("/signup")
@@ -38,7 +38,7 @@ public class AuthController {
             @RequestPart(name = "request") @Valid JoinUserRequest userRequest,
             @RequestPart(name = "profileImage", required = false) MultipartFile profileImage) throws IOException {
         authService.signup(userRequest.toEntity(), profileImage);
-        return ApiResponse.onSuccess(SuccessCode._OK);
+        return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
     /**

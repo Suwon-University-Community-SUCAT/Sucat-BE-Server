@@ -28,7 +28,7 @@ public class NotificationController {
             @RequestPart(name = "images", required = false) List<MultipartFile> images) {
         notificationService.create(request.toEntity(), images);
 
-        return ApiResponse.onSuccess(SuccessCode._OK);
+        return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
     @GetMapping("/notification/system")
