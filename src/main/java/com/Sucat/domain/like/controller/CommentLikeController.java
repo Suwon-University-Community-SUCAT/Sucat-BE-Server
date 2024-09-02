@@ -28,7 +28,7 @@ public class CommentLikeController {
             @PathVariable Long commentId,
             @CurrentUser User user
             ) {
-        commentLikeService.like(commentService.findById(commentId), user);
+        commentLikeService.like(commentId, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }

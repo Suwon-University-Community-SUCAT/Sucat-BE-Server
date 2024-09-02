@@ -1,6 +1,7 @@
 package com.Sucat.domain.like.service;
 
 import com.Sucat.domain.comment.domain.Comment;
+import com.Sucat.domain.comment.service.CommentService;
 import com.Sucat.domain.like.model.CommentLike;
 import com.Sucat.domain.like.repository.CommentLikeRepository;
 import com.Sucat.domain.user.model.User;
@@ -11,12 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CommentLikeService {
     private final CommentLikeRepository commentLikeRepository;
+    private final CommentService commentService;
 
+    /* 댓글 좋아요 누르기/취소하기 메서드 */
     @Transactional
-    public void like(Comment comment, User user) {
+    public void like(Long commentId, User user) {
+        Comment comment = commentService.findById(commentId);
+
         // 이미 좋아요 누른 경우 확인
         CommentLike existingCommentLike = commentLikeRepository.findByUserAndComment(user, comment);
 

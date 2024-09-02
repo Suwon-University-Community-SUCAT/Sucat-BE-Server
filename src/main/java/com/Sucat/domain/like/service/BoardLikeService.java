@@ -1,6 +1,7 @@
 package com.Sucat.domain.like.service;
 
 import com.Sucat.domain.board.model.Board;
+import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.domain.like.model.BoardLike;
 import com.Sucat.domain.like.repository.BoardLikeRepository;
 import com.Sucat.domain.user.model.User;
@@ -15,9 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BoardLikeService {
     private final BoardLikeRepository boardLikeRepository;
+    private final BoardService boardService;
 
+    /* 게시물 좋아요 누르기/취소하기 메서드 */
     @Transactional
-    public void like(Board board, User user) {
+    public void like(Long boardId, User user) {
+        Board board = boardService.findBoardById(boardId);
+
         // 이미 좋아요 누른 경우 확인
         BoardLike existingBoardLike = boardLikeRepository.findByUserAndBoard(user, board);
 

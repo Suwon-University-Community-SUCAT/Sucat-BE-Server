@@ -1,6 +1,5 @@
 package com.Sucat.domain.like.controller;
 
-import com.Sucat.domain.board.service.BoardService;
 import com.Sucat.domain.like.service.BoardLikeService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.annotation.CurrentUser;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/boards/like")
 public class BoardLikeController {
     private final BoardLikeService boardLikeService;
-    private final BoardService boardService;
 
     /* 게시물 좋아요/취소하기 */
     @PostMapping("/{boardId}")
@@ -28,7 +26,7 @@ public class BoardLikeController {
             @PathVariable Long boardId,
             @CurrentUser User user
     ) {
-        boardLikeService.like(boardService.findBoardById(boardId), user);
+        boardLikeService.like(boardId, user);
 
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
