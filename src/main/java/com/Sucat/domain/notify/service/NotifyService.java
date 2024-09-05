@@ -1,5 +1,6 @@
 package com.Sucat.domain.notify.service;
 
+import com.Sucat.domain.notify.dto.NotifyDto;
 import com.Sucat.domain.notify.exception.NotifyException;
 import com.Sucat.domain.notify.model.Notify;
 import com.Sucat.domain.notify.model.NotifyType;
@@ -9,7 +10,6 @@ import com.Sucat.domain.notify.repository.NotifyRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,9 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static com.Sucat.domain.notify.dto.NotifyDto.FindNotifyResponse;
-import static com.Sucat.domain.notify.dto.NotifyDto.ReadNotifyRequest;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -40,40 +37,25 @@ public class NotifyService {
 
     /**
      * [SSE 연결 메서드]
-     * 알림 서버 접속 시 요청 회원의 고유 이벤트 id를 key, SseEmitter 인스턴스를 value로
-     * 알림 서버 저장소에 추가합니다.
+     * 알림 서버 접속 시 요청 회원의 고유 이벤트 id를 key, SseEmitter 인스턴스를 value로 알림 서버 저장소에 추가한다.
      */
-    public SseEmitter subscribe(HttpServletRequest request, String lastEventId) {
-        String email = jwtUtil.getEmailFromRequest(request);
-
+    public SseEmitter subscribe(User user, String lastEventId) {
+        String email = user.getEmail();
         // 매 연결마다 고유 이벤트 id 부여
         String emitterId = makeTimeIncludeId(email);
 
         // SseEmitter 인스턴스 생성 후 Map에 저장
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
+        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT)); //
         log.info("new emitter added : {}", emitter);
         log.info("lastEventId : {}", lastEventId);
 
-        // 이벤트 전송 시
-        emitter.onCompletion(() -> {
-            handleEmitterCompletion(emitterId);
-        });
-
-        // 이벤트 스트림 연결 끊길 시
-        emitter.onTimeout(() -> {
-            handleEmitterTimeout(emitterId);
-        });
-
-        // 에러가 발생할 시
-        emitter.onError((e) -> {
-            handleEmitterError(emitterId, e);
-        });
+        errorHandler(emitter, emitterId); // 이벤트 전송 시, 이벤트 스트림 연결 끊길 시, 에러 발생 시 처리 메서드
 
         /* 첫 연결 시 503 Service Unavailable 방지용 Dummy event 전송 */
         String eventId = makeTimeIncludeId(email);
         sendNotification(emitter, eventId, "EventStream Created. [userEmail=" + email + "]");
 
-        /* client가 미수신한 event 목록이 존재하는 경우 */
+        /* client가 미수신한 event 목록이 존재하는 경우 -> emitterRepository에 저장된 모든 이벤트 캐시를 가져와서 User에게 전송 */
         if (hasLostData(lastEventId)) {
             sendLostData(lastEventId, email, emitterId, emitter);
         }
@@ -86,7 +68,7 @@ public class NotifyService {
     public void send(User receiver, NotifyType notifyType, String content, String url) {
         Notify notify = notifyRepository.save(createNotify(receiver, notifyType, content, url));
 
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiver.getEmail());
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiver.getEmail()); // 사용자의 이메일과 일치하는 emitters를 불러옴
         emitters.forEach(
                 (key, emitter) -> {
                     try {
@@ -119,7 +101,10 @@ public class NotifyService {
         return email + "_" + System.currentTimeMillis();
     }
 
-    /* [SSE 통신] */
+    /** [SSE 통신]
+     * 고민사항: 현재 코드를 보면 SSE를 통해서 User에게 알림을 전송한 뒤 사용된 emitter는 삭제하고 있다.
+     * 그런데 현재 코드는 사용자가 로그인 시 subscribe 메서드에 접근해서 사용자 Email을 활용한 emitter를 생성하고
+     * */
     private void emitEventToClient(
             SseEmitter emitter,
             String emitterId,
@@ -150,46 +135,22 @@ public class NotifyService {
         }
     }
 
-    // 주어진 lastEventId가 비어있는지 확인
-    private boolean hasLostData(String lastEventId) {
-        return !lastEventId.isEmpty();
-    }
-
-    // 클라이언트가 마지막으로 수산한 이벤트 이후의 데이터를 찾아서 클라이언트에 전송
-    private void sendLostData(String lastEventId, String email, String emitterId, SseEmitter emitter) {
-        Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(email); // 이메일에 연관된 모든 이벤트 캐시를 가져온다.
-        eventCaches.entrySet().stream()
-                .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                .forEach(entry -> emitEventToClient(emitter, entry.getKey(), entry.getValue()));
-    }
-
-    private Notify createNotify(User receiver, NotifyType notifyType, String content, String url) {
-        return Notify.builder()
-                .user(receiver)
-                .notifyType(notifyType)
-                .content(content)
-                .url(url)
-                .isRead(false)
-                .build();
-    }
-
-    /* 알림 목록 */
-    public List<FindNotifyResponse> find(HttpServletRequest request) {
-        User user = jwtUtil.getUserFromRequest(request);
+    /* 알림 목록 메서드 */
+    public List<NotifyDto.FindNotifyResponse> find(User user) {
         Long userId = user.getId();
         List<Notify> notifyList = notifyQueryRepository.findByUserId(userId, LocalDateTime.now().minusDays(31));
 
         return notifyList.stream().map(
-                FindNotifyResponse::of
+                NotifyDto.FindNotifyResponse::of
         ).toList();
     }
 
     /* 알림 수정 메서드
-    * 사용자가 알림을 읽으면 isRead를 True로 수정
-    *  */
+     * 사용자가 알림을 읽으면 isRead를 True로 수정
+     *  */
     @Transactional
-    public void read(List<ReadNotifyRequest> readNotifyRequestList) {
-        for (ReadNotifyRequest readNotifyRequest : readNotifyRequestList) {
+    public void read(List<NotifyDto.ReadNotifyRequest> readNotifyRequestList) {
+        for (NotifyDto.ReadNotifyRequest readNotifyRequest : readNotifyRequestList) {
             Notify notify = getNotifyById(readNotifyRequest.notifyId());
             notify.updateIsRead();
         }
@@ -206,6 +167,29 @@ public class NotifyService {
         notifyRepository.deleteByCreatedAt(date);
     }
 
+    // 주어진 lastEventId가 비어있는지 확인
+    private boolean hasLostData(String lastEventId) {
+        return !lastEventId.isEmpty();
+    }
+
+    // 클라이언트가 마지막으로 수산한 이벤트 이후의 데이터를 찾아서 클라이언트에 전송
+    private void sendLostData(String lastEventId, String email, String emitterId, SseEmitter emitter) {
+        Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(email); // 이메일에 연관된 모든 이벤트 캐시를 가져온다.
+        eventCaches.entrySet().stream()
+                .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
+                .forEach(entry -> emitEventToClient(emitter, entry.getKey(), entry.getValue()));
+        emitterRepository.deleteAllEventCacheStartWithId(email); // 전달된 이벤트 캐시는 삭제
+    }
+
+    private Notify createNotify(User receiver, NotifyType notifyType, String content, String url) {
+        return Notify.builder()
+                .user(receiver)
+                .notifyType(notifyType)
+                .content(content)
+                .url(url)
+                .isRead(false)
+                .build();
+    }
 
     public Notify getNotifyById(Long id) {
         return notifyRepository.findById(id)
@@ -213,6 +197,23 @@ public class NotifyService {
     }
 
     /* Error handler */
+    private void errorHandler(SseEmitter emitter, String emitterId) {
+        // 이벤트 전송 시
+        emitter.onCompletion(() -> {
+            handleEmitterCompletion(emitterId);
+        });
+
+        // 이벤트 스트림 연결 끊길 시
+        emitter.onTimeout(() -> {
+            handleEmitterTimeout(emitterId);
+        });
+
+        // 에러가 발생할 시
+        emitter.onError((e) -> {
+            handleEmitterError(emitterId, e);
+        });
+    }
+
     private void handleEmitterCompletion(String emitterId) {
         log.info("Emitter completed: {}", emitterId);
         emitterRepository.deleteById(emitterId);

@@ -2,9 +2,10 @@ package com.Sucat.domain.notify.controller;
 
 import com.Sucat.domain.notify.dto.NotifyDto;
 import com.Sucat.domain.notify.service.NotifyService;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -26,16 +27,17 @@ public class NotifyController {
      * @param lastEventId: 이전에 받지 못한 이벤트가 존재하는 경우 (SSE 연결에 대한 시간 만료/종료), 받은 마지막 이벤트 ID 값을 넘겨 그 이후의 데이터부터 받을 수 있게 할 수 있는 정보를 의미
      */
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribe(HttpServletRequest request,
+    public ResponseEntity<SseEmitter> subscribe(@CurrentUser User user,
                                     @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 
-        SseEmitter sseEmitter = notifyService.subscribe(request, lastEventId);// 사용자의 구독을 처리
+        SseEmitter sseEmitter = notifyService.subscribe(user, lastEventId);// 사용자의 구독을 처리
         return ResponseEntity.ok(sseEmitter);
     }
 
+    /* 알림 목록 조회 */
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> find(HttpServletRequest request) {
-        List<NotifyDto.FindNotifyResponse> findNotifyResponses = notifyService.find(request);
+    public ResponseEntity<ApiResponse<Object>> find(@CurrentUser User user) {
+        List<NotifyDto.FindNotifyResponse> findNotifyResponses = notifyService.find(user);
         return ApiResponse.onSuccess(SuccessCode._OK, findNotifyResponses);
     }
 
