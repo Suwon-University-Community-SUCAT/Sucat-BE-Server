@@ -68,12 +68,14 @@ public class ChatRoomService {
     }
 
     /* 채팅방 열기 메서드 */
-    public RoomResponse openChatRoom(ChatRoom chatRoom, User sender) {
+    public RoomResponse openChatRoom(String roomId, User sender) {
         User receiver = null;
+
+        ChatRoom chatRoom = findByRoomId(roomId);
 
         if (chatRoom.getSender().equals(sender)) {
             receiver = chatRoom.getReceiver();
-        } else {
+        } else if (chatRoom.getReceiver().equals()) {
             receiver = chatRoom.getSender();
         }
 
