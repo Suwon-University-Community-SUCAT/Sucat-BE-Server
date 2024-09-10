@@ -49,9 +49,10 @@ public class ChatRoomController {
         return ApiResponse.onSuccess(SuccessCode._OK, chatRoomListResponses);
     }
 
+    /* 기존 채팅방 주소 생성 메서드 */
     private URI buildChatRoomUri(String roomId) {
         return UriComponentsBuilder.newInstance()
-                .path("/api/v1/chats/{roomId}")
+                .path("/api/v1/chatrooms/{roomId}/messages")
                 .buildAndExpand(roomId)
                 .toUri();
     }
