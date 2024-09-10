@@ -116,7 +116,8 @@ public class UserDto {
     @Builder
     public record ResponseOnlyUserNameWithId(
             Long userId,
-            String nickname
+            String nickname,
+            String profileImageName
             ) {
         public static ResponseOnlyUserNameWithId of(User user) {
             return ResponseOnlyUserNameWithId.builder()
