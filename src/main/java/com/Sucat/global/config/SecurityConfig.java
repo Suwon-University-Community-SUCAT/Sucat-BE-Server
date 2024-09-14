@@ -53,13 +53,16 @@ public class SecurityConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
+    @Value("${security.origins}")
+    private String allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -143,18 +146,21 @@ public class SecurityConfig {
         };
     }
 
-    // CORS 설정
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setAllowedHeaders(Collections.singletonList(allowedOrigins));
             config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
+            config.setAllowedOriginPatterns(Collections.singletonList("*"));
             config.setAllowCredentials(true);
             config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+            config.setMaxAge(3600L);
+
             /* 응답 헤더 설정 추가*/
-            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
+            config.setExposedHeaders(Collections.singletonList("Authorization"));
+            config.setExposedHeaders(Collections.singletonList("Authorization-refresh"));
+            config.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+
             return config;
         };
     }
