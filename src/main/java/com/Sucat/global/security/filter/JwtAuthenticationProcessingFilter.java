@@ -1,8 +1,10 @@
 package com.Sucat.global.security.filter;
 
-import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
+import com.Sucat.global.security.CustomUserDetails;
+import com.Sucat.global.security.dto.UserDTO;
 import com.Sucat.global.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,12 +16,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * OncePerRequestFilter: 모든 서블릿 컨테이너에서 요청 디스패치당 단일 실행을 보장하는 것을 목표로 하는 필터 기본 클래스
@@ -47,44 +48,50 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         System.out.println("Received request URI: " + request.getRequestURI());
         String requestURI = request.getRequestURI();
 
-        if (requestURI.equals(NO_CHECK_URL)) {
+        String accessToken = jwtUtil.extractAccessToken(request).get();
+
+        // 로그인 경로거나 토큰이 없을시 다음 필터로 넘김
+        if (requestURI.equals(NO_CHECK_URL) || accessToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        checkAccessTokenAndAuthentication(request, response, filterChain);
+        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
+        try {
+            jwtUtil.isTokenValid(accessToken);
+        } catch (ExpiredJwtException e) {
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("access token expired");
+
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        checkAccessTokenAndAuthentication(request, response, accessToken, filterChain);
+        filterChain.doFilter(request, response);
     }
 
-    private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, String accessToken, FilterChain filterChain) throws ServletException, IOException {
 
-        jwtUtil.extractAccessToken(request)
-                .filter(jwtUtil::isTokenValid)
-                .ifPresentOrElse(
-                    accessToken -> {
-                        String email = jwtUtil.extractEmail(accessToken);
-                        userRepository.findByEmail(email).ifPresent(this::saveAuthentication);
-                    },
-                        () -> log.warn("Invalid or missing access token")
-        );
+        String username = jwtUtil.extractEmail(accessToken);
+        String role = jwtUtil.extractRole(accessToken);
+        UserDTO userDTO = new UserDTO(username, role);
 
-        filterChain.doFilter(request,response);
+        CustomUserDetails customUserDetails = new CustomUserDetails(userDTO);
+        saveAuthentication(customUserDetails);
     }
 
-    private void saveAuthentication(User user) {
-        UserDetails userDetails = createUserDetails(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
+    private void saveAuthentication(CustomUserDetails customUserDetails) {
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+        // Spring Security 인증 토큰 생성
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+        // 세션에 사용자 등록
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    private UserDetails createUserDetails(User user) {
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
-                .build();
-    }
+
 
 }

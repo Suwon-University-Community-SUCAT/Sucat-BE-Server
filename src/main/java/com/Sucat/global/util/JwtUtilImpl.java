@@ -56,33 +56,36 @@ public class JwtUtilImpl implements JwtUtil {
 
 
     @Override
-    public String createAccessToken(String email) {
+    public String createAccessToken(String email, String role) {
         log.info("Access Token이 발행되었습니다.");
         return JWT.create() // JWT 생성 빌더를 초기화
                 .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 설정한다. subject는 토큰의 목적, 주제를 나타냄.
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000)) // 만료 시간 설정
                 .withClaim(USERNAME_CLAIM, email) // 토큰에 사용자 이메일 정보를 클레임으로 추가
+                .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 토큰에 서명. 서명 키: secret 변수로 설정된 값
     }
 
     @Override
-    public String createAdminAccessToken(String email) {
+    public String createAdminAccessToken(String email, String role) {
         log.info(String.valueOf(ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS));
         log.info("Admin Access Token이 발행되었습니다.");
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ADMIN_ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
                 .withClaim(USERNAME_CLAIM, email)
+                .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret));
     }
 
     @Override
-    public String createRefreshToken(String email) {
+    public String createRefreshToken(String email, String role) {
         log.info("Refresh Token이 발행되었습니다.");
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds * 1000))
                 .withClaim(USERNAME_CLAIM, email)
+                .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret));
         // RefreshToken의 목적은 액세스 토큰의 갱신이기 때문에 클레임 포함X
     }
@@ -157,6 +160,20 @@ public class JwtUtilImpl implements JwtUtil {
                             .verify(token)
                             .getClaim(USERNAME_CLAIM)
                             .asString();
+        } catch (Exception e) {
+            log.warn("유효하지 않은 토큰입니다. 이유: {}", e.getMessage());
+            throw new TokenException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    @Override
+    public String extractRole(String token) {
+        try {
+            return JWT.require(Algorithm.HMAC512(secret))
+                    .build()
+                    .verify(token)
+                    .getClaim(ROLE_CLAIM)
+                    .asString();
         } catch (Exception e) {
             log.warn("유효하지 않은 토큰입니다. 이유: {}", e.getMessage());
             throw new TokenException(ErrorCode.INVALID_TOKEN);
