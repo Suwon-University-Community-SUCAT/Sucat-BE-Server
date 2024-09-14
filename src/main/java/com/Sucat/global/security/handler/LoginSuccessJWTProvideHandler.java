@@ -37,14 +37,14 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
+        String email = customUserDetails.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        User existUser = userRepository.findByEmail(username).get();
+        User existUser = userRepository.findByEmail(email).get();
 
         if (existUser != null) {
             log.info("기존 유저입니다.");
@@ -55,19 +55,20 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
         }
 
         if (existUser.getRole() == UserRole.ADMIN) {
-            String accessToken = jwtUtil.createAdminAccessToken(username, String.valueOf(role));
+            String accessToken = jwtUtil.createAdminAccessToken(email, String.valueOf(role));
             log.info("토큰 발급: {}", accessToken);
             jwtUtil.sendAccessToken(response, accessToken);
         } else {
-            String accessToken = jwtUtil.createAccessToken(username, String.valueOf(role)); // AccessToken 발급
-            String refreshToken = jwtUtil.createRefreshToken(username, String.valueOf(role)); // RefreshToken 발급
+            String accessToken = jwtUtil.createAccessToken(email, String.valueOf(role)); // AccessToken 발급
+            String refreshToken = jwtUtil.createRefreshToken(email, String.valueOf(role)); // RefreshToken 발급
 
-            Token newToken = Token.builder()
+            Token token = Token.builder()
                     .email(existUser.getEmail())
-                    .token(refreshToken)
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
                     .build();
 
-            tokenRepository.save(newToken);
+            tokenRepository.save(token);
 
             jwtUtil.sendAccessToken(response, accessToken); // 응답 헤더에 AccessToken, RefreshToken 설정
         }

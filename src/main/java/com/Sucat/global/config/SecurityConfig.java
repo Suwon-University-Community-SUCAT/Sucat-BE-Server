@@ -1,9 +1,11 @@
 package com.Sucat.global.config;
 
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
+import com.Sucat.global.security.filter.CustomLogoutFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
 import com.Sucat.global.security.filter.LoginFilter;
 import com.Sucat.global.security.handler.LoginFailureHandler;
@@ -17,8 +19,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -41,9 +44,8 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final JwtUtil jwtUtil;
-
-    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Value("${admin.email}")
     private String adminEmail;
@@ -61,7 +63,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationProcessingFilter(), LoginFilter.class)
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, blacklistedTokenRepository,tokenRepository), LogoutFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error", "/redis/**", "/stomp", "/stomp/**").permitAll() // 정적 자원 설정
@@ -74,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**", "/sub/**", "/pub/**", "/chats/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated());
+
         return http.build();
     }
 
@@ -94,12 +98,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
-        return configuration.getAuthenticationManager();
-    }
-
-    @Bean
     public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
         return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, tokenRepository);
     }
@@ -110,11 +108,18 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager() throws Exception { //AuthenticationManager 등록
+        DaoAuthenticationProvider provider = daoAuthenticationProvider(); //DaoAuthenticationProvider 사용
+        return new ProviderManager(provider);
+    }
+
+    @Bean
     public LoginFilter loginFilter() throws Exception {
-        LoginFilter jsonUsernamePasswordLoginFilter = new LoginFilter(objectMapper, authenticationManager(authenticationConfiguration));
-        jsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
-        jsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
-        return jsonUsernamePasswordLoginFilter;
+        LoginFilter loginFilter = new LoginFilter(objectMapper);
+        loginFilter.setAuthenticationManager(authenticationManager());
+        loginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
+        loginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        return loginFilter;
     }
 
     @Bean

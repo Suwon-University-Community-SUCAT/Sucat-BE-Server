@@ -1,9 +1,9 @@
 package com.Sucat.global.security.service;
 
-import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.common.code.ErrorCode;
+import com.Sucat.global.security.CustomUserDetails;
+import com.Sucat.global.security.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-//        return new UserDetailsImpl(user);
-        return org.springframework.security.core.userdetails.User.builder().username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
-                .build();
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepository.findByEmail(username).get();
+
+        if (user != null) {
+            UserDTO userDTO = new UserDTO(user.getEmail(), user.getPassword(), user.getRole().toString());
+
+            return new CustomUserDetails(userDTO);
+        }
+
+        return null;
     }
 }

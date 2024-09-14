@@ -7,7 +7,6 @@ import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,19 +43,6 @@ public class AuthService {
             Image userImage = Image.ofUser(user, imageName);
             user.updateUserImage(userImage);
         }
-    }
-
-    /* 로그아웃 메서드 */
-    @Transactional
-    public void logout(User user, HttpServletResponse response) {
-        String email = user.getEmail();
-
-        // 리프레시 토큰 삭제
-        tokenRepository.deleteByEmail(email);
-
-        // 클라이언트 측 토큰 삭제
-        jwtUtil.setAccessTokenHeader(response, "");
-        jwtUtil.setRefreshTokenHeader(response, "");
     }
 
     /* Using Method */

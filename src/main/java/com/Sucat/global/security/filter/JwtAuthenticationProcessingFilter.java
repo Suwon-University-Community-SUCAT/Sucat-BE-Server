@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 /**
  * OncePerRequestFilter: 모든 서블릿 컨테이너에서 요청 디스패치당 단일 실행을 보장하는 것을 목표로 하는 필터 기본 클래스
@@ -48,13 +49,15 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         System.out.println("Received request URI: " + request.getRequestURI());
         String requestURI = request.getRequestURI();
 
-        String accessToken = jwtUtil.extractAccessToken(request).get();
+        Optional<String> accessTokenOpt = jwtUtil.extractAccessToken(request);
 
         // 로그인 경로거나 토큰이 없을시 다음 필터로 넘김
-        if (requestURI.equals(NO_CHECK_URL) || accessToken == null) {
+        if (requestURI.equals(NO_CHECK_URL) || !accessTokenOpt.isPresent()) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        String accessToken = accessTokenOpt.get();
 
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {
@@ -75,9 +78,9 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, String accessToken, FilterChain filterChain) throws ServletException, IOException {
 
-        String username = jwtUtil.extractEmail(accessToken);
+        String email = jwtUtil.extractEmail(accessToken);
         String role = jwtUtil.extractRole(accessToken);
-        UserDTO userDTO = new UserDTO(username, role);
+        UserDTO userDTO = new UserDTO(email, role);
 
         CustomUserDetails customUserDetails = new CustomUserDetails(userDTO);
         saveAuthentication(customUserDetails);

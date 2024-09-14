@@ -37,14 +37,12 @@ public class CustomUserDetails  implements UserDetails {
 
     @Override
     public String getPassword() {
-
         return userDTO.getPassword();
     }
 
     @Override
     public String getUsername() {
-
-        return userDTO.getUsername();
+        return userDTO.getEmail();
     }
 
     @Override

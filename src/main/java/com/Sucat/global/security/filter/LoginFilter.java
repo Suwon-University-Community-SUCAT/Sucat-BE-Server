@@ -4,7 +4,6 @@ import com.Sucat.global.security.dto.LoginDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,10 +18,8 @@ import static com.Sucat.global.common.constant.ConstraintConstants.CONTENT_TYPE;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final ObjectMapper objectMapper;
-    private final AuthenticationManager authenticationManager;
 
-    public LoginFilter(ObjectMapper objectMapper, AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+    public LoginFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
     @Override
@@ -44,11 +41,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
 
 
-        String username = loginDTO.getUsername();
+        String email = loginDTO.getEmail();
         String password = loginDTO.getPassword();
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);//principal 과 credentials 전달
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password); //principal 과 credentials 전달
 
-        return authenticationManager.authenticate(authToken);
+        return this.getAuthenticationManager().authenticate(authToken);
     }
 }

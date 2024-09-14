@@ -11,9 +11,6 @@ public interface JwtUtil {
     String createRefreshToken(String email, String role); // RefreshToken 생성 - 보안, I/O 감소 이유로 사용
 
     String createAdminAccessToken(String email, String role);
-    void updateRefreshToken(String email, String refreshToken); // RefreshToken 갱신
-
-    void destroyRefreshToken(String email); // RefreshToken 삭제
 
     void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken); // Token들 전송
     void sendAccessToken(HttpServletResponse response, String accessToken); // AccessToken 전송

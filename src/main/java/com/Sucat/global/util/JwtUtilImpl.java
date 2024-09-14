@@ -1,7 +1,6 @@
 package com.Sucat.global.util;
 
 import com.Sucat.domain.token.exception.TokenException;
-import com.Sucat.domain.token.model.Token;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
@@ -88,29 +87,6 @@ public class JwtUtilImpl implements JwtUtil {
                 .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret));
         // RefreshToken의 목적은 액세스 토큰의 갱신이기 때문에 클레임 포함X
-    }
-
-    @Override
-    public void updateRefreshToken(String email, String refreshToken) {
-        userRepository.findByEmail(email)
-                .ifPresentOrElse(
-                        user ->
-                                tokenRepository.save(
-                                        Token.builder()
-                                                .token(refreshToken)
-                                                .email(user.getEmail())
-                                                .build()), // 값이 존재한다면 refreshToken 업데이트
-                        () -> new UserException(ErrorCode.USER_NOT_FOUND) // 존재하지 않으면 예외 팔생
-                );
-    }
-
-    @Override
-    public void destroyRefreshToken(String email) {
-        userRepository.findByEmail(email)
-                .ifPresentOrElse(
-                        user -> tokenRepository.deleteByEmail(user.getEmail()), // 값이 존재한다면 refreshToken 삭제
-                        () -> new UserException(ErrorCode.USER_NOT_FOUND) // 존재하지 않으면 예외 발생
-                );
     }
 
     // HTTPServletResponse를 사용하여 클라이언트에게 AccessToken, RefreshToken을 전송하는 메서드
