@@ -12,8 +12,9 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     @Query("SELECT u FROM Token u WHERE u.email = :email")
     Optional<Token> findByEmail(String email);
 
-    @Query("SELECT u FROM Token u WHERE u.token = :token")
-    Optional<Token> findByToken(String token);
+    Optional<Token> findByAccessToken(String accessToken);
+
+    boolean existsByAccessToken(String accessToken);
 
     @Transactional
     @Modifying

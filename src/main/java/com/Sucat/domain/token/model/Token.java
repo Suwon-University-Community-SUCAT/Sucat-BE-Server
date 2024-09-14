@@ -2,7 +2,9 @@ package com.Sucat.domain.token.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,6 +20,25 @@ public class Token {
     @Column(name = "email", unique = true)
     private String email;
 
-    @Column(name = "token", nullable = false)
-    private String token;
+    @Column(name = "refreshToken", nullable = false, length = 500)
+    private String refreshToken;
+
+    @Column(name = "accessToken", nullable = false, length = 500)
+    private String accessToken;
+
+    public Token updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+        return this;
+    }
+
+    public void updateAccessToken(String newAccessToken) {
+        this.accessToken = newAccessToken;
+        log.info(this.accessToken);
+    }
+
+    public Token(String email, String refreshToken, String accessToken) {
+        this.email = email;
+        this.refreshToken = refreshToken;
+        this.accessToken = accessToken;
+    }
 }
