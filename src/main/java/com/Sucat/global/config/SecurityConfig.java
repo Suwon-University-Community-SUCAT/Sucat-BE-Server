@@ -4,8 +4,8 @@ import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.security.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
+import com.Sucat.global.security.filter.LoginFilter;
 import com.Sucat.global.security.handler.LoginFailureHandler;
 import com.Sucat.global.security.handler.LoginSuccessJWTProvideHandler;
 import com.Sucat.global.security.service.UserDetailsServiceImpl;
@@ -17,8 +17,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,6 +42,8 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Value("${admin.email}")
     private String adminEmail;
@@ -68,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**", "/sub/**", "/pub/**", "/chats/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
-                .addFilterAt(jsonUsernamePasswordLoginFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -90,9 +92,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception { //AuthenticationManager 등록
-        DaoAuthenticationProvider provider = daoAuthenticationProvider(); //DaoAuthenticationProvider 사용
-        return new ProviderManager(provider);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
@@ -106,9 +108,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordLoginFilter() throws Exception {
-        JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordLoginFilter = new JsonUsernamePasswordAuthenticationFilter(objectMapper);
-        jsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
+    public LoginFilter loginFilter() throws Exception {
+        LoginFilter jsonUsernamePasswordLoginFilter = new LoginFilter(objectMapper, authenticationManager(authenticationConfiguration));
         jsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
         jsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
         return jsonUsernamePasswordLoginFilter;

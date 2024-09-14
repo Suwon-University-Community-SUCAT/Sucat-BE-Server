@@ -1,6 +1,6 @@
 package com.Sucat.global.security.handler;
 
-import com.Sucat.domain.token.model.RefreshToken;
+import com.Sucat.domain.token.model.Token;
 import com.Sucat.domain.token.repository.RefreshTokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
@@ -56,12 +56,12 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
             String accessToken = jwtUtil.createAccessToken(email); // AccessToken 발급
             String refreshToken = jwtUtil.createRefreshToken(email); // RefreshToken 발급
 
-            RefreshToken newRefreshToken = RefreshToken.builder()
+            Token newToken = Token.builder()
                     .email(existUser.getEmail())
                     .token(refreshToken)
                     .build();
 
-            refreshTokenRepository.save(newRefreshToken);
+            refreshTokenRepository.save(newToken);
 
             jwtUtil.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
         }
