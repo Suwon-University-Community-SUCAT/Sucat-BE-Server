@@ -8,11 +8,11 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-@Table(name = "refresh_tokens")
-public class RefreshToken {
+@Table(name = "tokens")
+public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "refresh_tokens_id")
+    @Column(name = "token_id")
     private Long id;
 
     @Column(name = "email", unique = true)

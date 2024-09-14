@@ -33,6 +33,7 @@ public class ChatMessageController {
         chatMessageService.handleMessage(roomId, senderId, content);
     }
 
+    // TODO 현재 로직은 무한 스크롤 조회 시 필요없는 정보도 같이 조회되고 있음. 수정 필요
     /* 채팅방 열기, 채팅방 메시지 목록 조회*/
     @GetMapping("/api/v1/chatrooms/{roomId}/messages")
     public ResponseEntity<ApiResponse<Object>> openChatroomWithMessages(@PathVariable("roomId") String roomId,

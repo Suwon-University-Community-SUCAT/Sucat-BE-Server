@@ -1,9 +1,9 @@
 package com.Sucat.domain.token.service;
 
 import com.Sucat.domain.token.exception.TokenException;
-import com.Sucat.domain.token.model.RefreshToken;
+import com.Sucat.domain.token.model.Token;
 import com.Sucat.domain.token.model.TokenResponse;
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class TokenService {
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
 
     public TokenResponse reissueAccessToken(HttpServletRequest request) {
@@ -38,7 +38,7 @@ public class TokenService {
 
     private void validateRefreshToken(String email, String refreshToken) {
 
-        Optional<RefreshToken> existRefreshTokenOpt = refreshTokenRepository.findByEmail(email);
+        Optional<Token> existRefreshTokenOpt = tokenRepository.findByEmail(email);
         if (!existRefreshTokenOpt.isPresent()) {
             throw new TokenException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }

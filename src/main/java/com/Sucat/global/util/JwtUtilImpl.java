@@ -1,8 +1,8 @@
 package com.Sucat.global.util;
 
 import com.Sucat.domain.token.exception.TokenException;
-import com.Sucat.domain.token.model.RefreshToken;
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.model.Token;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserRepository;
@@ -51,7 +51,7 @@ public class JwtUtilImpl implements JwtUtil {
     private String refreshHeader;
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private ObjectMapper objectMapper;
 
 
@@ -92,8 +92,8 @@ public class JwtUtilImpl implements JwtUtil {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
                         user ->
-                                refreshTokenRepository.save(
-                                        RefreshToken.builder()
+                                tokenRepository.save(
+                                        Token.builder()
                                                 .token(refreshToken)
                                                 .email(user.getEmail())
                                                 .build()), // 값이 존재한다면 refreshToken 업데이트
@@ -105,7 +105,7 @@ public class JwtUtilImpl implements JwtUtil {
     public void destroyRefreshToken(String email) {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
-                        user -> refreshTokenRepository.deleteByEmail(user.getEmail()), // 값이 존재한다면 refreshToken 삭제
+                        user -> tokenRepository.deleteByEmail(user.getEmail()), // 값이 존재한다면 refreshToken 삭제
                         () -> new UserException(ErrorCode.USER_NOT_FOUND) // 존재하지 않으면 예외 발생
                 );
     }

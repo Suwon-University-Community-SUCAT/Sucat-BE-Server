@@ -1,6 +1,6 @@
 package com.Sucat.global.config;
 
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
@@ -40,7 +40,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -99,7 +99,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
-        return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, refreshTokenRepository);
+        return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, tokenRepository);
     }
 
     @Bean

@@ -1,7 +1,7 @@
 package com.Sucat.global.security.handler;
 
 import com.Sucat.domain.token.model.Token;
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.model.UserRole;
@@ -25,7 +25,7 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
 
     /**
      * 로그인 성공시
@@ -39,7 +39,7 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
 
         if (existUser != null) {
             log.info("기존 유저입니다.");
-            refreshTokenRepository.deleteByEmail(existUser.getEmail());
+            tokenRepository.deleteByEmail(existUser.getEmail());
         } else {
             log.info("신규 유저입니다. 회원가입이 필요합니다.");
             throw new UserException(ErrorCode.USER_NOT_FOUND);
@@ -61,7 +61,7 @@ public class LoginSuccessJWTProvideHandler implements AuthenticationSuccessHandl
                     .token(refreshToken)
                     .build();
 
-            refreshTokenRepository.save(newToken);
+            tokenRepository.save(newToken);
 
             jwtUtil.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 설정
         }

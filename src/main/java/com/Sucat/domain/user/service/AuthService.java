@@ -2,7 +2,7 @@ package com.Sucat.domain.user.service;
 
 import com.Sucat.domain.image.model.Image;
 import com.Sucat.domain.image.service.ImageService;
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.code.ErrorCode;
@@ -21,7 +21,7 @@ import java.io.IOException;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final ImageService imageService;
@@ -52,7 +52,7 @@ public class AuthService {
         String email = user.getEmail();
 
         // 리프레시 토큰 삭제
-        refreshTokenRepository.deleteByEmail(email);
+        tokenRepository.deleteByEmail(email);
 
         // 클라이언트 측 토큰 삭제
         jwtUtil.setAccessTokenHeader(response, "");
