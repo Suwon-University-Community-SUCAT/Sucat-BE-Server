@@ -67,19 +67,6 @@ public class ChatRoomService {
                 .toList();
     }
 
-    /* 채팅방 열기 메서드 */
-    public RoomResponse openChatRoom(ChatRoom chatRoom, User sender) {
-        User receiver = null;
-
-        if (chatRoom.getSender().equals(sender)) {
-            receiver = chatRoom.getReceiver();
-        } else {
-            receiver = chatRoom.getSender();
-        }
-
-        return RoomResponse.of(chatRoom.getId(), sender, receiver);
-    }
-
     /* Using Method */
     private ChatRoom findExistingChatRoom(User sender, User receiver) {
         return chatRoomRepository.findBySenderAndReceiver(sender, receiver)

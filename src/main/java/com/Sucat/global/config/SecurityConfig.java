@@ -1,11 +1,13 @@
 package com.Sucat.global.config;
 
-import com.Sucat.domain.token.repository.RefreshTokenRepository;
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
+import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.model.UserRole;
 import com.Sucat.domain.user.repository.UserRepository;
-import com.Sucat.global.security.filter.JsonUsernamePasswordAuthenticationFilter;
+import com.Sucat.global.security.filter.CustomLogoutFilter;
 import com.Sucat.global.security.filter.JwtAuthenticationProcessingFilter;
+import com.Sucat.global.security.filter.LoginFilter;
 import com.Sucat.global.security.handler.LoginFailureHandler;
 import com.Sucat.global.security.handler.LoginSuccessJWTProvideHandler;
 import com.Sucat.global.security.service.UserDetailsServiceImpl;
@@ -27,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -40,7 +43,8 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final JwtUtil jwtUtil;
 
     @Value("${admin.email}")
@@ -49,14 +53,22 @@ public class SecurityConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
+    @Value("${security.origins}")
+    private String allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationProcessingFilter(), LoginFilter.class)
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, blacklistedTokenRepository,tokenRepository), LogoutFilter.class)
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error", "/redis/**", "/stomp", "/stomp/**").permitAll() // 정적 자원 설정
                         .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
@@ -67,9 +79,8 @@ public class SecurityConfig {
                         .requestMatchers("/notification/**").permitAll()
                         .requestMatchers("/ws/**", "/sub/**", "/pub/**", "/chats/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .anyRequest().authenticated())
-                .addFilterAt(jsonUsernamePasswordLoginFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated());
+
         return http.build();
     }
 
@@ -90,14 +101,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception { //AuthenticationManager 등록
-        DaoAuthenticationProvider provider = daoAuthenticationProvider(); //DaoAuthenticationProvider 사용
-        return new ProviderManager(provider);
-    }
-
-    @Bean
     public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
-        return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, refreshTokenRepository);
+        return new LoginSuccessJWTProvideHandler(jwtUtil, userRepository, tokenRepository);
     }
 
     @Bean
@@ -106,12 +111,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordLoginFilter() throws Exception {
-        JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordLoginFilter = new JsonUsernamePasswordAuthenticationFilter(objectMapper);
-        jsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
-        jsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
-        jsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
-        return jsonUsernamePasswordLoginFilter;
+    public AuthenticationManager authenticationManager() throws Exception { //AuthenticationManager 등록
+        DaoAuthenticationProvider provider = daoAuthenticationProvider(); //DaoAuthenticationProvider 사용
+        return new ProviderManager(provider);
+    }
+
+    @Bean
+    public LoginFilter loginFilter() throws Exception {
+        LoginFilter loginFilter = new LoginFilter(objectMapper);
+        loginFilter.setAuthenticationManager(authenticationManager());
+        loginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
+        loginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        return loginFilter;
     }
 
     @Bean
@@ -135,18 +146,21 @@ public class SecurityConfig {
         };
     }
 
-    // CORS 설정
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setAllowedHeaders(Collections.singletonList(allowedOrigins));
             config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
+            config.setAllowedOriginPatterns(Collections.singletonList("*"));
             config.setAllowCredentials(true);
             config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+            config.setMaxAge(3600L);
+
             /* 응답 헤더 설정 추가*/
-            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
+            config.setExposedHeaders(Collections.singletonList("Authorization"));
+            config.setExposedHeaders(Collections.singletonList("Authorization-refresh"));
+            config.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+
             return config;
         };
     }

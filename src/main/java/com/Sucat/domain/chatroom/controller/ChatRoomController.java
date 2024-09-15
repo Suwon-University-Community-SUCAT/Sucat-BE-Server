@@ -1,6 +1,5 @@
 package com.Sucat.domain.chatroom.controller;
 
-import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.annotation.CurrentUser;
@@ -25,7 +24,7 @@ import static com.Sucat.domain.chatroom.dto.ChatRoomDto.*;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
-    // 채팅방 주소 생성/가져오기
+    /* 채팅방 주소 생성/가져오기 */
     @PostMapping("/{email}")
     public ResponseEntity<ApiResponse<Object>> getOrCreateRoom(@PathVariable(name = "email") String email, @CurrentUser User sender) {
 
@@ -40,17 +39,6 @@ public class ChatRoomController {
         }
     }
 
-    //  채팅방 열기
-    @GetMapping("/{roomId}")
-    public ResponseEntity<ApiResponse<Object>> getChatRoom(@PathVariable("roomId") String roomId,
-                                                           @CurrentUser User user) {
-
-        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
-        RoomResponse roomResponse = chatRoomService.openChatRoom(chatRoom, user);
-
-        return ApiResponse.onSuccess(SuccessCode._OK, roomResponse);
-    }
-
     /* 채팅방 목록 */
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getChats(
@@ -61,9 +49,10 @@ public class ChatRoomController {
         return ApiResponse.onSuccess(SuccessCode._OK, chatRoomListResponses);
     }
 
+    /* 기존 채팅방 주소 생성 메서드 */
     private URI buildChatRoomUri(String roomId) {
         return UriComponentsBuilder.newInstance()
-                .path("/api/v1/chats/{roomId}")
+                .path("/api/v1/chatrooms/{roomId}/messages")
                 .buildAndExpand(roomId)
                 .toUri();
     }

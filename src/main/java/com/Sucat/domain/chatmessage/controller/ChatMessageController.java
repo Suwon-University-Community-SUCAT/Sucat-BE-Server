@@ -1,15 +1,14 @@
 package com.Sucat.domain.chatmessage.controller;
 
 import com.Sucat.domain.chatmessage.dto.ChatMessageDto;
-import com.Sucat.domain.chatmessage.dto.ChatMessageResponse;
-import com.Sucat.domain.chatmessage.model.ChatMessage;
 import com.Sucat.domain.chatmessage.service.ChatMessageService;
+import com.Sucat.domain.chatroom.dto.ChatRoomDto;
+import com.Sucat.domain.user.model.User;
+import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import com.Sucat.global.common.response.PageInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,22 +33,14 @@ public class ChatMessageController {
         chatMessageService.handleMessage(roomId, senderId, content);
     }
 
-    // 채팅방 메시지 목록 가져오기
-    @GetMapping("/api/v1/chats/messages/{roomId}")
-    public ResponseEntity<ApiResponse<Object>> getMessages(@PathVariable("roomId") String roomId,
-                                                           @RequestParam(defaultValue = "1") int page,
-                                                           @RequestParam(defaultValue = "10") int size) {
-        Page<ChatMessage> messages =
-                chatMessageService.getChatRoomMessages(roomId, page, size);
-        PageInfo pageInfo = new PageInfo(page, size, (int)messages.getTotalElements(), messages.getTotalPages());
-
-        List<ChatMessageResponse.ChatRoomMessageResponse> chatRoomMessageResponses = messages.getContent().stream().map(
-                ChatMessageResponse.ChatRoomMessageResponse::of
-        ).toList();
-
-        ChatMessageResponse.ChatRoomMessageWithPageInfoResponse chatRoomMessageWithPageInfoResponse = ChatMessageResponse.ChatRoomMessageWithPageInfoResponse.of(chatRoomMessageResponses, pageInfo);
-
-        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomMessageWithPageInfoResponse);
+    // TODO 현재 로직은 무한 스크롤 조회 시 필요없는 정보도 같이 조회되고 있음. 수정 필요
+    /* 채팅방 열기, 채팅방 메시지 목록 조회*/
+    @GetMapping("/api/v1/chatrooms/{roomId}/messages")
+    public ResponseEntity<ApiResponse<Object>> openChatroomWithMessages(@PathVariable("roomId") String roomId,
+                                                                        @RequestParam(name = "lastMessageId", required = false) Long lastMessageId,
+                                                                        @RequestParam(defaultValue = "30") int size,
+                                                                        @CurrentUser User user) {
+        ChatRoomDto.ChatRoomInfoWithMessagesResponse chatRoomInfoWithMessagesResponse = chatMessageService.getMessagesForInfiniteScroll(roomId, lastMessageId, size, user);
+        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomInfoWithMessagesResponse);
     }
-
 }

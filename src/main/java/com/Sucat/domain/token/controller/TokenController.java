@@ -21,7 +21,7 @@ public class TokenController {
     // Refresh Token이 유효할시 Access Token 재발급 API
     @GetMapping("/reissue/accessToken")
     public ResponseEntity<ApiResponse<Object>> reissueAccessToken(HttpServletRequest request) {
-        TokenResponse accessToken = tokenService.reissueAccessToken(request);
-        return ApiResponse.onSuccess(SuccessCode.CREATED_ACCESS_TOKEN, accessToken);
+        TokenResponse tokenResponse = tokenService.reissueAccessToken(request);
+        return ApiResponse.onSuccess(SuccessCode.CREATED_ACCESS_TOKEN, tokenResponse);
     }
 }

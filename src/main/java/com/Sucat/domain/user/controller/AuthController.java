@@ -1,11 +1,8 @@
 package com.Sucat.domain.user.controller;
 
-import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.service.AuthService;
-import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
 import com.Sucat.global.common.response.ApiResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +18,6 @@ import static com.Sucat.domain.user.dto.UserDto.JoinUserRequest;
 @RequestMapping("/api/v1/users")
 public class AuthController {
     private final AuthService authService;
-
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Object>> logout(@CurrentUser User user, HttpServletResponse response) {
-        authService.logout(user, response);
-        return ApiResponse.onSuccess(SuccessCode._OK);
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Object>> signup(
