@@ -1,9 +1,9 @@
 package com.Sucat.domain.chatmessage.service;
 
+import com.Sucat.domain.chatmessage.dto.ChatMessageResponseDTO;
 import com.Sucat.domain.chatmessage.dto.ChatRoomMessageResponseDto;
 import com.Sucat.domain.chatmessage.model.ChatMessage;
 import com.Sucat.domain.chatmessage.repository.ChatMessageRepository;
-import com.Sucat.domain.chatroom.dto.ChatRoomDto;
 import com.Sucat.domain.chatroom.model.ChatRoom;
 import com.Sucat.domain.chatroom.service.ChatRoomService;
 import com.Sucat.domain.user.model.User;
@@ -67,10 +67,29 @@ public class ChatMessageService {
         log.info("메시지 저장 완료");
     }
 
-    /* 채팅방 열기, 채팅방 메시지 목록 조회 메서드 */
-    public ChatRoomDto.ChatRoomInfoWithMessagesResponse getMessagesForInfiniteScroll(String roomId, Long lastMessageId, int size, User currentUser) {
+    /* 채팅방 열기 */
+    public ChatMessageResponseDTO.ChatRoomOpenWithMessagesResponse getChatRoomFirstMessages(String roomId, int size, User currentUser) {
         ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
         User receiver = findReceiver(currentUser, chatRoom);
+
+        PageRequest pageable = PageRequest.of(0, size, Sort.by("id").descending());
+        Page<ChatMessage> pagedMessages = chatMessageRepository.findMessagesByRoomIdBeforeMessageId(roomId, Long.MAX_VALUE, pageable);
+
+        // 빈 채팅방일 경우 빈 리스트를 반환
+        if (pagedMessages.isEmpty()) {
+            return ChatMessageResponseDTO.ChatRoomOpenWithMessagesResponse.of(chatRoom.getId(), currentUser, receiver, Collections.emptyList());
+        }
+
+        List<ChatRoomMessageResponseDto> chatRoomMessageResponseDtoList = pagedMessages.stream()
+                .map(ChatRoomMessageResponseDto::of)
+                .toList();
+
+        return ChatMessageResponseDTO.ChatRoomOpenWithMessagesResponse.of(chatRoom.getId(), currentUser, receiver, chatRoomMessageResponseDtoList);
+    }
+
+    /* 채팅방 메시지 무한 스크롤 조회 메서드 */
+    public ChatMessageResponseDTO.InfiniteScrollMessagesResponse getMessagesForInfiniteScroll(String roomId, Long lastMessageId, int size) {
+        ChatRoom chatRoom = chatRoomService.findByRoomId(roomId);
 
         Long messageId = Optional.ofNullable(lastMessageId).orElse(Long.MAX_VALUE);
         PageRequest pageable = PageRequest.of(0, size, Sort.by("id").descending());
@@ -78,14 +97,14 @@ public class ChatMessageService {
 
         // 빈 채팅방일 경우 빈 리스트를 반환
         if (pagedMessages.isEmpty()) {
-            return ChatRoomDto.ChatRoomInfoWithMessagesResponse.of(chatRoom.getId(), currentUser, receiver, Collections.emptyList());
+            return ChatMessageResponseDTO.InfiniteScrollMessagesResponse.of(chatRoom.getId(), Collections.emptyList());
         }
 
         List<ChatRoomMessageResponseDto> chatRoomMessageResponseDtoList = pagedMessages.stream()
                 .map(ChatRoomMessageResponseDto::of)
                 .toList();
 
-        return ChatRoomDto.ChatRoomInfoWithMessagesResponse.of(chatRoom.getId(), currentUser, receiver, chatRoomMessageResponseDtoList);
+        return ChatMessageResponseDTO.InfiniteScrollMessagesResponse.of(chatRoom.getId(), chatRoomMessageResponseDtoList);
     }
 
     /* Using Method */

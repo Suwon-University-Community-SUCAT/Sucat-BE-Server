@@ -1,8 +1,8 @@
 package com.Sucat.domain.chatmessage.controller;
 
 import com.Sucat.domain.chatmessage.dto.ChatMessageDto;
+import com.Sucat.domain.chatmessage.dto.ChatMessageResponseDTO;
 import com.Sucat.domain.chatmessage.service.ChatMessageService;
-import com.Sucat.domain.chatroom.dto.ChatRoomDto;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.annotation.CurrentUser;
 import com.Sucat.global.common.code.SuccessCode;
@@ -33,14 +33,22 @@ public class ChatMessageController {
         chatMessageService.handleMessage(roomId, senderId, content);
     }
 
-    // TODO 현재 로직은 무한 스크롤 조회 시 필요없는 정보도 같이 조회되고 있음. 수정 필요
-    /* 채팅방 열기, 채팅방 메시지 목록 조회*/
-    @GetMapping("/api/v1/chatrooms/{roomId}/messages")
+    /* 채팅방 열기*/
+    @GetMapping("/api/v1/chatrooms/{roomId}/open")
     public ResponseEntity<ApiResponse<Object>> openChatroomWithMessages(@PathVariable("roomId") String roomId,
-                                                                        @RequestParam(name = "lastMessageId", required = false) Long lastMessageId,
                                                                         @RequestParam(defaultValue = "30") int size,
                                                                         @CurrentUser User user) {
-        ChatRoomDto.ChatRoomInfoWithMessagesResponse chatRoomInfoWithMessagesResponse = chatMessageService.getMessagesForInfiniteScroll(roomId, lastMessageId, size, user);
-        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomInfoWithMessagesResponse);
+        ChatMessageResponseDTO.ChatRoomOpenWithMessagesResponse chatRoomFirstMessages = chatMessageService.getChatRoomFirstMessages(roomId, size, user);
+        return ApiResponse.onSuccess(SuccessCode._OK, chatRoomFirstMessages);
     }
+
+    /* 채팅방 메시지 무한 스크롤 조회*/
+    @GetMapping("/api/v1/chatrooms/{roomId}/message")
+    public ResponseEntity<ApiResponse<Object>> messagesForInfiniteScroll(@PathVariable("roomId") String roomId,
+                                                                        @RequestParam(name = "lastMessageId", required = false) Long lastMessageId,
+                                                                        @RequestParam(defaultValue = "30") int size) {
+        ChatMessageResponseDTO.InfiniteScrollMessagesResponse messagesForInfiniteScroll = chatMessageService.getMessagesForInfiniteScroll(roomId, lastMessageId, size);
+        return ApiResponse.onSuccess(SuccessCode._OK, messagesForInfiniteScroll);
+    }
+
 }
