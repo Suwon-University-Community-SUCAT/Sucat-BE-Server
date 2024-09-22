@@ -71,7 +71,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/favicon.*", "/*/icon-*", "/", "/error/**", "/error", "/redis/**", "/stomp", "/stomp/**").permitAll() // 정적 자원 설정
-                        .requestMatchers("/api/v1/users/signup/**", "/login").permitAll()
+                        .requestMatchers("/api/v1/users/signup/**", "/api/v1/users/signup", "/login").permitAll()
                         .requestMatchers("/api/v1/users/password").permitAll()
                         .requestMatchers("/api/v1/reissue/accessToken").permitAll()
                         .requestMatchers("/api/v1/users/nickname/duplication").permitAll()
@@ -127,9 +127,8 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jsonUsernamePasswordLoginFilter = new JwtAuthenticationProcessingFilter(jwtUtil, userRepository);
 
-        return jsonUsernamePasswordLoginFilter;
+        return new JwtAuthenticationProcessingFilter(jwtUtil);
     }
 
     @Bean

@@ -1,26 +1,23 @@
 package com.Sucat.global.security.filter;
 
-import com.Sucat.domain.user.repository.UserRepository;
 import com.Sucat.global.security.CustomUserDetails;
 import com.Sucat.global.security.dto.UserDTO;
 import com.Sucat.global.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,16 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-
-    @Value("${admin.email}")
-    private String adminEmail;
-
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
-
-    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-
-    private static final String NO_CHECK_URL = "/login";
 
     /**
      * 1. RefreshToken이 오는 경우 -> 유효하면 AccessToken 재발급후, 필터 진행 X
@@ -46,34 +34,30 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("Received request URI: " + request.getRequestURI());
-        String requestURI = request.getRequestURI();
+        log.info("request URl: {}", request.getRequestURI());
+        if (isExemptUrl(request.getRequestURI())|| request.getRequestURI().equals("/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         Optional<String> accessTokenOpt = jwtUtil.extractAccessToken(request);
 
-        // 로그인 경로거나 토큰이 없을시 다음 필터로 넘김
-        if (requestURI.equals(NO_CHECK_URL) || !accessTokenOpt.isPresent()) {
-            filterChain.doFilter(request, response);
+        if (accessTokenOpt.isEmpty()) {
+            setUnauthorized(response);
             return;
         }
 
         String accessToken = accessTokenOpt.get();
 
-        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
-        try {
-            jwtUtil.isTokenValid(accessToken);
-        } catch (ExpiredJwtException e) {
+        if (!jwtUtil.isTokenValid(accessToken)) {
             //response body
             PrintWriter writer = response.getWriter();
             writer.print("access token expired");
-
-            //response status code
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            setUnauthorized(response);
+        } else {
+            checkAccessTokenAndAuthentication(request, response, accessToken, filterChain);
+            filterChain.doFilter(request, response);
         }
-
-        checkAccessTokenAndAuthentication(request, response, accessToken, filterChain);
-        filterChain.doFilter(request, response);
     }
 
     private void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response, String accessToken, FilterChain filterChain) throws ServletException, IOException {
@@ -95,6 +79,44 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
+    // 인증 실패 처리
+    private void setUnauthorized(HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    // 특정 URL에 대한 토큰 체크 면제
+    private boolean isExemptUrl(String requestURI) {
+        List<String> exemptUrls = exemptUrls();
+        return exemptUrls.stream().anyMatch(requestURI::startsWith);
+    }
+
+    private List<String> exemptUrls() {
+        return Arrays.asList(
+                "/css/**",         // CSS 파일들
+                "/images/**",      // 이미지 파일들
+                "/js/**",          // 자바스크립트 파일들
+                "/favicon.*",      // 파비콘 파일
+                "/*/icon-*",       // 아이콘 파일
+                "/error",          // 에러 페이지
+                "/error/**",       // 에러 관련 경로
+                "/redis/**",       // Redis 관련 경로
+                "/stomp",          // STOMP 관련 경로
+                "/stomp/**",       // STOMP 관련 하위 경로
+                "/api/v1/users/signup/**",  // 회원가입 관련 경로
+                "/api/v1/users/signup",
+                "/login",          // 로그인 경로
+                "/api/v1/users/password",  // 비밀번호 관련 경로
+                "/api/v1/reissue/accessToken", // Access Token 재발급 경로
+                "/api/v1/users/nickname/duplication",  // 닉네임 중복 확인
+                "/api/v1/verification/**",  // 인증 관련 경로
+                "/notification/**",  // 알림 관련 경로
+                "/ws/**",            // 웹소켓 관련 경로
+                "/sub/**",           // 웹소켓 구독 경로
+                "/pub/**",           // 웹소켓 발행 경로
+                "/chats/**",         // 채팅 관련 경로
+                "/healthcheck"       // 헬스체크 경로
+        );
+    }
 
 
 }
