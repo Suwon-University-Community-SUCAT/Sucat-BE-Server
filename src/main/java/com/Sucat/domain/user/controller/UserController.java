@@ -56,12 +56,14 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 비밀번호 변경 */
     @PostMapping("/change/password")
     public ResponseEntity<ApiResponse<Object>> changeProfile(@CurrentUser User user, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
         userService.changePassword(user, userPasswordUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 나의 프로필 보가 */
     @GetMapping("/myProfile")
     public ResponseEntity<ApiResponse<Object>> myProfile(
             @CurrentUser User user
