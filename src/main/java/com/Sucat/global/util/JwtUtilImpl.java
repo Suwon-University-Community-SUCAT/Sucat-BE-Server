@@ -1,6 +1,7 @@
 package com.Sucat.global.util;
 
 import com.Sucat.domain.token.exception.TokenException;
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
@@ -51,6 +52,7 @@ public class JwtUtilImpl implements JwtUtil {
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private ObjectMapper objectMapper;
 
 
@@ -165,15 +167,17 @@ public class JwtUtilImpl implements JwtUtil {
     public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
         response.setHeader(refreshHeader, refreshToken);
     }
-
+    
     @Override
     public boolean isTokenValid(String token) {
         try {
+            if (blacklistedTokenRepository.existsByToken(token)) {
+                log.error("Token is blacklisted");
+                return false;
+            }
             JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
-            log.info("유효한 Token입니다.");
             return true;
         } catch (Exception e) {
-            log.info("토큰 검사: {}", token);
             log.error("유효하지 않은 Token입니다.", e.getMessage());
             return false;
         }

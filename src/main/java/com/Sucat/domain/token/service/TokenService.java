@@ -3,6 +3,7 @@ package com.Sucat.domain.token.service;
 import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.token.model.Token;
 import com.Sucat.domain.token.model.TokenResponse;
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @Slf4j
 public class TokenService {
     private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final JwtUtil jwtUtil;
 
     /* 토큰 재발급 메서드 */
@@ -83,13 +85,15 @@ public class TokenService {
     }
 
     /**
-     * 알림 삭제 메서드
-     * RefreshToken의 만료 기한(7일)이 지난 알림은 매일 자정에 삭제
+     * RefreshToken의 만료 기한(7일)이 지난 토큰은 자정에 자동 삭제
+     * AccessToken의 만료 기한(1시간)이 지난 블랙리스트는 자정에 자동 삭제
      */
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    public void delete() {
-        LocalDateTime date = LocalDateTime.now().minusDays(7);
-        tokenRepository.deleteByCreatedAt(date);
+    public void deleteToken() {
+        LocalDateTime date7 = LocalDateTime.now().minusDays(7);
+        tokenRepository.deleteByCreatedAt(date7);
+        LocalDateTime date1 = LocalDateTime.now().minusHours(1);
+        blacklistedTokenRepository.deleteByCreatedAt(date1);
     }
 }
