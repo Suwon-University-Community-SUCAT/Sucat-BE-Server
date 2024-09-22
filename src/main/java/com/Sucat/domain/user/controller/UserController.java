@@ -25,25 +25,29 @@ public class UserController {
     private final UserService userService;
     private final UserDetailsService userDetailsService;
 
+    /* 닉네임 중복 검사 */
     @GetMapping("/nickname/duplication")
     public ResponseEntity<ApiResponse<Object>> nicknameDuplication(@RequestParam("nickname") @NotNull String nickname) {
         userService.nicknameDuplicateVerification(nickname);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 비밀번호 찾기/초기화 */
     @PostMapping("/password")
     public ResponseEntity<ApiResponse<Object>> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
         userService.resetPassword(passwordResetRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 프로필 변경 - 기존 정보 가져오기 */
     @GetMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> getCurrentUserProfile(@CurrentUser User user) {
         UserProfileResponse userProfile = userService.getUserProfile(user);
         return ApiResponse.onSuccess(SuccessCode._OK, userProfile);
     }
 
-    @PostMapping("/change/profile")
+    /* 프로필 변경 */
+    @PatchMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> updateProfile(
             @CurrentUser User user,
             @RequestPart(name = "userProfileUpdateRequest") @Valid UserProfileUpdateRequest userProfileUpdateRequest,
@@ -52,12 +56,14 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 비밀번호 변경 */
     @PostMapping("/change/password")
     public ResponseEntity<ApiResponse<Object>> changeProfile(@CurrentUser User user, @RequestBody @Valid UserPasswordUpdateRequest userPasswordUpdateRequest) {
         userService.changePassword(user, userPasswordUpdateRequest);
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
+    /* 나의 프로필 보가 */
     @GetMapping("/myProfile")
     public ResponseEntity<ApiResponse<Object>> myProfile(
             @CurrentUser User user

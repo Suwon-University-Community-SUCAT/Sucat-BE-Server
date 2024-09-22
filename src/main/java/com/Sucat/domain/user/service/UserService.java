@@ -36,11 +36,17 @@ public class UserService {
     /* 회원 프로필 업데이트 메서드 */
     @Transactional
     public void updateProfile(User user, UserProfileUpdateRequest userProfileUpdateRequest, MultipartFile image) throws IOException {
+        // 닉네임이 null이 아니고 빈 값이 아니면 닉네임 변경 로직 수행
+        if (userProfileUpdateRequest.nickname() != null && !userProfileUpdateRequest.nickname().isEmpty()) {
+            // 닉네임 중복 검사
+            nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
+            user.updateNickname(userProfileUpdateRequest.nickname());
+        }
 
-        // 닉네임 중복 검사
-        nicknameDuplicateVerification(userProfileUpdateRequest.nickname());
-
-        user.updateProfile(userProfileUpdateRequest.nickname(), userProfileUpdateRequest.intro());
+        // 한줄 소개가 null이 아니고 빈 값이 아니면 한줄 소개 변경 로직 수행
+        if (userProfileUpdateRequest.intro() != null && !userProfileUpdateRequest.intro().isEmpty()) {
+            user.updateIntro(userProfileUpdateRequest.intro());
+        }
 
         updateUserImage(image, user);
     }
