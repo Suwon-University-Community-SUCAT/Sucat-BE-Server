@@ -9,9 +9,11 @@ import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -22,6 +24,7 @@ public class TokenService {
     private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
 
+    /* 토큰 재발급 메서드 */
     @Transactional
     public TokenResponse reissueAccessToken(HttpServletRequest request) {
         String accessToken = jwtUtil.extractAccessToken(request)
@@ -77,5 +80,16 @@ public class TokenService {
 //        tokenRepository.save(token);
 
         log.info(token.getAccessToken());
+    }
+
+    /**
+     * 알림 삭제 메서드
+     * RefreshToken의 만료 기한(7일)이 지난 알림은 매일 자정에 삭제
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void delete() {
+        LocalDateTime date = LocalDateTime.now().minusDays(7);
+        tokenRepository.deleteByCreatedAt(date);
     }
 }
