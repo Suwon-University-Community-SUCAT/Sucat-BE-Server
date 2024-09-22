@@ -153,13 +153,9 @@ public class SecurityConfig {
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Collections.singletonList("*"));
             config.setAllowCredentials(true);
-            config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
             config.setMaxAge(3600L);
-
-            /* 응답 헤더 설정 추가*/
-            config.setExposedHeaders(Collections.singletonList("Authorization"));
-            config.setExposedHeaders(Collections.singletonList("Authorization-refresh"));
-            config.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+            config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+            config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Set-Cookie"));
 
             return config;
         };
