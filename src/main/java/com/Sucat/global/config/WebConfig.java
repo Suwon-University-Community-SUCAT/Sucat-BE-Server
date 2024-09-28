@@ -27,7 +27,10 @@ public class WebConfig implements WebMvcConfigurer{
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
-                .exposedHeaders("Set-Cookie")
-                .allowedOrigins(allowedOrigins);
+                .exposedHeaders("Set-Cookie", "Authorization", "Authorization-refresh") // 한번에 설정
+                .allowedOrigins(allowedOrigins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 메서드 설정
+                .allowedHeaders("Authorization", "Authorization-refresh", "Content-Type")
+                .allowCredentials(true);
     }
 }

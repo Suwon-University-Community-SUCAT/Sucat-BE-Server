@@ -1,5 +1,6 @@
 package com.Sucat.domain.token.model;
 
+import com.Sucat.global.common.dao.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Getter
 @Table(name = "tokens")
-public class Token {
+public class Token extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "token_id")

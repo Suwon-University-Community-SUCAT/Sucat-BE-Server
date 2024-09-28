@@ -3,15 +3,18 @@ package com.Sucat.domain.token.service;
 import com.Sucat.domain.token.exception.TokenException;
 import com.Sucat.domain.token.model.Token;
 import com.Sucat.domain.token.model.TokenResponse;
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.global.common.code.ErrorCode;
 import com.Sucat.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -20,8 +23,10 @@ import java.util.Optional;
 @Slf4j
 public class TokenService {
     private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final JwtUtil jwtUtil;
 
+    /* 토큰 재발급 메서드 */
     @Transactional
     public TokenResponse reissueAccessToken(HttpServletRequest request) {
         String accessToken = jwtUtil.extractAccessToken(request)
@@ -77,5 +82,18 @@ public class TokenService {
 //        tokenRepository.save(token);
 
         log.info(token.getAccessToken());
+    }
+
+    /**
+     * RefreshToken의 만료 기한(7일)이 지난 토큰은 자정에 자동 삭제
+     * AccessToken의 만료 기한(1시간)이 지난 블랙리스트는 자정에 자동 삭제
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void deleteToken() {
+        LocalDateTime date7 = LocalDateTime.now().minusDays(7);
+        tokenRepository.deleteByCreatedAt(date7);
+        LocalDateTime date1 = LocalDateTime.now().minusHours(1);
+        blacklistedTokenRepository.deleteByCreatedAt(date1);
     }
 }

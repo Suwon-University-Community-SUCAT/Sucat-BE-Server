@@ -1,6 +1,7 @@
 package com.Sucat.global.util;
 
 import com.Sucat.domain.token.exception.TokenException;
+import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
@@ -51,6 +52,7 @@ public class JwtUtilImpl implements JwtUtil {
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     private ObjectMapper objectMapper;
 
 
@@ -59,7 +61,7 @@ public class JwtUtilImpl implements JwtUtil {
         log.info("Access Token이 발행되었습니다.");
         return JWT.create() // JWT 생성 빌더를 초기화
                 .withSubject(ACCESS_TOKEN_SUBJECT) // JWT의 Subject를 설정한다. subject는 토큰의 목적, 주제를 나타냄.
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 1000)) // 만료 시간 설정
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds)) // 만료 시간 설정
                 .withClaim(USERNAME_CLAIM, email) // 토큰에 사용자 이메일 정보를 클레임으로 추가
                 .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘을 사용하여, 토큰에 서명. 서명 키: secret 변수로 설정된 값
@@ -82,7 +84,7 @@ public class JwtUtilImpl implements JwtUtil {
         log.info("Refresh Token이 발행되었습니다.");
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds))
                 .withClaim(USERNAME_CLAIM, email)
                 .withClaim(ROLE_CLAIM, role)
                 .sign(Algorithm.HMAC512(secret));
@@ -165,15 +167,17 @@ public class JwtUtilImpl implements JwtUtil {
     public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
         response.setHeader(refreshHeader, refreshToken);
     }
-
+    
     @Override
     public boolean isTokenValid(String token) {
         try {
+            if (blacklistedTokenRepository.existsByToken(token)) {
+                log.error("Token is blacklisted");
+                return false;
+            }
             JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
-            log.info("유효한 Token입니다.");
             return true;
         } catch (Exception e) {
-            log.info("토큰 검사: {}", token);
             log.error("유효하지 않은 Token입니다.", e.getMessage());
             return false;
         }
