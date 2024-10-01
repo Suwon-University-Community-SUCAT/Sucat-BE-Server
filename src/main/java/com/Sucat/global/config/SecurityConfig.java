@@ -1,5 +1,8 @@
 package com.Sucat.global.config;
 
+import com.Sucat.domain.game.model.Game;
+import com.Sucat.domain.game.model.GameCategory;
+import com.Sucat.domain.game.repository.GameRepository;
 import com.Sucat.domain.token.repository.BlacklistedTokenRepository;
 import com.Sucat.domain.token.repository.TokenRepository;
 import com.Sucat.domain.user.model.User;
@@ -141,6 +144,19 @@ public class SecurityConfig {
                         .role(UserRole.ADMIN)
                         .build();
                 userRepository.save(admin);
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner initGames(GameRepository gameRepository) {
+        return args -> {
+            if (gameRepository.count() == 0) {
+                gameRepository.save(new Game(GameCategory.GAME1));
+                gameRepository.save(new Game(GameCategory.GAME2));
+                gameRepository.save(new Game(GameCategory.GAME3));
+                gameRepository.save(new Game(GameCategory.GAME4));
+                gameRepository.save(new Game(GameCategory.GAME5));
             }
         };
     }
