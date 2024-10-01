@@ -24,6 +24,10 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameScore> scores; // 게임 점수 리스트
 
+    public Game(GameCategory category) {
+        this.category = category;
+    }
+
     /* Using Method */
     // 회원별 랭킹 리스트 조회
     public List<GameScore> getUserRanking() {

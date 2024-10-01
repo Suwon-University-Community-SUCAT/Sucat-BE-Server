@@ -4,4 +4,5 @@ import com.Sucat.domain.game.model.GameScore;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GameScoreRepository extends JpaRepository<GameScore, Long> {
+    GameScore findByUserIdAndGameId(Long userId, Long gameId);
 }
