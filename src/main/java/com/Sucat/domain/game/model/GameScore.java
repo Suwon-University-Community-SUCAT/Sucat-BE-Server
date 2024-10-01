@@ -32,4 +32,12 @@ public class GameScore {
         this.game = game;
         this.score = score;
     }
+
+    /* Using Method */
+    // 점수 업데이트 메서드
+    public void updateScore(int newScore) {
+        if (newScore > this.score) {
+            this.score = newScore; // 최고 점수 갱신
+        }
+    }
 }

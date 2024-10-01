@@ -23,4 +23,20 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameScore> scores; // 게임 점수 리스트
+
+    /* Using Method */
+    // 회원별 랭킹 리스트 조회
+    public List<GameScore> getUserRanking() {
+        return scores.stream()
+                .sorted((s1, s2) -> Integer.compare(s2.getScore(), s1.getScore())) // 점수 내림차순 정렬
+                .toList();
+    }
+
+    // 학과별 랭킹 리스트 조회
+    public List<GameScore> getDepartmentRanking(String department) {
+        return scores.stream()
+                .filter(score -> score.getUser().getDepartment().name().equals(department)) // 해당 학과 필터링
+                .sorted((s1, s2) -> Integer.compare(s2.getScore(), s1.getScore())) // 점수 내림차순 정렬
+                .toList();
+    }
 }
