@@ -1,6 +1,7 @@
 package com.Sucat.domain.user.dto;
 
 import com.Sucat.domain.image.model.Image;
+import com.Sucat.domain.user.model.Department;
 import com.Sucat.domain.user.model.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class UserDto {
             String name,
             @Size(min = 2, max = 20, message = "닉네임은 2자에서 20자 사이여야 합니다.")
             String nickname,
-            String department
+            Department department
     ) {
         public User toEntity() {
             return User.builder()
@@ -73,7 +74,7 @@ public class UserDto {
             @NotNull
             String nickname,
             String intro,
-            String department,
+            Department department,
             String imageName
     ) {
         public static UserProfileResponse of(User user) {
@@ -94,7 +95,7 @@ public class UserDto {
             String email,
             @NotNull
             String nickname,
-            String department,
+            Department department,
             String intro,
             String imageName
     ) {

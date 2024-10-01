@@ -1,5 +1,6 @@
 package com.Sucat.domain.friendship.dto;
 
+import com.Sucat.domain.user.model.Department;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ public class FriendListResponse {
     private Long friendshipId;
     private String friendEmail;
     private String friendNickname;
-    private String department;
+    private Department department;
     private String intro;
     private String profileImageName;
 }

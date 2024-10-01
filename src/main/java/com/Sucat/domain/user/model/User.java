@@ -39,7 +39,8 @@ public class User extends BaseEntity {
 
     private String intro;
 
-    private String department;
+    @Enumerated(EnumType.STRING)
+    private Department department;
 
     private String nickname;
 
