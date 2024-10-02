@@ -52,9 +52,24 @@ public class GameService {
             gameScore.updateScore(score);
         }
 
-        //TODO: 학과 랭킹 갱신 로직 추가 - 학과 최고 점수를 갱신하는 경우에만 실행(점수 기본값: 0), 학과 점수를 갱신하지 않는 경우 패스
+        List<DepartmentRanking> departmentRankings = game.getDepartmentRankings();
+        Optional<DepartmentRanking> departmentRankingOpt = departmentRankings.stream().filter(d -> d.getDepartment() == user.getDepartment()).findFirst();
+        DepartmentRanking departmentRanking = null;
+        if (departmentRankingOpt.isEmpty()) {
+            departmentRanking = new DepartmentRanking(user.getDepartment(), score, 0);
+            game.addDepartmentRanking(departmentRanking);
+        } else {
+            departmentRanking = departmentRankingOpt.get();
 
+            if (departmentRanking.getHighestScore() < score) {
+                departmentRanking.updateHighestScore(score);
+                game.updateRankings();
+            }
+        }
+
+        departmentRankingRepository.save(departmentRanking);
         gameScoreRepository.save(gameScore);
+        gameRepository.save(game);
     }
 
     /*
@@ -80,7 +95,7 @@ public class GameService {
             int rank = departmentRankingOpt.get().getRanking();
             userRankingResponse = UserRankingWithDepartmentRankingResponse.of(userRankingInfo, rank);
         } else {
-            userRankingResponse = UserRankingWithDepartmentRankingResponse.of(userRankingInfo, 0);
+            userRankingResponse = UserRankingWithDepartmentRankingResponse.of(userRankingInfo, 0); // 학과 랭킹이 존재하지 않는 경우 0으로 설정
         }
 
         return TopPlayersWithUserRankingResponse.of(top10PlayersByCategory, userRankingResponse);
