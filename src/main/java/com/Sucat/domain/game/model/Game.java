@@ -1,10 +1,12 @@
 package com.Sucat.domain.game.model;
 
+import com.Sucat.domain.user.model.Department;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -24,23 +26,37 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameScore> scores; // 게임 점수 리스트
 
+    @OneToMany(mappedBy = "department")
+    private List<DepartmentRanking> departmentRankings;
+
     public Game(GameCategory category) {
         this.category = category;
     }
 
     /* Using Method */
-    // 회원별 랭킹 리스트 조회
-    public List<GameScore> getUserRanking() {
-        return scores.stream()
-                .sorted((s1, s2) -> Integer.compare(s2.getScore(), s1.getScore())) // 점수 내림차순 정렬
-                .toList();
+
+    /* 학과 랭킹 업데이트 - 학과 별 최고 점수가 갱신되는 경우에만 실행*/
+    public void updateDepartmentRanking(Department department, int highestScore) {
+        // 랭킹 업데이트
+        DepartmentRanking ranking = departmentRankings.stream()
+                .filter(r -> r.getDepartment() == department)
+                .findFirst()
+                .orElse(new DepartmentRanking(department, highestScore, 0));
+
+        ranking.updateHighestScore(highestScore);
+        updateRankings(); // 모든 랭킹을 업데이트하는 메서드 호출
     }
 
-    // 학과별 랭킹 리스트 조회
-    public List<GameScore> getDepartmentRanking(String department) {
-        return scores.stream()
-                .filter(score -> score.getUser().getDepartment().name().equals(department)) // 해당 학과 필터링
-                .sorted((s1, s2) -> Integer.compare(s2.getScore(), s1.getScore())) // 점수 내림차순 정렬
+    // 학과 랭킹 업데이트
+    private void updateRankings() {
+        // 모든 학과의 랭킹을 내림차순으로 정렬
+        List<DepartmentRanking> sortedRankings = departmentRankings.stream()
+                .sorted(Comparator.comparingInt(DepartmentRanking::getHighestScore).reversed())
                 .toList();
+
+        // 순위를 부여
+        for (int i = 0; i < sortedRankings.size(); i++) {
+            sortedRankings.get(i).updateRank(i + 1);
+        }
     }
 }
