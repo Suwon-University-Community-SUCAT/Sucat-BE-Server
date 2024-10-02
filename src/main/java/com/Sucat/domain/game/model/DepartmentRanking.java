@@ -21,6 +21,10 @@ public class DepartmentRanking {
     private int highestScore = 0;
     private int ranking = 0;
 
+    @ManyToOne(fetch = FetchType.LAZY) // Game과의 관계를 설정
+    @JoinColumn(name = "game_id") // 외래 키 컬럼 설정
+    private Game game;
+
     public DepartmentRanking(Department department, int highestScore, int ranking) {
         this.department = department;
         this.highestScore = highestScore;
@@ -34,5 +38,9 @@ public class DepartmentRanking {
 
     public void updateRank(int ranking) {
         this.ranking = ranking;
+    }
+
+    public void addGame(Game game) {
+        this.game = game;
     }
 }
