@@ -23,7 +23,7 @@ public class GameController {
     @PostMapping("/score")
     public ResponseEntity<ApiResponse<Object>> saveUserScore(
             @CurrentUser User user,
-            GameDto.GameScoreRequest gameScoreRequest
+            @RequestBody GameDto.GameScoreRequest gameScoreRequest
     ) {
         gameService.saveScore(user, gameScoreRequest);
 
@@ -31,7 +31,7 @@ public class GameController {
     }
 
     /* 게임 개인 랭킹 Top10 + 사용자 랭킹/점수/학과 랭킹 조회 */
-    @GetMapping("/game/user/ranking")
+    @GetMapping("/user/ranking")
     public ResponseEntity<ApiResponse<Object>> getTop10PlayersWithUserRanking(@RequestParam(name = "category") GameCategory category,
                                                                               @CurrentUser User user) {
         GameDto.TopPlayersWithUserRankingResponse topPlayersWithUserRanking = gameService.getTopPlayersWithUserRanking(user, category);
