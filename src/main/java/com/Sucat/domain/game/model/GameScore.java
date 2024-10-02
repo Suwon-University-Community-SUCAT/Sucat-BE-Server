@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class GameScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "score_id")
+    @Column(name = "game_score_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
