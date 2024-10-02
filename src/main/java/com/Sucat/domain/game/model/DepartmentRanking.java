@@ -12,18 +12,19 @@ import lombok.NoArgsConstructor;
 public class DepartmentRanking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "department_ranking_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     private Department department;
 
     private int highestScore = 0;
-    private int rank = 0;
+    private int ranking = 0;
 
-    public DepartmentRanking(Department department, int highestScore, int rank) {
+    public DepartmentRanking(Department department, int highestScore, int ranking) {
         this.department = department;
         this.highestScore = highestScore;
-        this.rank = rank;
+        this.ranking = ranking;
     }
 
     /* Using Method */
@@ -31,7 +32,7 @@ public class DepartmentRanking {
         this.highestScore = highestScore;
     }
 
-    public void updateRank(int rank) {
-        this.rank = rank;
+    public void updateRank(int ranking) {
+        this.ranking = ranking;
     }
 }
