@@ -114,8 +114,13 @@ public enum ErrorCode implements BaseCode{
     /**
      * Notification
      */
-    COMMENT_NOT_FOUND(NOT_FOUND, "C001", "존재하지 않는 댓글입니다.");
+    COMMENT_NOT_FOUND(NOT_FOUND, "C001", "존재하지 않는 댓글입니다."),
 
+    /**
+     * Game
+     */
+    GAME_NOT_FOUND(NOT_FOUND, "G001", "존재하지 않는 게임입니다."),
+    RANKING_NOT_FOUND(NOT_FOUND, "D001", "존재하지 않는 랭킹 정보입ㄴ디ㅏ.");
 
 
     private final HttpStatus httpStatus;
