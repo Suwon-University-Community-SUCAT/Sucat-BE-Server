@@ -40,9 +40,9 @@ public class GameService {
         int score = gameScoreRequest.score();
 
         Game game = findByGameCategory(gameCategory);
-        GameScore gameScore = gameScoreRepository.findByUserIdAndGameId(user.getId(), game.getId());
-
-        if (gameScore == null) {
+        Optional<GameScore> gameScoreOpt = gameScoreRepository.findByUserIdAndGameId(user.getId(), game.getId());
+        GameScore gameScore;
+        if (gameScoreOpt.isEmpty()) {
             // 기존 점수가 없으면 점수 초기화
             gameScore = GameScore.builder()
                     .user(user)
@@ -51,6 +51,7 @@ public class GameService {
                     .build();
         } else {
             // 기존 점수가 있다면 점수 업데이트
+            gameScore = gameScoreOpt.get();
             gameScore.updateScore(score);
         }
 
@@ -72,6 +73,24 @@ public class GameService {
         departmentRankingRepository.save(departmentRanking);
         gameScoreRepository.save(gameScore);
         gameRepository.save(game);
+    }
+
+    /**
+     * category와 일치하는 게임의 점수 top3
+     * 사용자의 게임 점수 조회
+     */
+    public Top3PlayersWithUserScoreResponse getTop3PlayersWithUserScore(User user, GameCategory category) {
+        List<GameRankingResponse> top3PlayersByCategory = gameQueryRepository.findTopPlayersByCategory(category, 3);
+
+        Game game = findByGameCategory(category);
+        Optional<GameScore> gameScoreOpt = gameScoreRepository.findByUserIdAndGameId(user.getId(), game.getId());
+        int score = 0;
+
+        if (gameScoreOpt.isPresent()) {
+            score = gameScoreOpt.get().getScore();
+        }
+
+        return Top3PlayersWithUserScoreResponse.of(top3PlayersByCategory, score);
     }
 
     /*

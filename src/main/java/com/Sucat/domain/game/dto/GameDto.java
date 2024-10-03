@@ -55,6 +55,22 @@ public class GameDto {
     }
 
     @Builder
+    public record Top3PlayersWithUserScoreResponse(
+            List<GameRankingResponse> top3Players,
+            int score
+    ) {
+        public static Top3PlayersWithUserScoreResponse of(
+                List<GameRankingResponse> top3Players,
+                int score
+        ) {
+            return Top3PlayersWithUserScoreResponse.builder()
+                    .top3Players(top3Players)
+                    .score(score)
+                    .build();
+        }
+    }
+
+    @Builder
     public record DepartmentRankingDto(
             Department department,
             int highScore,

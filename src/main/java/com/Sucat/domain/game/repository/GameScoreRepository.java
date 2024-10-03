@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GameScoreRepository extends JpaRepository<GameScore, Long> {
-    GameScore findByUserIdAndGameId(Long userId, Long gameId);
+    Optional<GameScore> findByUserIdAndGameId(Long userId, Long gameId);
 
     /* 게임 카테고리와 일치하는 게임의 점수를 내림차순으로 정렬*/
     @Query("SELECT gs FROM GameScore gs WHERE gs.game.category = :gameCategory ORDER BY gs.score DESC")
