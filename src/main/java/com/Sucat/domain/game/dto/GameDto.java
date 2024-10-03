@@ -1,6 +1,8 @@
 package com.Sucat.domain.game.dto;
 
+import com.Sucat.domain.game.model.DepartmentRanking;
 import com.Sucat.domain.game.model.GameCategory;
+import com.Sucat.domain.user.model.Department;
 import lombok.Builder;
 
 import java.util.List;
@@ -22,13 +24,13 @@ public class GameDto {
      */
 
     @Builder
-    public record UserRankingWithDepartmentRankingResponse(
+    public record UserGameInfoResponse(
             int score,
             int ranking,
             int departmentRanking
     ) {
-        public static UserRankingWithDepartmentRankingResponse of(UserRankingResponse userRankingResponse, int departmentRanking) {
-            return UserRankingWithDepartmentRankingResponse.builder()
+        public static UserGameInfoResponse of(UserRankingResponse userRankingResponse, int departmentRanking) {
+            return UserGameInfoResponse.builder()
                     .score(userRankingResponse.getScore())
                     .ranking(userRankingResponse.getRanking())
                     .departmentRanking(departmentRanking)
@@ -39,16 +41,37 @@ public class GameDto {
     @Builder
     public record TopPlayersWithUserRankingResponse(
             List<GameRankingResponse> top10Players,
-            UserRankingWithDepartmentRankingResponse rankingResponse
+            UserGameInfoResponse userGameInfo
     ) {
         public static TopPlayersWithUserRankingResponse of(
                 List<GameRankingResponse> top10Players,
-                UserRankingWithDepartmentRankingResponse rankingResponse
+                UserGameInfoResponse rankingResponse
         ) {
             return TopPlayersWithUserRankingResponse.builder()
                     .top10Players(top10Players)
-                    .rankingResponse(rankingResponse)
+                    .userGameInfo(rankingResponse)
                     .build();
         }
+    }
+
+    @Builder
+    public record DepartmentRankingDto(
+            Department department,
+            int highScore,
+            int ranking
+    ) {
+        public static DepartmentRankingDto of(DepartmentRanking departmentRanking) {
+            return DepartmentRankingDto.builder()
+                    .department(departmentRanking.getDepartment())
+                    .highScore(departmentRanking.getHighestScore())
+                    .ranking(departmentRanking.getRanking())
+                    .build();
+        }
+    }
+
+    public record AllDepartmentRankingWithUserRanking(
+            List<DepartmentRankingDto> departmentRankingDtoList,
+            UserGameInfoResponse userGameInfo
+    ) {
     }
 }

@@ -38,4 +38,13 @@ public class GameController {
 
         return ApiResponse.onSuccess(SuccessCode._OK ,topPlayersWithUserRanking);
     }
+
+    /* 게임 전체 학과 랭킹 + 사용자 랭킹/점수/학과 랭킹 조회 */
+    @GetMapping("/department/ranking")
+    public ResponseEntity<ApiResponse<Object>> getAllDepartmentRankingWithUserRanking(@RequestParam(name="category") GameCategory category,
+                                                                                      @CurrentUser User user) {
+        GameDto.AllDepartmentRankingWithUserRanking allDepartmentRankingWithUserRanking = gameService.getAllDepartmentRankingWithUserRanking(user, category);
+
+        return ApiResponse.onSuccess(SuccessCode._OK, allDepartmentRankingWithUserRanking);
+    }
 }

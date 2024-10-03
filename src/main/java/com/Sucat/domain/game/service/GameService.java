@@ -74,8 +74,7 @@ public class GameService {
 
     /*
     * category와 일치하는 게임의 점수 상위 10명 조회(내림차순 정렬)
-    * 사용자의 게임 랭킹/점수 조회
-    * 사용자가 속한 학과의 랭킹 조회
+    * 사용자의 게임 랭킹/점수 조회,사용자가 속한 학과의 랭킹 조회 - 반복 로직
     *
     * TODO: 랭킹 조회 방식을 고민중. DB에서 직접 조회하는 방식과 Game 엔티티 내에 랭킹 정보를 저장해두고 업데이트하는 방식 중 고민
     *  우선 초반에는 DB 직접 조회 방식을 채택하고, 성능에 문제가 있다면 수정하는 방향으로 결정
@@ -85,27 +84,46 @@ public class GameService {
         // top10 조회
         List<GameRankingResponse> top10PlayersByCategory = gameScoreRepository.findTop10PlayersByCategory(category);
 
-        //사용자 랭킹/점수 조회
-        UserRankingResponse userRankingInfo = getUserRank(user.getId(), category);
+        UserGameInfoResponse userGameInfoResponse = getUserRankingWithDepartmentRankingResponse(user, category);
 
-        // 사용자 학과 랭킹 조회
-        Optional<DepartmentRanking> departmentRankingOpt = departmentRankingRepository.findByDepartment(user.getDepartment());
-        UserRankingWithDepartmentRankingResponse userRankingResponse = null;
-        if (departmentRankingOpt.isPresent()) {
-            int rank = departmentRankingOpt.get().getRanking();
-            userRankingResponse = UserRankingWithDepartmentRankingResponse.of(userRankingInfo, rank);
-        } else {
-            userRankingResponse = UserRankingWithDepartmentRankingResponse.of(userRankingInfo, 0); // 학과 랭킹이 존재하지 않는 경우 0으로 설정
-        }
-
-        return TopPlayersWithUserRankingResponse.of(top10PlayersByCategory, userRankingResponse);
+        return TopPlayersWithUserRankingResponse.of(top10PlayersByCategory, userGameInfoResponse);
     }
 
+    /*
+    * category와 일치하는 게임의 전체 학과 랭킹 (DESC/내림차순)
+    * 사용자의 게임 랭킹/점수 조회, 사용자가 속한 학과의 랭킹 조회 - 반복 로직
+     */
+    public AllDepartmentRankingWithUserRanking getAllDepartmentRankingWithUserRanking(User user, GameCategory category) {
+        Game game = findByGameCategory(category);
+        List<DepartmentRankingDto> departmentRankingDtoList = game.getDepartmentRankings().stream()
+                .map(DepartmentRankingDto::of)
+                .toList();
+        UserGameInfoResponse userGameInfoResponse = getUserRankingWithDepartmentRankingResponse(user, category);
+
+        return new AllDepartmentRankingWithUserRanking(departmentRankingDtoList, userGameInfoResponse);
+    }
 
     /*Using Method*/
     public Game findByGameCategory(GameCategory category) {
         return gameRepository.findByCategory(category)
                 .orElseThrow(() -> new GameException(ErrorCode.GAME_NOT_FOUND));
+    }
+
+    // 사용자의 게임 랭킹/점수 조회, 사용자 학과 랭킹 조회
+    private UserGameInfoResponse getUserRankingWithDepartmentRankingResponse(User user, GameCategory category) {
+        //사용자 랭킹/점수 조회
+        UserRankingResponse userRankingInfo = getUserRank(user.getId(), category);
+
+        // 사용자 학과 랭킹 조회
+        Optional<DepartmentRanking> departmentRankingOpt = departmentRankingRepository.findByDepartment(user.getDepartment());
+        UserGameInfoResponse userRankingResponse = null;
+        if (departmentRankingOpt.isPresent()) {
+            int rank = departmentRankingOpt.get().getRanking();
+            userRankingResponse = UserGameInfoResponse.of(userRankingInfo, rank);
+        } else {
+            userRankingResponse = UserGameInfoResponse.of(userRankingInfo, 0); // 학과 랭킹이 존재하지 않는 경우 0으로 설정
+        }
+        return userRankingResponse;
     }
 
     // 사용자 랭킹 조회
@@ -121,4 +139,5 @@ public class GameService {
         }
         return new UserRankingResponse(0,0); // 사용자가 점수를 갖고 있지 않은 경우
     }
+
 }
