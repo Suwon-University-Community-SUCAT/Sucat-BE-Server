@@ -30,6 +30,20 @@ public class GameController {
         return ApiResponse.onSuccess(SuccessCode._CREATED);
     }
 
+//    /* 게임 대기창 - 게임 점수 top3, 개인 점수 */
+//    @GetMapping
+//    public ResponseEntity<ApiResponse<Object>> getTop3PlayersWithUserScore(@RequestParam(name="category") GameCategory category,
+//                                                                           @CurrentUser User user) {
+//        gameService.getTop3PlayersWithUserScore(user, category);
+//    }
+//    /**
+//     * category와 일치하는 게임의 점수 top3
+//     * 사용자의 게임 점수 조회
+//     */
+//    public void getTop3PlayersWithUserScore(User user, GameCategory category) {
+//
+//    }
+
     /* 게임 개인 랭킹 Top10 + 사용자 랭킹/점수/학과 랭킹 조회 */
     @GetMapping("/user/ranking")
     public ResponseEntity<ApiResponse<Object>> getTop10PlayersWithUserRanking(@RequestParam(name = "category") GameCategory category,

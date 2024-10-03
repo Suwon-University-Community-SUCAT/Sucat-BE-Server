@@ -8,6 +8,7 @@ import com.Sucat.domain.game.model.Game;
 import com.Sucat.domain.game.model.GameCategory;
 import com.Sucat.domain.game.model.GameScore;
 import com.Sucat.domain.game.repository.DepartmentRankingRepository;
+import com.Sucat.domain.game.repository.GameQueryRepository;
 import com.Sucat.domain.game.repository.GameRepository;
 import com.Sucat.domain.game.repository.GameScoreRepository;
 import com.Sucat.domain.user.model.User;
@@ -28,6 +29,7 @@ import static com.Sucat.domain.game.dto.GameDto.*;
 @RequiredArgsConstructor
 public class GameService {
     private final GameRepository gameRepository;
+    private final GameQueryRepository gameQueryRepository;
     private final GameScoreRepository gameScoreRepository;
     private final DepartmentRankingRepository departmentRankingRepository;
 
@@ -82,7 +84,7 @@ public class GameService {
     public TopPlayersWithUserRankingResponse getTopPlayersWithUserRanking(User user, GameCategory category) {
         Game game = findByGameCategory(category);
         // top10 조회
-        List<GameRankingResponse> top10PlayersByCategory = gameScoreRepository.findTop10PlayersByCategory(category);
+        List<GameRankingResponse> top10PlayersByCategory = gameQueryRepository.findTopPlayersByCategory(category, 10);
 
         UserGameInfoResponse userGameInfoResponse = getUserRankingWithDepartmentRankingResponse(user, category);
 
