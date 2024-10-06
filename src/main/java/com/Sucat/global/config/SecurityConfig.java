@@ -81,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/verification/**").permitAll()
                         .requestMatchers("/notification/**").permitAll()
                         .requestMatchers("/ws/**", "/sub/**", "/pub/**", "/chats/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated());
 
         return http.build();
