@@ -12,6 +12,7 @@ import com.Sucat.domain.game.repository.GameQueryRepository;
 import com.Sucat.domain.game.repository.GameRepository;
 import com.Sucat.domain.game.repository.GameScoreRepository;
 import com.Sucat.domain.user.model.User;
+import com.Sucat.domain.user.service.UserService;
 import com.Sucat.global.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +33,16 @@ public class GameService {
     private final GameQueryRepository gameQueryRepository;
     private final GameScoreRepository gameScoreRepository;
     private final DepartmentRankingRepository departmentRankingRepository;
+    private final UserService userService;
 
     /* 회원 게임 점수 저장 */
     @Transactional
-    public void saveScore(User user, GameScoreRequest gameScoreRequest) {
+    public void saveScore(GameScoreRequest gameScoreRequest) {
         GameCategory gameCategory = gameScoreRequest.gameCategory();
         int score = gameScoreRequest.score();
+
+        Long userId = gameScoreRequest.userId();
+        User user = userService.findById(userId);
 
         Game game = findByGameCategory(gameCategory);
         Optional<GameScore> gameScoreOpt = gameScoreRepository.findByUserIdAndGameId(user.getId(), game.getId());

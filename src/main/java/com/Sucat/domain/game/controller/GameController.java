@@ -28,10 +28,9 @@ public class GameController {
     /* 게임 점수 저장 */
     @PostMapping("/score")
     public ResponseEntity<ApiResponse<Object>> saveUserScore(
-            @CurrentUser User user,
             @RequestBody GameDto.GameScoreRequest gameScoreRequest
     ) {
-        gameService.saveScore(user, gameScoreRequest);
+        gameService.saveScore(gameScoreRequest);
 
         return ApiResponse.onSuccess(SuccessCode._CREATED);
     }

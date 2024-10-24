@@ -12,6 +12,7 @@ public class GameDto {
      * Request
      */
     public record GameScoreRequest(
+            Long userId,
             GameCategory gameCategory,
             int score
     ) {
