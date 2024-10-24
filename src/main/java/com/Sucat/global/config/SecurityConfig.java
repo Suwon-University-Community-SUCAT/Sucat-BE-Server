@@ -81,6 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/verification/**").permitAll()
                         .requestMatchers("/notification/**").permitAll()
                         .requestMatchers("/ws/**", "/sub/**", "/pub/**", "/chats/**").permitAll()
+                        .requestMatchers("/api/v1/game/score").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated());
 
