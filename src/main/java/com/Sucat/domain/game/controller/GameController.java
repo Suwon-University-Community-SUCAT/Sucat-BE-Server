@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
     private final GameService gameService;
 
+    /*게임 시작 전 유저 식별자 반환*/
+    @GetMapping("/userId")
+    public ResponseEntity<ApiResponse<Object>> getUserId(@CurrentUser User user) {
+        return ApiResponse.onSuccess(SuccessCode._OK, user.getId());
+    }
+
     /* 게임 점수 저장 */
     @PostMapping("/score")
     public ResponseEntity<ApiResponse<Object>> saveUserScore(
