@@ -153,11 +153,11 @@ public class SecurityConfig {
     public CommandLineRunner initGames(GameRepository gameRepository) {
         return args -> {
             if (gameRepository.count() == 0) {
-                gameRepository.save(new Game(GameCategory.GAME1));
-                gameRepository.save(new Game(GameCategory.GAME2));
-                gameRepository.save(new Game(GameCategory.GAME3));
-                gameRepository.save(new Game(GameCategory.GAME4));
-                gameRepository.save(new Game(GameCategory.GAME5));
+                gameRepository.save(new Game(GameCategory.Fruit));
+                gameRepository.save(new Game(GameCategory.Churu));
+                gameRepository.save(new Game(GameCategory.Monster));
+                gameRepository.save(new Game(GameCategory.Ato));
+                gameRepository.save(new Game(GameCategory.Bullet));
             }
         };
     }
