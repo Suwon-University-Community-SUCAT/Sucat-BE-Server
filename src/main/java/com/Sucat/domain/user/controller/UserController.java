@@ -47,7 +47,7 @@ public class UserController {
     }
 
     /* 프로필 변경 */
-    @PatchMapping("/change/profile")
+    @PostMapping("/change/profile")
     public ResponseEntity<ApiResponse<Object>> updateProfile(
             @CurrentUser User user,
             @RequestPart(name = "userProfileUpdateRequest") @Valid UserProfileUpdateRequest userProfileUpdateRequest,
