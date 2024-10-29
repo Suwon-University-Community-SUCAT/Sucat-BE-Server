@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 서버 -> 클라이언트로 발행하는ㅁ ㅔ시지에 대한 endpoint 설정 : 구독
+        // 서버 -> 클라이언트로 발행하는 메시지에 대한 endpoint 설정 : 구독
         config.enableSimpleBroker("/sub"); // 클라이언트가 '/sub/**' 경로를 구독하고 있으면, 서버가 '/sub/**'로 메시지를 보내면 브로커가 이를 클라이언트에게 전달
 
         // 클라이언트 -> 서버로 발행하는 메시지에 대한 endpoint 설정 : 구독에 대한 메시지

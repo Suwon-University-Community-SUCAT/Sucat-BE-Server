@@ -10,6 +10,8 @@ import com.Sucat.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -26,9 +28,9 @@ public class GameController {
     }
 
     /* 게임 점수 저장 */
-    @PostMapping("/score")
+    @MessageMapping("/score") // '/pub/api/v1/game/score'로 오는 웹소켓 요청 처리
     public ResponseEntity<ApiResponse<Object>> saveUserScore(
-            @RequestBody GameDto.GameScoreRequest gameScoreRequest
+            @Payload GameDto.GameScoreRequest gameScoreRequest
     ) {
         gameService.saveScore(gameScoreRequest);
 
