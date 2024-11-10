@@ -141,7 +141,7 @@ public class GameService {
         UserRankingResponse userRankingInfo = getUserRank(user.getId(), category);
 
         // 사용자 학과 랭킹 조회
-        Optional<DepartmentRanking> departmentRankingOpt = departmentRankingRepository.findByDepartment(user.getDepartment());
+        Optional<DepartmentRanking> departmentRankingOpt = departmentRankingRepository.findByDepartmentAndCategory(user.getDepartment(), category);
         UserGameInfoResponse userRankingResponse = null;
         if (departmentRankingOpt.isPresent()) {
             int rank = departmentRankingOpt.get().getRanking();
