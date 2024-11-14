@@ -11,8 +11,10 @@ import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer{
-    @Value("${security.origins}")
-    private String allowedOrigins;
+    @Value("${security.origin1}")
+    private String allowedOrigin1;
+    @Value("${security.origin2}")
+    private String allowedOrigin2;
     private final CurrentUserArgumentResolver currentUserArgumentResolver;
 
     public WebConfig(CurrentUserArgumentResolver currentUserArgumentResolver) {
@@ -28,7 +30,7 @@ public class WebConfig implements WebMvcConfigurer{
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
                 .exposedHeaders("Set-Cookie", "Authorization", "Authorization-refresh") // 한번에 설정
-                .allowedOrigins(allowedOrigins)
+                .allowedOrigins(allowedOrigin1, allowedOrigin2)
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") // 허용할 메서드 설정
                 .allowedHeaders("Authorization", "Authorization-refresh", "Content-Type")
                 .allowCredentials(true);

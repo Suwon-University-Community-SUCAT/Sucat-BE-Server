@@ -56,8 +56,10 @@ public class SecurityConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
-    @Value("${security.origins}")
-    private String allowedOrigins;
+    @Value("${security.origin1}")
+    private String allowedOrigin1;
+    @Value("${security.origin2}")
+    private String allowedOrigin2;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -165,7 +167,7 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList(allowedOrigins));
+            config.setAllowedHeaders(Arrays.asList(allowedOrigin1, allowedOrigin2));
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Collections.singletonList("*"));
             config.setAllowCredentials(true);
