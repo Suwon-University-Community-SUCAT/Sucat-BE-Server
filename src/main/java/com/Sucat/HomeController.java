@@ -14,4 +14,9 @@ public class HomeController {
     public String index() {
         return "index";
     }
+
+    @GetMapping("/healthcheck")
+    public String healthcheck() {
+        return "OK";
+    }
 }
