@@ -58,11 +58,12 @@ public class Image {
 
     }
 
-    public static Image ofNotification(Notification notification, String imageUrl) {
+    public static Image ofNotification(Notification notification, String imageUrl, String imageName) {
 
         return Image.builder()
                 .notification(notification) //연관관계 설정
                 .imageUrl(imageUrl)
+                .imageName(imageName)
                 .build();
 
     }

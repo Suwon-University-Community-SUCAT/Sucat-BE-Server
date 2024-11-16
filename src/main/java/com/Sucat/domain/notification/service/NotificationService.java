@@ -1,7 +1,7 @@
 package com.Sucat.domain.notification.service;
 
 import com.Sucat.domain.image.model.Image;
-import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.image.service.S3Uploader;
 import com.Sucat.domain.notification.exception.NotificationException;
 import com.Sucat.domain.notification.model.Notification;
 import com.Sucat.domain.notification.repository.NotificationQueryRepository;
@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static com.Sucat.domain.notification.dto.NotificationDto.*;
 
@@ -25,16 +27,20 @@ import static com.Sucat.domain.notification.dto.NotificationDto.*;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationQueryRepository notificationQueryRepository;
-    private final ImageService imageService;
+    private final S3Uploader s3Uploader;
 
     /* 공지사항 작성 메서드 */
     @Transactional
-    public void create(Notification notification, List<MultipartFile> images) {
+    public void create(Notification notification, List<MultipartFile> images) throws IOException {
         if (images != null && !images.isEmpty()) {
-            imageService.storeFiles(images).forEach(imageName -> {
-                Image image = Image.ofNotification(notification, imageName);
-                notification.addNotificationImage(image);
-            });
+            List<Map<String, String>> imageInfos = s3Uploader.uploadMultiple(images);
+
+            imageInfos.forEach(imageInfo ->
+                    {
+                        Image image = Image.ofNotification(notification, imageInfo.get("imageUrl"), imageInfo.get("imageName"));
+                        notification.addNotificationImage(image);
+                    }
+            );
         }
         notificationRepository.save(notification);
     }
