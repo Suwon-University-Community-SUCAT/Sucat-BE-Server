@@ -68,15 +68,18 @@ public class NotificationDto {
             @NotNull
             String title,
             String content,
-            List<String> imageNames,
+            List<String> imageUrls,
             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TIME_FORMAT_YYYY_MM_DD_HH_MM)
             LocalDateTime createTime
     ) {
         public static NotificationDetailResponse of(Notification notification) {
+            List<String> imageUrls = notification.getImages().stream()
+                    .map(Image::getImageUrl)
+                    .toList();
             return NotificationDetailResponse.builder()
                     .title(notification.getTitle())
                     .content(notification.getContent())
-                    .imageNames(notification.getImages().stream().map(Image::getImageName).toList())
+                    .imageUrls(imageUrls)
                     .createTime(notification.getCreatedAt())
                     .build();
         }

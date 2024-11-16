@@ -12,6 +12,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.Sucat.domain.notification.dto.NotificationDto.*;
@@ -25,7 +26,7 @@ public class NotificationController {
     @PostMapping("/admin/notification")
     public ResponseEntity<ApiResponse<Object>> createNotification(
             @RequestPart(name = "notificationRequest") @Valid CreateNotificationRequest request,
-            @RequestPart(name = "images", required = false) List<MultipartFile> images) {
+            @RequestPart(name = "images", required = false) List<MultipartFile> images) throws IOException {
         notificationService.create(request.toEntity(), images);
 
         return ApiResponse.onSuccess(SuccessCode._CREATED);

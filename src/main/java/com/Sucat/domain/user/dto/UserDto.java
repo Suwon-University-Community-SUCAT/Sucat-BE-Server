@@ -75,17 +75,17 @@ public class UserDto {
             String nickname,
             String intro,
             Department department,
-            String imageName
+            String imageUrl
     ) {
         public static UserProfileResponse of(User user) {
             Image userImage = user.getUserImage();
-            String imageName = (userImage != null) ? userImage.getImageName() : null;
+            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
 
             return UserProfileResponse.builder()
                     .nickname(user.getNickname())
                     .intro(user.getIntro())
                     .department(user.getDepartment())
-                    .imageName(imageName)
+                    .imageUrl(imageUrl)
                     .build();
         }
     }
@@ -97,18 +97,18 @@ public class UserDto {
             String nickname,
             Department department,
             String intro,
-            String imageName
+            String imageUrl
     ) {
         public static FriendProfileResponse of(User user) {
             Image userImage = user.getUserImage();
-            String imageName = (userImage != null) ? userImage.getImageName() : null;
+            String imageUrl = (userImage != null) ? userImage.getImageUrl() : null;
 
             return FriendProfileResponse.builder()
                     .email(user.getEmail())
                     .nickname(user.getNickname())
                     .department(user.getDepartment())
                     .intro(user.getIntro())
-                    .imageName(imageName)
+                    .imageUrl(imageUrl)
                     .build();
         }
     }
@@ -117,7 +117,7 @@ public class UserDto {
     public record ResponseOnlyUserNameWithId(
             Long userId,
             String nickname,
-            String profileImageName
+            String profileImageUrl
             ) {
         public static ResponseOnlyUserNameWithId of(User user) {
             return ResponseOnlyUserNameWithId.builder()

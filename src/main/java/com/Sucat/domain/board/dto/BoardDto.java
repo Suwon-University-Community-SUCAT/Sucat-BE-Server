@@ -50,22 +50,22 @@ public class BoardDto {
             String title,
             String content,
             String userNickname,
-            List<String> imageNames,
+            List<String> imageUrls,
             int likeCount,
             int commentCount,
             int scrapCount,
             LocalDateTime createdAt
     ) {
         public static BoardListResponse of(Board board) {
-            List<String> imageNames = board.getImageList().stream()
-                    .map(Image::getImageName)
+            List<String> imageUrls = board.getImageList().stream()
+                    .map(Image::getImageUrl)
                     .toList();
             return BoardListResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
-                    .imageNames(imageNames)
+                    .imageUrls(imageUrls)
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())
@@ -106,7 +106,7 @@ public class BoardDto {
             String title,
             String content,
             String userNickname,
-            List<String> imageNames,
+            List<String> imageUrls,
             int likeCount,
             int scrapCount,
             int commentCount,
@@ -117,15 +117,15 @@ public class BoardDto {
             boolean isScrapByUser // 현재 사용자가 스크랩한 게시글인지 체크
     ) {
         public static BoardDetailResponse of(Board board, List<CommentResponseWithBoard> commentList, Boolean isLikedByUser, boolean isScrapByUser) {
-            List<String> imageNames = board.getImageList().stream()
-                    .map(Image::getImageName)
+            List<String> imageUrls = board.getImageList().stream()
+                    .map(Image::getImageUrl)
                     .toList();
             return BoardDetailResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
-                    .imageNames(imageNames)
+                    .imageUrls(imageUrls)
                     .likeCount(board.getLikeCount())
                     .scrapCount(board.getScrapCount())
                     .commentCount(board.getCommentCount())
@@ -141,16 +141,16 @@ public class BoardDto {
     public record BoardUpdateResponse(
             String title,
             String content,
-            List<String> imageNames
+            List<String> imageUrls
     ) {
         public static BoardUpdateResponse of(Board board) {
-            List<String> imageNames = board.getImageList().stream()
-                    .map(Image::getImageName)
+            List<String> imageUrls = board.getImageList().stream()
+                    .map(Image::getImageUrl)
                     .toList();
             return BoardUpdateResponse.builder()
                     .title(board.getTitle())
                     .content(board.getContent())
-                    .imageNames(imageNames)
+                    .imageUrls(imageUrls)
                     .build();
         }
     }
@@ -161,22 +161,22 @@ public class BoardDto {
             String title,
             String content,
             String userNickname,
-            List<String> imageNames,
+            List<String> imageUrls,
             int likeCount,
             int commentCount,
             int scrapCount,
             LocalDateTime createdAt
     ) {
         public static MyBoardResponse of(Board board) {
-            List<String> imageNames = board.getImageList().stream()
-                    .map(Image::getImageName)
+            List<String> imageUrls = board.getImageList().stream()
+                    .map(Image::getImageUrl)
                     .toList();
             return MyBoardResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .userNickname(board.getUser().getNickname())
-                    .imageNames(imageNames)
+                    .imageUrls(imageUrls)
                     .likeCount(board.getLikeCount())
                     .commentCount(board.getCommentCount())
                     .scrapCount(board.getScrapCount())

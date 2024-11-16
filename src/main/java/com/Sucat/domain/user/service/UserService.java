@@ -1,7 +1,7 @@
 package com.Sucat.domain.user.service;
 
 import com.Sucat.domain.image.model.Image;
-import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.image.service.S3Uploader;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.domain.user.repository.UserQueryRepository;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.Sucat.domain.user.dto.UserDto.*;
 import static com.Sucat.global.common.code.ErrorCode.*;
@@ -28,7 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
     private final JwtUtil jwtUtil;
-    private final ImageService imageService;
+    private final S3Uploader s3Uploader;
 
     // 비밀번호 암호화 메서드
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -95,17 +96,18 @@ public class UserService {
     /* Using Method */
     private void updateUserImage(MultipartFile image, User user) throws IOException {
         if (image != null && !image.isEmpty()) {
-            String imageName = imageService.storeFile(image);
-
             Image userImage = user.getUserImage(); // 기존의 사용자 이미지 객체를 가져옴
 
             if (userImage == null) {
                 // 만약 기존 이미지가 없다면 새로운 이미지 객체 생성
-                userImage = Image.ofUser(user, imageName);
+                Map<String, String> imageInfo = s3Uploader.upload(image);
+                userImage = Image.ofUser(user, imageInfo.get("imageUrl"), imageInfo.get("imageName"));
                 user.updateUserImage(userImage);
             } else {
-                // 기존 이미지 객체의 URL만 변경
-                userImage.updateImageName(imageName);
+                // 기존 이미지 객체의 imageUrl, imageName 변경
+                Map<String, String> imageInfo = s3Uploader.updateFile(image, user.getUserImage().getImageName());
+                userImage.updateImageUrl(imageInfo.get("imageUrl"));
+                userImage.updateImageName(imageInfo.get("imageName"));
             }
         }
     }

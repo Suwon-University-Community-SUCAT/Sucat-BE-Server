@@ -13,5 +13,5 @@ public class WaitingFriendDto {
     private Long friendshipId;
     private String friendEmail;
     private String friendNickname;
-    private String profileImageName;
+    private String profileImageUrl;
 }
