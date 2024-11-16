@@ -20,7 +20,7 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     FriendShip findByUserEmail(String userEmail);
     FriendShip findByFriendEmail(String friendEmail);
 
-    @Query("select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
+    @Query("select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageUrl) " +
             "from FriendShip f " +
             "join User u on f.friendEmail = u.email " +
             "LEFT join u.userImage ui on u.userImage.id = ui.id " +

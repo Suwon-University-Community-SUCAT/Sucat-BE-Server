@@ -19,7 +19,7 @@ public class FriendShipQueryRepository {
 
     public List<WaitingFriendDto> findPendingFriendShipsByEmail(String userEmail, String sortKey) {
 
-        String queryStr = "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageName) " +
+        String queryStr = "select new com.Sucat.domain.friendship.dto.WaitingFriendDto(f.id, f.friendEmail, u.nickname, ui.imageUrl) " +
                 "from FriendShip f " +
                 "join User u on f.friendEmail = u.email " +
                 "LEFT join u.userImage ui on u.userImage.id = ui.id " +
@@ -36,7 +36,7 @@ public class FriendShipQueryRepository {
     }
 
     public List<FriendListResponse> findAcceptFriendShipsByEmail(String userEmail, int page, int size, String sortKey) {
-        String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
+        String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageUrl) " +
                 "from FriendShip f " +
                 "join User u on f.friendEmail = u.email " +
                 "LEFT join u.userImage ui on u.userImage.id = ui.id " +
@@ -56,7 +56,7 @@ public class FriendShipQueryRepository {
 
     public List<FriendListResponse> getSearchFriend(final String keyword, final String sortKey, User currentUser) {
 
-        String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageName) " +
+        String queryStr = "select new com.Sucat.domain.friendship.dto.FriendListResponse(f.id, u.email, u.nickname, u.department, u.intro, ui.imageUrl) " +
                 "from FriendShip f " +
                 "join User u on f.friendEmail = u.email " +
                 "LEFT join u.userImage ui on u.userImage.id = ui.id " +
