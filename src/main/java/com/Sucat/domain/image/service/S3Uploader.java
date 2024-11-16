@@ -12,9 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -30,7 +28,7 @@ public class S3Uploader {
         this.bucket = "sucat-file";
     }
 
-    public String upload(MultipartFile multipartFile) throws IOException {
+    public Map<String, String> upload(MultipartFile multipartFile) throws IOException {
         // 파일 이름에서 공백을 제거한 새로운 파일 이름 생성
         String originalFileName = multipartFile.getOriginalFilename();
 
@@ -44,19 +42,26 @@ public class S3Uploader {
 
         String uploadImageUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
-        return uploadImageUrl;
+
+        // URL과 이미지 이름을 반환하는 Map 생성
+        Map<String, String> response = new HashMap<>();
+        response.put("imageUrl", uploadImageUrl);
+        response.put("imageName", uniqueFileName); // 고유한 이미지 이름 추가
+
+        return response;
     }
 
-    public List<String> uploadMultiple(List<MultipartFile> multipartFiles) throws IOException {
-        List<String> uploadImageUrls = new ArrayList<>();
+    public List<Map<String, String>> uploadMultiple(List<MultipartFile> multipartFiles) throws IOException {
+        List<Map<String, String>> uploadImageInfos = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
-            String uploadImageUrl = upload(multipartFile);
-            uploadImageUrls.add(uploadImageUrl);
+            Map<String, String> imageInfo = upload(multipartFile);
+            uploadImageInfos.add(imageInfo); // 각 이미지의 정보(Map)를 리스트에 추가
         }
 
-        return uploadImageUrls;
+        return uploadImageInfos; // 이미지 URL과 이름을 포함한 리스트 반환
     }
+
 
     private File convert(MultipartFile file) throws IOException {
         String originalFileName = file.getOriginalFilename();
@@ -101,11 +106,11 @@ public class S3Uploader {
         }
     }
 
-    public String updateFile(MultipartFile newFile, String oldFileName, String dirName) throws IOException {
+    public Map<String, String> updateFile(MultipartFile newFile, String oldFileName) throws IOException {
         // 기존 파일 삭제
         log.info("S3 oldFileName: " + oldFileName);
         deleteFile(oldFileName);
         // 새 파일 업로드
-        return upload(newFile, dirName);
+        return upload(newFile);
     }
 }

@@ -6,7 +6,7 @@ import com.Sucat.domain.board.model.BoardCategory;
 import com.Sucat.domain.board.repository.BoardQueryRepository;
 import com.Sucat.domain.board.repository.BoardRepository;
 import com.Sucat.domain.image.model.Image;
-import com.Sucat.domain.image.service.ImageService;
+import com.Sucat.domain.image.service.S3Uploader;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
@@ -32,16 +34,16 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardQueryRepository boardQueryRepository;
-    private final ImageService imageService;
+    private final S3Uploader s3Uploader;
 
     /* 게시물 생성 메서드 */
     @Transactional
-    public void createBoard(Board board, User user, List<MultipartFile> images) {
+    public void createBoard(Board board, User user, List<MultipartFile> images) throws IOException {
         if (images != null && !images.isEmpty()) {
-            List<String> imageFileNames = imageService.storeFiles(images);
+            List<Map<String, String>> imageInfos = s3Uploader.uploadMultiple(images);
 
-            List<Image> storedImages = imageFileNames.stream()
-                    .map(imageName -> Image.ofBoard(board, imageName))
+            List<Image> storedImages = imageInfos.stream()
+                    .map(imageInfo -> Image.ofBoard(board, imageInfo.get("imageUrl"), imageInfo.get("imageName")))
                     .toList();
 
             board.addAllImage(storedImages);
@@ -67,18 +69,22 @@ public class BoardService {
         Board board = findBoardById(id);
         validateUserAuthorization(user, board);
 
+        board.updateBoard(requestDTO.title(), requestDTO.content());
+        log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
 
-        if (images != null && !images.isEmpty()) {
-            List<String> imageNames = imageService.storeFiles(images);
-            List<Image> imageList = imageNames.stream()
-                    .map(imageName -> Image.ofBoard(board, imageName))
-                    .toList();
-            board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
-            log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
-        } else {
-            board.updateBoard(requestDTO.title(), requestDTO.content());
-            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
-        }
+
+//        if (images != null && !images.isEmpty()) {
+////            s3Uploader.updateFile(images)
+//            List<String> imageNames = imageService.storeFiles(images);
+//            List<Image> imageList = imageNames.stream()
+//                    .map(imageName -> Image.ofBoard(board, imageName))
+//                    .toList();
+//            board.updateBoard(requestDTO.title(), requestDTO.content(), imageList);
+//            log.info("식별자: {}, 게시글 수정 완료-이미지 o", id);
+//        } else {
+//            board.updateBoard(requestDTO.title(), requestDTO.content());
+//            log.info("식별자: {}, 게시글 수정 완료-이미지 x", id);
+//        }
     }
 
     /* 게시물 삭제 메서드 */
@@ -87,11 +93,15 @@ public class BoardService {
         Board board = findBoardById(id);
         validateUserAuthorization(user, board);
 
-        List<String> imageNames = board.getImageList().stream()
+        List<String> fileNames = board.getImageList().stream()
                 .map(i -> i.getImageName())
                 .toList();
 
-        imageService.deleteFiles(imageNames); // 이미지 폴더에서 이미지 삭제
+        // S3에서 이미지 파일 삭제
+        for (String fileName : fileNames) {
+            s3Uploader.deleteFile(fileName); // S3에서 파일 삭제
+        }
+
         boardRepository.deleteById(id);
         log.info("식별자: {}, 게시물 삭제 완료", id);
     }

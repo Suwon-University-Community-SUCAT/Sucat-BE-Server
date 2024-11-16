@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.Sucat.domain.board.dto.BoardDto.*;
@@ -31,7 +32,7 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Object>> createBoard(
             @RequestPart(name = "request") @Valid BoardPostRequest boardPostRequestDTO,
             @RequestPart(name = "images", required = false) List<MultipartFile> images,
-            @CurrentUser User user) {
+            @CurrentUser User user) throws IOException {
 
         boardService.createBoard(boardPostRequestDTO.toEntity(), user, images);
         return ApiResponse.onSuccess(SuccessCode._CREATED);

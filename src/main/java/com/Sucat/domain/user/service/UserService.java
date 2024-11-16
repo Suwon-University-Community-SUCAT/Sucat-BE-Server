@@ -105,7 +105,7 @@ public class UserService {
                 user.updateUserImage(userImage);
             } else {
                 // 기존 이미지 객체의 URL만 변경
-                userImage.updateImageName(imageName);
+                userImage.updateImageUrl(imageName);
             }
         }
     }
