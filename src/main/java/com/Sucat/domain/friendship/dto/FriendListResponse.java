@@ -16,5 +16,5 @@ public class FriendListResponse {
     private String friendNickname;
     private Department department;
     private String intro;
-    private String profileImageName;
+    private String profileImageUrl;
 }
