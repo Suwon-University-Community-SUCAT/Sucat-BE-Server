@@ -43,16 +43,17 @@ public class Image {
         this.imageUrl = imageUrl;
     }
 
-    public void updateFileName(String imageName) {
+    public void updateImageName(String imageName) {
         this.imageName = imageName;
     }
 
     /* 연관관계 메서드 */
-    public static Image ofUser(User user, String imageUrl) {
+    public static Image ofUser(User user, String imageUrl, String imageName) {
 
         return Image.builder()
                 .user(user) //연관관계 설정
                 .imageUrl(imageUrl)
+                .imageName(imageName)
                 .build();
 
     }

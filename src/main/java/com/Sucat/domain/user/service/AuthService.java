@@ -1,12 +1,10 @@
 package com.Sucat.domain.user.service;
 
 import com.Sucat.domain.image.model.Image;
-import com.Sucat.domain.image.service.ImageService;
-import com.Sucat.domain.token.repository.TokenRepository;
+import com.Sucat.domain.image.service.S3Uploader;
 import com.Sucat.domain.user.exception.UserException;
 import com.Sucat.domain.user.model.User;
 import com.Sucat.global.common.code.ErrorCode;
-import com.Sucat.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,15 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
-    private final TokenRepository tokenRepository;
-    private final JwtUtil jwtUtil;
     private final UserService userService;
-    private final ImageService imageService;
+    private final S3Uploader s3Uploader;
 
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -39,8 +36,8 @@ public class AuthService {
         user.updatePassword(passwordEncoder.encode(user.getPassword()));
 
         if (image != null && !image.isEmpty()) {
-            String imageName = imageService.storeFile(image);
-            Image userImage = Image.ofUser(user, imageName);
+            Map<String, String> imageInfo = s3Uploader.upload(image);
+            Image userImage = Image.ofUser(user, imageInfo.get("imageUrl"), imageInfo.get("imageName"));
             user.updateUserImage(userImage);
         }
     }
