@@ -33,7 +33,7 @@ public class HomeController {
 
     @PostMapping("/upload")
     public String upload(@RequestParam("data") MultipartFile multipartFile) throws IOException {
-        return s3Uploader.upload(multipartFile, "image");
+        return s3Uploader.upload(multipartFile);
     }
 
 }

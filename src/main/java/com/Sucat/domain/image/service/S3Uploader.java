@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -20,13 +22,15 @@ public class S3Uploader {
 
     private final AmazonS3 amazonS3;
     private final String bucket;
+    private final String dirName = "image";
 
 
     public S3Uploader(AmazonS3 amazonS3) {
         this.amazonS3 = amazonS3;
         this.bucket = "sucat-file";
     }
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
+
+    public String upload(MultipartFile multipartFile) throws IOException {
         // 파일 이름에서 공백을 제거한 새로운 파일 이름 생성
         String originalFileName = multipartFile.getOriginalFilename();
 
@@ -41,6 +45,17 @@ public class S3Uploader {
         String uploadImageUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
         return uploadImageUrl;
+    }
+
+    public List<String> uploadMultiple(List<MultipartFile> multipartFiles) throws IOException {
+        List<String> uploadImageUrls = new ArrayList<>();
+
+        for (MultipartFile multipartFile : multipartFiles) {
+            String uploadImageUrl = upload(multipartFile);
+            uploadImageUrls.add(uploadImageUrl);
+        }
+
+        return uploadImageUrls;
     }
 
     private File convert(MultipartFile file) throws IOException {
