@@ -32,7 +32,7 @@
 ## 2. 💁‍♂️ 프로젝트 팀원
 |Backend 팀장|Backend 팀원|Backend 팀원|
 |:---:|:---:|:---:|
-| ![](https://github.com/pp8817.png?size=120) | ![]() | ![]()|
+| ![](https://github.com/pp8817.png?size=180) | ![]() | ![]()|
 |[박상민](https://github.com/yewon-Noh)|[정아름](https://github.com/armddi)|[김지현](https://github.com/Jihyeon02)|
 
 ## 3. 💡 주요 기능
@@ -83,7 +83,6 @@
 <br />
 
 ## 6. ⚙ 기술 스택
-> skills 폴더에 있는 아이콘을 이용할 수 있습니다.
 ### Back-end
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Java.png?raw=true" width="80">
@@ -106,10 +105,10 @@
 ### Tools
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Github.png?raw=true" width="80">
+<img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Postman.png?raw=true" width="80">
+<img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Figma.png?raw=true" width="80">
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Notion.png?raw=true" width="80">
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Discord.png?raw=true" width="80">
-<img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Figma.png?raw=true" width="80">
-<img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Postman.png?raw=true" width="80">
 </div>
 
 <br />
@@ -140,7 +139,7 @@ docs: 문서를 수정한 경우
 test: 테스트 추가, 테스트 리팩토링의 경우
 chore: 빌드 태스트 업데이트, 패키지 매니저를 설정한 경우
 rename: 파일 혹은 폴더명을 수정하거나 옮기는 경우
-remove: 파일을 삭제하는 경우
+remove: 파일을 삭제하는 경우
 style: 코드 포맷 변경, 코드 수정이 없는 경우
 !BREAKING CHANGE!: 커다란 API 변경의 경우
 ```
@@ -153,7 +152,7 @@ feat: 로그인 기능 구현
 Email 중복확인 api 개발
 
 == ex2
-fix: 사용자 정보 누락 버그 해결
+fix: 사용자 정보 누락 버그 해결
 
 사용자 서비스 코드 수정
 ```
