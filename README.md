@@ -33,7 +33,7 @@
 |Backend 팀장|Backend 팀원|Backend 팀원|
 |:---:|:---:|:---:|
 | ![](https://github.com/pp8817.png?size=180) | ![]() | ![]()|
-|[박상민](https://github.com/yewon-Noh)|[정아름](https://github.com/armddi)|[김지현](https://github.com/Jihyeon02)|
+|[박상민](https://github.com/pp8817)|[정아름](https://github.com/armddi)|[김지현](https://github.com/Jihyeon02)|
 
 ## 3. 💡 주요 기능
 - 자체 회원가입/로그인:
