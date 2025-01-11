@@ -34,6 +34,7 @@
 |:---:|:---:|:---:|
 | ![](https://github.com/pp8817.png?size=180) | ![]() | ![]()|
 |[박상민](https://github.com/pp8817)|[정아름](https://github.com/armddi)|[김지현](https://github.com/Jihyeon02)|
+|자체 회원가입/로그인<br>친구 CURD API<br>1:1 채팅 API<br>실시간 알림 API<br>게임 CURD API<br> 마이페이지 API|커뮤니티 CURD API|커뮤니티 CURD API|
 
 ## 3. 💡 주요 기능
 - 자체 회원가입/로그인:
