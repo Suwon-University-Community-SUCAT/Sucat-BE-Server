@@ -63,7 +63,7 @@ public class UserController {
         return ApiResponse.onSuccess(SuccessCode._OK);
     }
 
-    /* 나의 프로필 보가 */
+    /* 나의 프로필 보기 */
     @GetMapping("/myProfile")
     public ResponseEntity<ApiResponse<Object>> myProfile(
             @CurrentUser User user
